@@ -80,16 +80,15 @@ This program was created simply as a tool to facilitate the comparison of CRE in
 {phang}{stata "replace headroom=round(headroom)"}{p_end}
 {phang}{stata "replace price=price/1000"}{p_end}
 
-{pstd} For nonlinear models:
+{pstd} For nonlinear models:{p_end}
 {phang}{stata "qreg mpg price foreign i.headroom, nolog q(10)"}{p_end}
 {phang}{stata "cre, abs(headroom): qreg mpg price foreign  , nolog q(10)" }{p_end}
 
 {phang}{stata "logit foreign  mpg price i.headroom"}{p_end}
-{phang}{stata "cre, abs(headroom): logit foreign  mpg price  " }{p_end}
+{phang}{stata "cre, abs(headroom): logit foreign  mpg price"} 
 
-
-
-{marker Also see}{...}
+{marker Alsosee}{...}
 {title:Also see}
+Help: {help reghdfe}
 
-{phang} {help reghdfe}
+Thanks
