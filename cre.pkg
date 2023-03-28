@@ -17,5 +17,5 @@ d
 d Author: Fernando Rios-Avila, Levy Economics Institute of Bard College
 d Support: f.rios.a@gmail.com
 d
-p cre/cre.ado
-p cre/cre.sthlp
+f cre/cre.ado
+f cre/cre.sthlp
