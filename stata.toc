@@ -1,3 +1,10 @@
+v 1
+d Stata Program Repository
+d Fernando Rios-Avila
+d Levy Economics Institute
+d Also See my homepage for other resources: https://friosavila.github.io/
+d 
+d 
 p cre Module for the estimation of Correlated Random Effects models
 p csdid Module for the implementation of Callaway and Sant'Anna 2021
 p csdid2 Module for the implementation of Callaway and Sant'Anna 2021. V2
