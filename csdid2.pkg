@@ -1,0 +1,20 @@
+d 'CSDID2': Module for the estimation of Callaway and Sant'Anna 2021
+d 
+d This module is an upgrade over CSDID. 
+d 1st is a self contained module, and no longer requries DRDID
+d Its faster, as its fully programmed in Mata
+d The program still needs a helpfile, but most options are 
+d similar to the ones in csdid
+d 
+d KW: DID
+d 
+d Requires: Stata 14 or above
+d
+d Distribution data: 20230328
+d
+F csdid2.ado
+F csdid2_clean.ado
+F csdid2_estat.ado
+F csdid2_plot.ado
+F drdid.mata
+F lcsdid.mlib
