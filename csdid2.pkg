@@ -12,9 +12,9 @@ d Requires: Stata 14 or above
 d
 d Distribution data: 20230328
 d
-F csdid2.ado
-F csdid2_clean.ado
-F csdid2_estat.ado
-F csdid2_plot.ado
-F drdid.mata
-F lcsdid.mlib
+F csdid2/csdid2.ado
+F csdid2/csdid2_clean.ado
+F csdid2/csdid2_estat.ado
+F csdid2/csdid2_plot.ado
+F csdid2/drdid.mata
+F csdid2/lcsdid.mlib
