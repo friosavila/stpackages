@@ -1,0 +1,21 @@
+d 'CRE': Module for the estimation of Correlated Random Effects models
+d 
+d This package aims to provide an easy to implement program for
+d the estimation of CRE models.
+d It is a prefix type of program that you indicate the levels
+d desired of fixed effects for any model of interest.
+d It will obtain the averages for all explanatory variables, and integrate them
+d in the model specification.
+d 
+d KW: Panel data
+d KW: fixed effects
+d 
+d Requires: Stata 13 or above
+d
+d Distribution data: 20230328
+d
+d Author: Fernando Rios-Avila, Levy Economics Institute of Bard College
+d Support: f.rios.a@gmail.com
+d
+p cre/cre.ado
+p cre/cre.sthlp
