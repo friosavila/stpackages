@@ -1,0 +1,25 @@
+d TITLE
+d      'JWDID': Module for the estimation of Difference-in-Difference using Mundlak approach.
+d
+d DESCRIPTION/AUTHOR(S)
+d      
+d    'JWDID' is a command that implements the estimation approch proposed by Wooldridge (2021), based on the Mundlak approach.
+d    The main idea of JWDID is that consistent estimations for ATT's can be obtained by allowing for full cohort and timing heterogeneity, by simply adding cohort/year interactions in them main model.
+d	One advantage over other estimators, is that it can also be applied using methods other than linear regressions, including counte models (poisson) or binomial models (logit).
+d    Aggregations are obtained using margins.
+d	      
+d      KW: Differences in Differences
+d      KW: DID
+d      KW: Event Studies
+d      KW: jwdid
+d      
+d      Requires: Stata version 14, rehdfe
+d      
+d      Author:  Fernando Rios-Avila, Levy Economics Institute of Bard College
+d      Support: email  friosavi@levy.org
+d
+F jwdid.ado
+F jwdid_estat.ado; 
+F jwdid.sthlp
+F jwdid_plot.sthlp
+F jwdid_postestimation.sthlp
