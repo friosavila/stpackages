@@ -1,0 +1,42 @@
+d 'CSDID': module for the estimation of Difference-in-Difference models with multiple time periods
+d
+d  CSDID implements Callaway and Sant'Anna (2020) estimator for DID
+d models with multiple time periods. The main idea of CSDID is that
+d consistent estimations for ATT's can be obtained by ignoring 2x2
+d DID design that compare late treated units with earlier treated
+d units. In the presence of heterogeneous and dynamic effects, this
+d type of comparison can severely bias the estimation of Treatment
+d effects. CSDID at its core uses DRDID for the estimation of all
+d 2x2 DID designs to estimate all relevant ATTGT's (Average
+d treatment effects of the treated for group G at time T). Post
+d estimation commands can be used to obtain important aggregations.
+d CSDID can be used with panel data and repeated cross-section.  
+d
+d KW: difference in differences
+d KW: DID
+d KW: event studies
+d KW: drdid
+d
+d Requires: Stata version 14 and drdid from SSC (q.v.)
+d
+d Distribution-Date: 20230225
+d
+d Author: Fernando Rios-Avila, Levy Economics Institute of Bard College
+d Support: email friosavi@@levy.org
+d
+d Author: Pedro H.C. Sant'Anna, Vanderbilt University
+d Support: email pedro.h.santanna@@vanderbilt.edu
+d
+d Author: Brantly Callaway, University of Georgia
+d Support: email brantly.callaway@@uga.edu
+d
+f csdid/csdid.ado
+f csdid/csdid_estat.ado
+f csdid/csdid_rif.ado
+f csdid/csdid_stats.ado
+f csdid/csdid_table.ado
+f csdid/csdid_plot.ado
+f csdid/_gcsgvar.ado
+f csdid/tsvmat.ado
+f csdid/csdid.sthlp
+f csdid/csdid_postestimation.sthlp

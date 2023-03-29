@@ -1,0 +1,62 @@
+	(1)
+VARIABLES	ln_wage
+	
+age	0.0360**
+	(0.0174)
+c.age#c.age	-0.0007***
+	(0.0003)
+ttl_exp	0.0335**
+	(0.0149)
+c.ttl_exp#c.ttl_exp	0.0002
+	(0.0006)
+tenure	0.0358***
+	(0.0089)
+c.tenure#c.tenure	-0.0020***
+	(0.0006)
+not_smsa	-0.0890*
+	(0.0483)
+south	-0.0606
+	(0.0565)
+Constant	1.0375***
+	(0.2489)
+age	-0.0101
+	(0.0166)
+c.age#c.age	0.0002
+	(0.0003)
+ttl_exp	-0.0080
+	(0.0142)
+c.ttl_exp#c.ttl_exp	0.0004
+	(0.0006)
+tenure	-0.0101
+	(0.0085)
+c.tenure#c.tenure	0.0004
+	(0.0006)
+not_smsa	-0.0053
+	(0.0460)
+south	-0.0068
+	(0.0539)
+Constant	0.3372
+	(0.2373)
+age	0.0353*
+	(0.0184)
+c.age#c.age	-0.0007**
+	(0.0003)
+ttl_exp	0.0329**
+	(0.0157)
+c.ttl_exp#c.ttl_exp	0.0002
+	(0.0007)
+tenure	0.0351***
+	(0.0094)
+c.tenure#c.tenure	-0.0019***
+	(0.0006)
+not_smsa	-0.0894*
+	(0.0511)
+south	-0.0611
+	(0.0598)
+Constant	1.0603***
+	(0.2626)
+	
+Observations	27,541
+ID FEs	Yes
+Standard errors in parentheses	
+*** p<0.01, ** p<0.05, * p<0.1	
