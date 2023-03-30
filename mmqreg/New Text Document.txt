@@ -1,0 +1,5 @@
+Found an error. 
+cuando hago mmqreg para una base grande me da error 
+de dimension.
+Pero no cuando lo hago con FE.
+Talvez haya algo raro ahi.

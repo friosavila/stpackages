@@ -1,0 +1,4 @@
+To do:
+Add weights to vc_predict vc_reg and vc_preg
+I think i only need to do it with predict. need to figure out right way to count observations
+\sum(w_i/E(w_i))

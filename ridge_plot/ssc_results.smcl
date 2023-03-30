@@ -1,0 +1,192 @@
+{smcl}
+
+{txt}{net "from http://repec.org/bocode":SSC} Stata modules created or revised 2022-03-11 to 2022-04-11
+{hline}
+
+{net "describe http://repec.org/bocode/b/bimap":BIMAP}
+{txt} module to produce bivariate maps{txt} Authors: Asjad Naqvi       Req: Stata version 15 and spmap, palettes, colrspace from SSC (q.v.)
+{txt} Created: 2022-04-11
+
+{net "describe http://repec.org/bocode/c/color_style":COLOR_STYLE}
+{txt} module to change the colors in the current scheme{txt} Authors: Fernando Rios-Avila       Req: Stata version 14 and palettes, colrspace, grstyle from SSC (q.v.)
+{txt} Created: 2022-04-10
+
+{net "describe http://repec.org/bocode/j/joyplot":JOYPLOT}
+{txt} module to produce joyplots or ridgeline plots{txt} Authors: Asjad Naqvi       Req: Stata version 15 and palettes, colrspace from SSC
+{txt} Revised: 2022-04-11
+
+{net "describe http://repec.org/bocode/s/streamplot":STREAMPLOT}
+{txt} module to produce streamplots{txt} Authors: Asjad Naqvi       Req: Stata version 15 and palettes, colrspace from SSC
+{txt} Revised: 2022-04-11
+
+{net "describe http://repec.org/bocode/w/waffle":WAFFLE}
+{txt} module to produce waffle charts using percent or proportion variables{txt} Authors: Jared Colston       Req: Stata version 17
+{txt} Created: 2022-04-04
+
+{net "describe http://repec.org/bocode/s/sdid":SDID}
+{txt} module to perform synthetic difference-in-differences estimation, inference, and visualization{txt} Authors: Daniel Pailañir  Damian Clarke       Req: Stata version 13
+{txt} Created: 2022-04-04
+
+{net "describe http://repec.org/bocode/f/fframeappend":FFRAMEAPPEND}
+{txt} module to append data frame to currently active data frame{txt} Authors: Jürgen Wiemers       Req: Stata version 16
+{txt} Revised: 2022-04-04
+
+{net "describe http://repec.org/bocode/m/manski_ci":MANSKI_CI}
+{txt} module to use Manski type bounds (Manski 2003) to calculate confidence intervals around a treatment variable's regression coefficient in a (covariate-adjusted) regression{txt} Authors: John Ternovski       Req: Stata version 13.1
+{txt} Created: 2022-03-26
+
+{net "describe http://repec.org/bocode/c/c_ml_stata_cv":C_ML_STATA_CV}
+{txt} module to implement machine learning classification in Stata{txt} Authors: Giovanni Cerulli       Req: Stata version 16.1 
+{txt} Created: 2022-03-22
+
+{net "describe http://repec.org/bocode/r/r_ml_stata_cv":R_ML_STATA_CV}
+{txt} module to implement machine learning regression in Stata{txt} Authors: Giovanni Cerulli       Req: Stata version 16.1 
+{txt} Created: 2022-03-22
+
+{net "describe http://repec.org/bocode/x/xtnumfac":XTNUMFAC}
+{txt} module to estimate the number of factors in panel data{txt} Authors: Jan Ditzen  Simon Reese       Req: Stata version 11.2
+{txt} Created: 2022-03-15
+
+{net "describe http://repec.org/bocode/i/inclusion_economics_scheme":INCLUSION_ECONOMICS_SCHEME}
+{txt} module to provide a graphic scheme for Inclusion Economics branded data{txt} Authors:  Nils Enevoldsen       Req: Stata version 8
+{txt} Revised: 2022-03-15
+
+{net "describe http://repec.org/bocode/r/recol":RECOL}
+{txt} module to Dynamically Resize Columns in Stata's Data Browser {txt} Authors: Tyson Van Alfen       Req: Stata version 10
+{txt} Revised: 2022-03-15
+
+{net "describe http://repec.org/bocode/t/testout":TESTOUT}
+{txt} module to execute diagnostic testing of outliers{txt} Authors: Yuya Sasaki  Yulong Wang       Req: Stata version 14.2
+{txt} Revised: 2022-03-31
+
+{net "describe http://repec.org/bocode/p/panelview":PANELVIEW}
+{txt} module to visualize panel data{txt} Authors:     Hongyu Mou     Yiqing Xu       Req: Stata version 15.1 and labutil, sencode from SSC (q.v.), gr0075 from SJ, grc1leg
+{txt} Revised: 2022-03-31
+
+{net "describe http://repec.org/bocode/i/inshell":INSHELL}
+{txt} module to send commands to the shell as well as capture and print their standard output, standard error, and native shell return codes{txt} Authors: Matthew Bryant Hall       Req: Stata version 10
+{txt} Revised: 2022-03-15
+
+{net "describe http://repec.org/bocode/r/robit":ROBIT}
+{txt} module to estimate robit regression for binary outcomes{txt} Authors: Roger Newson  Milena Falcaro       Req: Stata version 16 and xlink from SSC (q.v.)
+{txt} Revised: 2022-04-09
+
+{net "describe http://repec.org/bocode/x/xtmoran":XTMORAN}
+{txt} module to calculate Moran's I and Moran's Ii statistics for panel data and displaying a Moran scatterplot{txt} Authors: Chen  Zihou  Liu Xiangge  Xu Jiahui       Req: Stata version 11
+{txt} Revised: 2022-03-26
+
+{net "describe http://repec.org/bocode/d/drdid":DRDID}
+{txt} module for the estimation of Doubly Robust Difference-in-Difference models{txt} Authors: Fernando Rios-Avila  Pedro H.C. Sant'Anna   Asjad Naqvi       Req: Stata version 14 
+{txt} Revised: 2022-04-09
+
+{net "describe http://repec.org/bocode/c/csdid":CSDID}
+{txt} module for the estimation of Difference-in-Difference models with multiple time periods{txt} Authors: Fernando Rios-Avila  Pedro H.C. Sant'Anna  Brantly Callaway       Req: Stata version 14 and drdid from SSC (q.v.)
+{txt} Revised: 2022-03-16
+
+{net "describe http://repec.org/bocode/m/mvdcmp":MVDCMP}
+{txt} module to compute multivariate decomposition for nonlinear response models{txt} Authors: Daniel A. Powers   Hirotoshi Yoshioka    Myeong-Su Yun       Req: Stata version 15
+{txt} Revised: 2022-04-09
+
+{net "describe http://repec.org/bocode/r/robustate":ROBUSTATE}
+{txt} module for estimation and inference for the average treatment effect (ATE) robustly against the limited overlap{txt} Authors: Yuya Sasaki  Takuya Ura       Req: Stata version 14.2
+{txt} Revised: 2022-03-15
+
+{net "describe http://repec.org/bocode/s/songbl":SONGBL}
+{txt} module to search and share Stata resources and blogs{txt} Authors: Song Bolin       Req: Stata version 16 and the ability to read Chinese
+{txt} Revised: 2022-04-09
+
+{net "describe http://repec.org/bocode/n/npss":NPSS}
+{txt} module to estimate nonparametric heteroskedastic state space models{txt} Authors:  Irene Botosaru  Yuya Sasaki       Req: Stata version 14.2
+{txt} Revised: 2022-03-18
+
+{net "describe http://repec.org/bocode/s/sgpv":SGPV}
+{txt} module to calculate Second-Generation P-Value(s) (SGPV) and their associated diagnosis{txt} Authors: Sven-Kristjan Bormann       Req: Stata version 12
+{txt} Revised: 2022-03-15
+
+{net "describe http://repec.org/bocode/m/mmqreg":MMQREG}
+{txt} module to estimate quantile regressions via Method of Moments{txt} Authors: Fernando Rios-Avila       Req: Stata version 13 and hdfe, ftools from SSC (q.v.)
+{txt} Revised: 2022-03-15
+
+{net "describe http://repec.org/bocode/s/stpp":STPP}
+{txt} module to compute Pohar-Perme non-parametric estimate of marginal relative (net) survival{txt} Authors: Paul Lambert       Req: Stata version 16
+{txt} Revised: 2022-04-09
+
+{net "describe http://repec.org/bocode/r/rforest":RFOREST}
+{txt} module to implement Random Forest algorithm{txt} Authors: Rosie Yuyan Zou  Matthias Schonlau       Req: Stata version 15
+{txt} Revised: 2022-03-31
+
+{net "describe http://repec.org/bocode/c/colrspace":COLRSPACE}
+{txt} module providing a class-based color management system in Mata{txt} Authors: Ben Jann       Req: Stata version 14.2 
+{txt} Revised: 2022-04-04
+
+{net "describe http://repec.org/bocode/s/svmachines":SVMACHINES}
+{txt} module providing Support Vector Machines for both Classification and Regression{txt} Authors: Nick Guenther  Matthias Schonlau       Req: Stata version 13
+{txt} Revised: 2022-03-21
+
+{net "describe http://repec.org/bocode/a/ardl":ARDL}
+{txt} module to perform autoregressive distributed lag model estimation{txt} Authors: Sebastian Kripfganz  Daniel C. Schneider       Req: Stata version 11.2
+{txt} Revised: 2022-03-31
+
+{net "describe http://repec.org/bocode/c/cv2":CV2}
+{txt} module to calculate the coefficient of variation for variables{txt} Authors: Lorenz Graf-Vlachy       Req: Stata version 9
+{txt} Revised: 2022-03-15
+
+{net "describe http://repec.org/bocode/m/merlin":MERLIN}
+{txt} module to fit mixed effects regression for linear and non-linear models{txt} Authors: Michael J. Crowther       Req: Stata version 15.1
+{txt} Revised: 2022-03-18
+
+{net "describe http://repec.org/bocode/i/icio":ICIO}
+{txt} module for Economic Analysis with Inter-Country Input-Output tables{txt} Authors: Federico Belotti  Alessandro Borin  Michele Mancini       Req: Stata version 14
+{txt} Revised: 2022-04-09
+
+{net "describe http://repec.org/bocode/x/xtsfkk":XTSFKK}
+{txt} module to estimate endogenous panel stochastic frontier models in the style of Karakaplan and Kutlu{txt} Authors: Mustafa Ugur Karakaplan       Req: Stata version 15 and estout from SSC (q.v.)
+{txt} Revised: 2022-03-21
+
+{net "describe http://repec.org/bocode/p/palettes":PALETTES}
+{txt} module to provide color palettes, symbol palettes, and line pattern palettes{txt} Authors: Ben Jann       Req: Stata version 14.2 and colrspace from SSC (q.v.); (version 9.2 for colorpalette9)
+{txt} Revised: 2022-04-04
+
+{net "describe http://repec.org/bocode/w/wyoung":WYOUNG}
+{txt} module to perform multiple testing corrections{txt} Authors: Julian Reif       Req: Stata version 12
+{txt} Revised: 2022-03-21
+
+{net "describe http://repec.org/bocode/x/xtgcause":XTGCAUSE}
+{txt} module to test for Granger non-causality in heterogeneous panels{txt} Authors: Luciano Lopez  Sylvain Weber       Req: Stata version 13.1
+{txt} Revised: 2022-03-31
+
+{net "describe http://repec.org/bocode/b/boottest":BOOTTEST}
+{txt} module to provide fast execution of the wild bootstrap with null imposed{txt} Authors: David Roodman       Req: Stata version 13
+{txt} Revised: 2022-04-09
+
+{net "describe http://repec.org/bocode/s/ssccount":SSCCOUNT}
+{txt} module to download ssc hits over time for user-written packages{txt} Authors: Tim Morris       Req: Stata version 14
+{txt} Revised: 2022-03-31
+
+{net "describe http://repec.org/bocode/t/tex3pt":TEX3PT}
+{txt} module to produce LaTeX documents from estout with threeparttable{txt} Authors: Derek Wolfson       Req: Stata version 12, estout package and chewfile package from SSC (q.v.)
+{txt} Revised: 2022-04-04
+
+{net "describe http://repec.org/bocode/s/survsim":SURVSIM}
+{txt} module to simulate complex survival data{txt} Authors: Michael J. Crowther       Req: Stata version 14.2
+{txt} Revised: 2022-03-15
+
+{net "describe http://repec.org/bocode/c/cmp":CMP}
+{txt} module to implement conditional (recursive) mixed process estimator{txt} Authors: David Roodman       Req: Stata version 13 and package ghk2 (q.v.)
+{txt} Revised: 2022-03-26
+
+{net "describe http://repec.org/bocode/e/estout":ESTOUT}
+{txt} module to make regression tables{txt} Authors: Ben Jann       Req: Stata version 8.2
+{txt} Revised: 2022-03-26
+
+{net "describe http://repec.org/bocode/i/ivhettest":IVHETTEST}
+{txt} module to perform Pagan-Hall and related heteroskedasticity tests after IV {txt} Authors: Mark E Schaffer       Req: Stata version 7.0
+{txt} Revised: 2022-03-18
+
+{net "describe http://repec.org/bocode/t/tabplot":TABPLOT}
+{txt} module to show table of frequencies as table of bars {txt} Authors: Nicholas J. Cox       Req: Stata version 8.0 (6.0 for tabplot6)
+{txt} Revised: 2022-04-09
+
+{hline}
+{txt} End of recent additions and updates
+

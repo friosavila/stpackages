@@ -1,0 +1,4 @@
+Add a rifhdreg_estat
+para poder hacer bootstrap.
+
+Modify rifvar. 

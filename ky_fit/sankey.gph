@@ -1,0 +1,861 @@
+StataFileTM:00001:01000:LiveGPH:                       :
+00007:00007:
+*! classname: twowaygraph_g
+*! family: twoway
+*! command: twoway (rarea yy0_1 yy1_1 xx_1, color("navy%70") pstyle() lwidth(none)) (rarea yy0_2 yy1_2 xx_2, color("navy%70") pstyle() lwidth(none)) (rarea yy0_3 yy1_3 xx_3, color("maroon%70") pstyle() lwidth(none)) (rarea yy0_4 yy1_4 xx_4, color("maroon%70") pstyle() lwidth(none)) (rarea yy0_5 yy1_5 xx_5, color("maroon%70") pstyle() lwidth(none)) (rarea yy0_6 yy1_6 xx_6, color("navy%70") pstyle() lwidth(none)) (rarea yy0_7 yy1_7 xx_7, color("navy%50") pstyle() lwidth(none)) (rarea yy0_8 yy1_8 xx_8, color("maroon%50") pstyle() lwidth(none)) (rarea yy0_9 yy1_9 xx_9, color("maroon%50") pstyle() lwidth(none)) (rarea yy0_10 yy1_10 xx_10, color("maroon%50") pstyle() lwidth(none)) (rarea yy0_11 yy1_11 xx_11, color("navy%50") pstyle() lwidth(none)) (rarea yy0_12 yy1_12 xx_12, color("navy%50") pstyle() lwidth(none)) (rarea yy0_13 yy1_13 xx_13, color("maroon%30") pstyle() lwidth(none)) (rarea yy0_14 yy1_14 xx_14, color("maroon%30") pstyle() lwidth(none)) (rarea yy0_15 yy1_15 xx_15, color("maroon%30") pstyle() lwidth(none)) (rarea yy0_16 yy1_16 xx_16, color("navy%30") pstyle() lwidth(none)) (rarea yy0_17 yy1_17 xx_17, color("navy%30") pstyle() lwidth(none)) (rarea yy0_18 yy1_18 xx_18, color("navy%30") pstyle() lwidth(none)) , legend(off) xlabel("") text(4.5 1 "R-I" 9 1 "R-II" 13.5 1 "R-III", placement(w) ) text(4.5 3 "S-I" 9 3 "S-II" 13.5 3 "S-III", placement(e) ) ylabel("") xscale(r(0.75 3.25)) text(2 2 "C-1" 4 2 "C-2" 6 2 "C-3" 8 2 "C-4" 10 2 "C-5" 12 2 "C-6" 14 2 "C-7" 16 2 "C-8" 18 2 "C-9", box)
+*! command_date: 14 Mar 2022
+*! command_time: 12:14:22
+*! datafile: 
+*! datafile_date: 
+*! scheme: white_tableau
+*! naturallywhite: 1
+*! xsize: 6
+*! ysize: 4
+*! end
+<BeginItem> serset K5537878 
+<BeginSerset>
+<BeginSeries>
+.name = `"yy0_1"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  1.934631943702698
+.max =  2.995033264160156
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_1"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  2.065861701965332
+.max =  3.126262903213501
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_1"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  1
+.max =  2
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_2"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  2.744057178497314
+.max =  3.126420736312866
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_2"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  5.256120681762695
+.max =  5.638484477996826
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_2"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  1
+.max =  2
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_3"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  1.934961676597595
+.max =  4.412211418151855
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_3"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  2.066191434860229
+.max =  4.543440818786621
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_3"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  2
+.max =  3
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_4"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  4.544816970825195
+.max =  7.979328632354736
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_4"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  4.584560871124268
+.max =  8.019072532653809
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_4"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  2
+.max =  3
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_5"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  4.585951805114746
+.max =  13.99608421325684
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_5"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  4.589402198791504
+.max =  13.99953556060791
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_5"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  2
+.max =  3
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_6"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  5.638615131378174
+.max =  5.816885471343994
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_6"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  6.004761219024658
+.max =  6.183031558990479
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_6"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  1
+.max =  2
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_7"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  7.980259418487549
+.max =  8.544150352478027
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_7"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  8.020003318786621
+.max =  8.583894729614258
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_7"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  1
+.max =  2
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_8"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  2.745035171508789
+.max =  7.329475879669189
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_8"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  5.25709867477417
+.max =  9.84153938293457
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_8"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  2
+.max =  3
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_9"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  9.619650840759277
+.max =  9.842554092407227
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_9"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  10.38045215606689
+.max =  10.60335540771484
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_9"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  2
+.max =  3
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_10"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  10.60465526580811
+.max =  15.96572685241699
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_10"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  10.67070579528809
+.max =  16.03177833557129
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_10"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  2
+.max =  3
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_11"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  8.584267616271973
+.max =  9.619358062744141
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_11"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  9.34506893157959
+.max =  10.38015937805176
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_11"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  1
+.max =  2
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_12"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  9.345431327819824
+.max =  11.94394969940186
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_12"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  9.45632266998291
+.max =  12.05484104156494
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_12"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  1
+.max =  2
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_13"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  5.818657398223877
+.max =  13.25493717193604
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_13"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  6.18480396270752
+.max =  13.62108325958252
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_13"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  2
+.max =  3
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_14"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  11.94494533538818
+.max =  13.62242412567139
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_14"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  12.05583572387695
+.max =  13.73331451416016
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_14"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  2
+.max =  3
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_15"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  13.73469638824463
+.max =  17.99419593811035
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_15"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  13.74432373046875
+.max =  18.00382232666016
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_15"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  2
+.max =  3
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_16"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  13.46056079864502
+.max =  13.99814987182617
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_16"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  13.46401119232178
+.max =  14.00160026550293
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_16"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  1
+.max =  2
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_17"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  13.46446895599365
+.max =  15.96639251708984
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_17"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  13.53051948547363
+.max =  16.03244209289551
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_17"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  1
+.max =  2
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy0_18"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  13.53097534179688
+.max =  17.99414825439453
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"yy1_18"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  13.540602684021
+.max =  18.00377464294434
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+<BeginSeries>
+.name = `"xx_18"'
+.label = `""'
+.format = `"%9.0g"'
+.type.set numeric
+.min =  1
+.max =  2
+.median = (.)
+.pct25 = (.)
+.pct75 = (.)
+.categories = (.)
+<EndSeries>
+.weight_id = (.)
+<BeginSersetData>
+sersetreadwrite 6      ˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛˛yy0_1 11                                                                                                                                              yy1_1 12                                                                                                                                              xx_1 013                                                                                                                                              yy0_2                                                                                                                                                 yy1_2                                                                                                                                                 xx_2                                                                                                                                                  yy0_3                                                                                                                                                 yy1_3                                                                                                                                                 xx_3                                                                                                                                                  yy0_4                                                                                                                                                 yy1_4                                                                                                                                                 xx_4                                                                                                                                                  yy0_5                                                                                                                                                 yy1_5                                                                                                                                                 xx_5                                                                                                                                                  yy0_6                                                                                                                                                 yy1_6                                                                                                                                                 xx_6                                                                                                                                                  yy0_7                                                                                                                                                 yy1_7                                                                                                                                                 xx_7                                                                                                                                                  yy0_8                                                                                                                                                 yy1_8                                                                                                                                                 xx_8                                                                                                                                                  yy0_9                                                                                                                                                 yy1_9                                                                                                                                                 xx_9                                                                                                                                                  yy0_10                                                                                                                                                yy1_10                                                                                                                                                xx_10                                                                                                                                                 yy0_11                                                                                                                                                yy1_11                                                                                                                                                xx_11                                                                                                                                                 yy0_12                                                                                                                                                yy1_12                                                                                                                                                xx_12                                                                                                                                                 yy0_13                                                                                                                                                yy1_13                                                                                                                                                xx_13                                                                                                                                                 yy0_14                                                                                                                                                yy1_14                                                                                                                                                xx_14                                                                                                                                                 yy0_15                                                                                                                                                yy1_15                                                                                                                                                xx_15                                                                                                                                                 yy0_16                                                                                                                                                yy1_16                                                                                                                                                xx_16                                                                                                                                                 yy0_17                                                                                                                                                yy1_17                                                                                                                                                xx_17                                                                                                                                                 yy0_18                                                                                                                                                yy1_18                                                                                                                                                xx_18                                                                                                                                                 %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                    %9.0g                                                       †@Ù˛?   Ä‚Ü @      ?   @‘Û@   ÄD@      ?   `öı˛?   `èá @       @   Ä‰-@    óV@       @   ¿X@   @å[@       @    Òç@    ‡@      ?    …Î@   ‡=
+ @      ?    ’ı@   ‡D@       @   ‡B=#@   † ¬$@       @   `ï5%@   ¿fW%@       @    %+!@   ‡¨∞"@      ?   `‹∞"@    £È"@      ?    NF@   @=Ω@       @   ‡œ„'@   Äñ(@       @    *x+@    }+@       @   †ŒÎ*@   ‡íÌ*@      ?   ‡ŒÌ*@   @†+@      ?    ‹+@   ‡…+@      ?    ‘ı@    ñ	@       @   ‡Ë	@   ‡Œç@       @   ¿¶@   ¿{,@      @    ’Í@   ‡√	 @      @   ¿˛˝+@    √ˇ+@      @   †}D@   †lª@       @   ‡ö!@   @Ù*!@       @    bQ@   @ﬁÆ#@      @   @cØ#@    Î4%@      @   ¿sÓ/@   †"0@      @   Ä=#@   @§¬$@       @   `M„'@    (@       @    áÇ*@   †˛=+@      @   `Æ>+@    uw+@      @   †É˛1@   Ä˙ 2@      @   Äˇ+@   ¿— ,@       @    ÀÓ/@    N0@       @   ÄÄ˛1@   `˜ 2@       @†Æ?@±H@  Ä?GH@wn¥@  Ä?”¨˜?{<@   @©Vˇ@N A   @ˆÔ_A˛_A   @âo¥@'¿@  Ä?◊¥A¢W	A  Ä?®Æ/@':®@   @ÍAU&A   @ûsAAÄA   @)Y	AgÖA  Ä?„ÜAMA  Ä?q2∫@ÍÈ≈@   @?A¥‰@A   @ÙèA‘êA   @u^WAólWA  Ä?wnWA}XA  Ä?‡~XAO¶XA  Ä?ß?@"H@UUÖ?çH@m¥@UUÖ?%–˜?$N@´™@kJˇ@ H A´™@1ﬂ_ASÌ_A´™@+p¥@§'¿@UUÖ?÷≥A†V	AUUÖ?Vœ/@J®@´™@}ÍAª&A´™@jAN<ÄA´™@[	A?áAUUÖ?ÖãA∫QAUUÖ?ÛL∫@l∆@´™@|!?A±Á@A´™@QèAêA´™@j_WAåmWAUUÖ?ÌrWAwÅXAUUÖ?‘ÜXACÆXAUUÖ?Ïì?@˝˘G@´™ä?¶H@ßi¥@´™ä?ò)¯?›z@UU@j+ˇ@Ä8 AUU@∏¥_A⁄¬_AUU@«q¥@@)¿@´™ä?J±AT	A´™ä?"0@·s®@UU@ÎAΩ&AUU@ﬁQA40ÄAUU@≠_	AÎãA´™ä?@óAu]A´™ä?ê∫@åG∆@UU@)?ADÔ@AUU@¥ÊèAk˙èAUU@ÿaWA˙oWA´™ä?8~WA¬åXA´™ä?˘öXAh¬XA´™ä?]g?@nÕG@  ê?ï˝G@ûa¥@  ê?»˘¯?ı‚@  @A„˛@k A  @ﬁQ_A `_A  @Üu¥@ˇ,¿@  ê?^´A(N	A  ê?æ‚0@2‘®@  @÷ÌA&A  @åAÄA  @çj	A ñA  ê?å≤A¡xA  ê?P,ª@»„∆@  @≠:?A„ AA  @U–èA‰èA  @}gWAüuWA  ê?ÄòWAßXA  ê?‹…XAKÒXA  ê??@!nG@UUï?8€G@oP¥@UUï?∑˙?ô¡@´™
+@ÏH˛@Åéˇ@´™
+@p~^Aíå^A´™
+@â}¥@5¿@UUï?≤ûA}A	AUUï?√~2@5¢©@´™
+@ÿÚA&A´™
+@°~A£ØA´™
+@ŒÅ	AÆAUUï?ÓÏA#≥AUUï?yzº@Ú1»@´™
+@^`?Aî&AA´™
+@z†èA2¥èA´™
+@ësWA¥ÅWAUUï?∑–WAAﬂXAUUï?#.YAíUYAUUï?æL>@œ≤F@´™ö?¨óG@™.¥@´™ö?H"˛?5w@UU@ê˝@&_˛@UU@€ﬁ\A˝Ï\AUU@Hç¥@¡D¿@´™ö?ÀÖAñ(	A´™ö?ù®5@"7´@UU@∞¸AÓ(&AUU@U¥}A‡¬~AUU@ÖØ	A√€A´™ö?∞_AÊ%A´™ö?Jø@√¬ @UU@s™?A©pAAUU@lBèA#VèAUU@OãWAqôWA´™ö?5?XA¿MYA´™ö??ÛYAÆZA´™ö?`˙<@q`E@  †?™G@®Ò≥@  †?ù'@Æç
+@  @ôı˙@/;¸@  @.YAP˛YA  @π©¥@2a¿@  †?œXAö˚A  †?z_;@ëÆ@  @xA∂:&A  @™|A4}A  @
+AU.A  †?˚.A0ıA  †?π≠√@2eœ@  @E0@AzˆAA  @ÜòéA>¨éA  @2∂WATƒWA  †?ÀYAVZA  †?JW[Aπ~[A  †?Æ»:@ø.C@UU•? SF@då≥@UU•?œG@‡≠@´™@˘g˜@é≠¯@´™@UA. UA´™@ÿ¥@iê¿@UU•?#AÓ∞AUU•?Ÿ€D@¿–≤@´™@˝+A;X&A´™@∫ByADQzA´™@*ã
+Ah∑AUU•?áALMAUU•?7_À@∞◊@´™@hAAû‘BA´™@~~çA6íçA´™@c˝WAÖXAUU•?RZAß`[AUU•?R¶]A¡Õ]AUU•?Ào7@‹’?@´™™?%E@ÊÒ≤@´™™?ü@∞@UU@L¸Ò@·AÛ@UU@•MA&≥MAUU@˜ µ@pÿ¿@´™™?8úA?A´™™?nTS@∫@UU@YACÖ&AUU@ØuA:vAUU@E\AÉàA´™™?
+îA?ZA´™™?√◊@<”‚@UU@KaBAÄ'DAUU@>–ãAˆ„ãAUU@˝iXAxXA´™™?åK\AZ]A´™™?¯+aAgSaA´™™?xæ2@â$;@  ∞?¯lC@O≤@  ∞?@(v"@  @“bÍ@g®Î@  @÷;CA¯ICA  @ÚÖµ@k=¡@  ∞?É¸ANüA  ∞?"ûg@Â1ƒ@  @'òAdƒ&A  @LoA◊'pA  @oÅA≠≠A  ∞?tA6:A  ∞?	êÁ@ÇGÛ@  @e<DAöFA  @uâA√àâA  @?YAaYA  ∞?'_A≤`A  ∞?fA{CfA  ∞?¨≤,@Ω5@UUµ?€>A@A±@UUµ?˜/(@ñ0@´™@Aò‡@◊›·@´™@ “5A"‡5A´™@∂@Üø¡@UUµ?æ.Aâ—AUUµ?ﬁ‡Ä@≤C—@´™@}ÈAª'A´™@ˇtgAäÉhA´™@&˚Ad'AUUµ?9(!AoÓ"AUUµ?(√¸@P=A´™@Ö†FAªfHA´™@‚kÜAôÜA´™@k∆YAç‘YAUUµ? °bA´ØcAUUµ?≥xlA!†lAUUµ?ä%@-@´™∫?™>@◊∑Ø@´™∫?TÈ8@eOA@UU@^ ’@ÙE÷@UU@.%AP˛%AUU@¢∂@ìY¬@´™∫?;AÂ›A´™∫?sZê@GΩ‡@UU@ÃIA
+v'AUU@¶h^A1w_AUU@a∫AüÊA´™∫?ˆä%A+Q'A´™∫?èÓ
+AK AUU@NuIAÑ;KAUU@∞”ÇAgÁÇAUU@±ÆZA”ºZA´™∫? ⁄fA´ËgA´™∫?tAá(tA´™∫?“ø@‚%&@  ¿?Ù⁄;@NPÆ@  ¿?
+K@ÇS@   @Êb»@|®…@   @®A%∂A   @ªI∑@3√@  ¿?˛1A»‘A  ¿?21°@îÒ@   @ô≤A÷ﬁ'A   @%êTAØûUA   @°ADÕA  ¿?ßP*A›,A  ¿?πñAurA   @˘âLA.PNA   @≈‘}A4¸}A   @p´[Aìπ[A  ¿?hrkAÚÄlA  ¿?t3|A‚Z|A  ¿?°ı@≤[@VU≈?‚9@ƒË¨@VU≈?¡N]@“¥e@´™"@n≈ª@Ω@´™"@÷_A¯mA´™"@[Ò∑@‘®√@VU≈?·(A´ÀAVU≈?Ú≤@c5A´™"@eA£G(A´™"@£∑JA.∆KA´™"@¨áAÍ≥AVU≈?Y/Aé‹0AVU≈?„>&A†,A´™"@£ûOAŸdQA´™"@+vAö)vA´™"@0®\AR∂\AVU≈?Ø
+pA:qAVU≈?Ë2ÇAüFÇAVU≈?¯Ã@	3@™™ ?w6@Zû´@™™ ?n@.nv@UU%@å-∞@!s±@UU%@¸Ê@PÁ@UU%@hã∏@·Bƒ@™™ ?=5AÿA™™ ?ÜÅ¡@-ÚAUU%@¥{AÚß(AUU%@J´AA’πBAUU%@ÁFA%s!A™™ ?y3AJ?5A™™ ?›À2Aöß8AUU%@lsRA¢9TAUU%@∆—nA5˘nAUU%@vê]Aòû]A™™ ?ØCtA:RuA™™ ?˜ÖA“
+ÜA™™ ?+¡@<'@  –?ÒH4@Lá™@  –?˛'|@GÇ@  (@˚b¶@ê®ß@  (@_(Ã@£DÃ@  (@Éπ@¸ƒƒ@  –?xgAC
+A  –?SìŒ@{A  (@ÕAH˘(A  (@˝:Aà;A  (@û¿A‹Ï"A  –?N-7AÉÛ8A  –?me=A*ACA  (@ç◊TA¬ùVA  (@søhA·ÊhA  (@¢T^Aƒb^A  –?®‘wA3„xA  –?m%âA%9âA  –?◊@Ëu@VU’?√ó2@µÆ©@VU’?<èÉ@D¬á@´™*@Å…û@†@´™*@V∑@Er∑@´™*@~rπ@˜)≈@VU’?√« AéjAVU’?.∏ÿ@ÅçA´™*@,Aj8)A´™*@ö4A$'5A´™*@»ÂA$AVU’?E:Az”;AVU’?ëüEAM{KA´™*@ß≤VA›xXA´™*@	dA|0dA´™*@‰Ï^A˚^AVU’?DôzAŒß{AVU’?xùãA/±ãAVU’?ı∂ @	@™™⁄?…b1@8©@™™⁄?#xá@+´ã@UU-@‘]ô@j£ö@UU-@Ù{®@8ò®@UU-@Ö∫π@˛q≈@™™⁄?ÿU A£¯ A™™⁄?xÙﬂ@¶+AUU-@49Are)AUU-@ê›/AÏ0AUU-@„∂A!„$A™™⁄?8<Am‡=A™™⁄?÷}KAíYQAUU-@âXAøÀYAUU-@ç¨`A¸”`AUU-@~Y_A†g_A™™⁄?≥í|A>°}A™™⁄?J`çAtçA™™⁄?á
+˝?TÎ@  ‡??ò0@ÛÆ®@  ‡?<ä@D;é@  0@3–ï@…ó@  0@Øøû@Û€û@  0@ºÈπ@5°≈@  ‡?, A˜≠ A  ‡?®≤‰@æäA  0@πVA˜Ç)A  0@†-A*&.A  0@ˆ?A4l%A  ‡?Tr=Aâ8?A  ‡?ïVOAQ2UA  0@≠„XA‚©ZA  0@}x^AÏü^A  0@Ø†_A—Æ_A  ‡?ﬁ}AèÏ~A  ‡?œáéAÜõéA  ‡?Àe˙?ˆò@VUÂ?=0@Úq®@VUÂ?yìã@Å∆è@´™2@<¨ì@“Òî@´™2@T‚ò@ò˛ò@´™2@-∫@¶Ω≈@VUÂ?`ºˇ@˚Ä AVUÂ?éÁ@u¯A´™2@ÅhAøî)A´™2@Ùk+Az,A´™2@àíA∆æ%AVUÂ?üA>A‘@AVUÂ?ÕßQAâÉWA´™2@~iYA¥/[A´™2@≤$]A!L]A´™2@íÀ_A¥Ÿ_AVUÂ?õ•~A%¥AVUÂ?‘9èAåMèAVUÂ?&Ô¯?§›@™™Í?±⁄/@,P®@™™Í?Gnå@O°ê@UU5@·|í@v¬ì@UU5@,£ï@pøï@UU5@Ï∫@eÕ≈@™™Í?íäˇ@h A™™Í?#È@Î¬AUU5@YrAóû)AUU5@1*Aºç+AUU5@?¿A}Ï%A™™Í?a¥>Añz@A™™Í?5RAÒÀXAUU5@ì≥YA…y[AUU5@ïh\Aê\AUU5@O„_ArÒ_A™™Í?ARÄA™™Í?búèA∞èA™™Í?ã0¯?W~@  ?T∏/@˝>®@  ?ô›å@°ë@  8@ã‚ë@ (ì@  8@O¸ì@ìî@  8@Ô∫@h’≈@  ?;qˇ@h[ A  ?ÒÈ@Ì)A  8@[wAô£)A  8@Ω*AG+A  8@Å◊Aæ&A  ?√Ó>A¯¥@A  ?JóSAsYA  8@DŸYAzü[A  8@·\AP0\A  8@dÔ_AÜ˝_A  ?OLAm-ÄA  ?ÜŒèA=‚èA  ?n◊˜?»Q@VUı?C®/@ı6®@VUı?§ç@≠Dë@´™:@böë@¯ﬂí@´™:@ö6ì@ﬂRì@´™:@Æ!∫@'Ÿ≈@VUı?beˇ@|U AVUı?WQÍ@ZA´™:@≤yA•)A´™:@kŒ)Aˆ‹*A´™:@`‚Aû&AVUı?
+?AE–@AVUı?hÂSA$¡YA´™:@„ÍYA±[A´™:@"‹[Aë\A´™:@	ı_A+`AVUı?òfAë:ÄAVUı?˜ÂèAÆ˘èAVUı?#±˜?£>@™™˙?\°/@Å3®@™™˙?(ç@
+[ë@UU=@a{ë@˜¿í@UU=@®·í@Ï˝í@UU=@J#∫@√⁄≈@™™˙?K`ˇ@R A™™˙?∫zÍ@«nAUU=@¥zAÚ¶)AUU=@9∂)Aƒƒ*AUU=@ÁAJ&A™™˙? ?Aˇ€@A™™˙?¯TAµ‚YAUU=@vÚYA´∏[AUU=@Ë»[AW[AUU=@w˜_Aô`A™™˙?„qA7@ÄA™™˙?
+èA¡êA™™˙?¢˜?7@   @¢û/@$2®@   @÷0ç@ﬁcë@  @@$oë@π¥í@  @@¿í@b‹í@  @@Ì#∫@e€≈@   @I^ˇ@ÔQ A   @ãÍ@ÚvA  @@{AXß)A  @@´¨)A6ª*A  @@‰ËA"&A   @k?A°‡@A   @9TAıÔYA  @@sıYA®ª[A  @@Q¡[A¿Ë[A  @@l¯_Aé`A   @XvAqBÄA   @ÙèAªêA   @
+<EndSersetData>
+<EndSerset>
+<EndItem>
+<BeginItem> scheme Kad0cc88 
+.setscheme , scheme(white_tableau) naturallywhite(1)
+<EndItem>
+<BeginItem> twowaygraph_g K553a528 <UseScheme> Kad0cc88
+.sersets[1] = .__Map.K5537878.ref
+.insert (plotregion1 = .plotregion.new , style(scheme twoway) graph(`.objkey')) at 1 1
+.plotregion1.Declare plot1 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_1') xvariable(`.sersets[1].seriesof xx_1')    plotregion(`.plotregion1.objkey') style(scheme p1area) ybvar(`.sersets[1].seriesof yy1_1')
+.plotregion1.plot1.style.editstyle line(color(`"navy%70"')) area(shadestyle(color(`"navy%70"'))) area(linestyle(color(`"navy%70"'))) marker(fillcolor(`"navy%70"') linestyle(color(`"navy%70"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot1.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot2 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_2') xvariable(`.sersets[1].seriesof xx_2')    plotregion(`.plotregion1.objkey') style(scheme p2area) ybvar(`.sersets[1].seriesof yy1_2')
+.plotregion1.plot2.style.editstyle line(color(`"navy%70"')) area(shadestyle(color(`"navy%70"'))) area(linestyle(color(`"navy%70"'))) marker(fillcolor(`"navy%70"') linestyle(color(`"navy%70"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot2.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot3 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_3') xvariable(`.sersets[1].seriesof xx_3')    plotregion(`.plotregion1.objkey') style(scheme p3area) ybvar(`.sersets[1].seriesof yy1_3')
+.plotregion1.plot3.style.editstyle line(color(`"maroon%70"')) area(shadestyle(color(`"maroon%70"'))) area(linestyle(color(`"maroon%70"'))) marker(fillcolor(`"maroon%70"') linestyle(color(`"maroon%70"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot3.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot4 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_4') xvariable(`.sersets[1].seriesof xx_4')    plotregion(`.plotregion1.objkey') style(scheme p4area) ybvar(`.sersets[1].seriesof yy1_4')
+.plotregion1.plot4.style.editstyle line(color(`"maroon%70"')) area(shadestyle(color(`"maroon%70"'))) area(linestyle(color(`"maroon%70"'))) marker(fillcolor(`"maroon%70"') linestyle(color(`"maroon%70"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot4.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot5 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_5') xvariable(`.sersets[1].seriesof xx_5')    plotregion(`.plotregion1.objkey') style(scheme p5area) ybvar(`.sersets[1].seriesof yy1_5')
+.plotregion1.plot5.style.editstyle line(color(`"maroon%70"')) area(shadestyle(color(`"maroon%70"'))) area(linestyle(color(`"maroon%70"'))) marker(fillcolor(`"maroon%70"') linestyle(color(`"maroon%70"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot5.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot6 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_6') xvariable(`.sersets[1].seriesof xx_6')    plotregion(`.plotregion1.objkey') style(scheme p6area) ybvar(`.sersets[1].seriesof yy1_6')
+.plotregion1.plot6.style.editstyle line(color(`"navy%70"')) area(shadestyle(color(`"navy%70"'))) area(linestyle(color(`"navy%70"'))) marker(fillcolor(`"navy%70"') linestyle(color(`"navy%70"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot6.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot7 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_7') xvariable(`.sersets[1].seriesof xx_7')    plotregion(`.plotregion1.objkey') style(scheme p7area) ybvar(`.sersets[1].seriesof yy1_7')
+.plotregion1.plot7.style.editstyle line(color(`"navy%50"')) area(shadestyle(color(`"navy%50"'))) area(linestyle(color(`"navy%50"'))) marker(fillcolor(`"navy%50"') linestyle(color(`"navy%50"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot7.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot8 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_8') xvariable(`.sersets[1].seriesof xx_8')    plotregion(`.plotregion1.objkey') style(scheme p8area) ybvar(`.sersets[1].seriesof yy1_8')
+.plotregion1.plot8.style.editstyle line(color(`"maroon%50"')) area(shadestyle(color(`"maroon%50"'))) area(linestyle(color(`"maroon%50"'))) marker(fillcolor(`"maroon%50"') linestyle(color(`"maroon%50"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot8.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot9 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_9') xvariable(`.sersets[1].seriesof xx_9')    plotregion(`.plotregion1.objkey') style(scheme p9area) ybvar(`.sersets[1].seriesof yy1_9')
+.plotregion1.plot9.style.editstyle line(color(`"maroon%50"')) area(shadestyle(color(`"maroon%50"'))) area(linestyle(color(`"maroon%50"'))) marker(fillcolor(`"maroon%50"') linestyle(color(`"maroon%50"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot9.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot10 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_10') xvariable(`.sersets[1].seriesof xx_10')    plotregion(`.plotregion1.objkey') style(scheme p10area) ybvar(`.sersets[1].seriesof yy1_10')
+.plotregion1.plot10.style.editstyle line(color(`"maroon%50"')) area(shadestyle(color(`"maroon%50"'))) area(linestyle(color(`"maroon%50"'))) marker(fillcolor(`"maroon%50"') linestyle(color(`"maroon%50"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot10.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot11 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_11') xvariable(`.sersets[1].seriesof xx_11')    plotregion(`.plotregion1.objkey') style(scheme p11area) ybvar(`.sersets[1].seriesof yy1_11')
+.plotregion1.plot11.style.editstyle line(color(`"navy%50"')) area(shadestyle(color(`"navy%50"'))) area(linestyle(color(`"navy%50"'))) marker(fillcolor(`"navy%50"') linestyle(color(`"navy%50"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot11.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot12 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_12') xvariable(`.sersets[1].seriesof xx_12')    plotregion(`.plotregion1.objkey') style(scheme p12area) ybvar(`.sersets[1].seriesof yy1_12')
+.plotregion1.plot12.style.editstyle line(color(`"navy%50"')) area(shadestyle(color(`"navy%50"'))) area(linestyle(color(`"navy%50"'))) marker(fillcolor(`"navy%50"') linestyle(color(`"navy%50"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot12.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot13 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_13') xvariable(`.sersets[1].seriesof xx_13')    plotregion(`.plotregion1.objkey') style(scheme p13area) ybvar(`.sersets[1].seriesof yy1_13')
+.plotregion1.plot13.style.editstyle line(color(`"maroon%30"')) area(shadestyle(color(`"maroon%30"'))) area(linestyle(color(`"maroon%30"'))) marker(fillcolor(`"maroon%30"') linestyle(color(`"maroon%30"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot13.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot14 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_14') xvariable(`.sersets[1].seriesof xx_14')    plotregion(`.plotregion1.objkey') style(scheme p14area) ybvar(`.sersets[1].seriesof yy1_14')
+.plotregion1.plot14.style.editstyle line(color(`"maroon%30"')) area(shadestyle(color(`"maroon%30"'))) area(linestyle(color(`"maroon%30"'))) marker(fillcolor(`"maroon%30"') linestyle(color(`"maroon%30"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot14.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot15 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_15') xvariable(`.sersets[1].seriesof xx_15')    plotregion(`.plotregion1.objkey') style(scheme p15area) ybvar(`.sersets[1].seriesof yy1_15')
+.plotregion1.plot15.style.editstyle line(color(`"maroon%30"')) area(shadestyle(color(`"maroon%30"'))) area(linestyle(color(`"maroon%30"'))) marker(fillcolor(`"maroon%30"') linestyle(color(`"maroon%30"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot15.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot16 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_16') xvariable(`.sersets[1].seriesof xx_16')    plotregion(`.plotregion1.objkey') style(scheme p1area) ybvar(`.sersets[1].seriesof yy1_16')
+.plotregion1.plot16.style.editstyle line(color(`"navy%30"')) area(shadestyle(color(`"navy%30"'))) area(linestyle(color(`"navy%30"'))) marker(fillcolor(`"navy%30"') linestyle(color(`"navy%30"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot16.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot17 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_17') xvariable(`.sersets[1].seriesof xx_17')    plotregion(`.plotregion1.objkey') style(scheme p2area) ybvar(`.sersets[1].seriesof yy1_17')
+.plotregion1.plot17.style.editstyle line(color(`"navy%30"')) area(shadestyle(color(`"navy%30"'))) area(linestyle(color(`"navy%30"'))) marker(fillcolor(`"navy%30"') linestyle(color(`"navy%30"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot17.bar_drop_to.setstyle , style(x)
+.plotregion1.Declare plot18 = .y2xview_g.new , type(rarea) serset(`.sersets[1].objkey') yvariable(`.sersets[1].seriesof yy0_18') xvariable(`.sersets[1].seriesof xx_18')    plotregion(`.plotregion1.objkey') style(scheme p3area) ybvar(`.sersets[1].seriesof yy1_18')
+.plotregion1.plot18.style.editstyle line(color(`"navy%30"')) area(shadestyle(color(`"navy%30"'))) area(linestyle(color(`"navy%30"'))) marker(fillcolor(`"navy%30"') linestyle(color(`"navy%30"'))) line(width(none)) area(linestyle(width(none))) editcopy
+.plotregion1.plot18.bar_drop_to.setstyle , style(x)
+.plotregion1.clear_scales
+.plotregion1.reset_scales , noclear
+.n_views = 18
+.n_plotregions = 1
+.last_style = 18
+.x_scales = `" "1""'
+.y_scales = `" "1""'
+.create_axes 1 1 "9" "" 9
+.insert (legend = .legend_g.new, graphs(`.objkey') style(scheme)) rightof plotregion1 , ring(3) 
+.legend.style.editstyle box_alignment(E) editcopy
+.legend.holes = ""
+.legend.style.editstyle  force_draw(no) force_nodraw(yes) editcopy
+.legend.insert (note = .sized_textbox.new, mtextq(`""') style(scheme leg_note) ) below plotregion1 , ring(3) 
+.legend.note.style.editstyle box_alignment(SW) editcopy
+.legend.note.style.editstyle horizontal(left) editcopy
+.legend.insert (caption = .sized_textbox.new, mtextq(`""') style(scheme leg_caption) ) below plotregion1 , ring(5) 
+.legend.caption.style.editstyle box_alignment(SW) editcopy
+.legend.caption.style.editstyle horizontal(left) editcopy
+.legend.insert (subtitle = .sized_textbox.new, mtextq(`""') style(scheme leg_subtitle) ) above plotregion1 , ring(6) 
+.legend.subtitle.style.editstyle box_alignment(N) editcopy
+.legend.subtitle.style.editstyle horizontal(center) editcopy
+.legend.insert (title = .sized_textbox.new, mtextq(`""') style(scheme leg_title) ) above plotregion1 , ring(7) 
+.legend.title.style.editstyle box_alignment(N) editcopy
+.legend.title.style.editstyle horizontal(center) editcopy
+.legend.rebuild
+.legend.repositionkeys
+.xaxis1.addmin .75
+.xaxis1.addmax 3.25
+.xaxis1.major.clear
+.xaxis1.reset_scale reinit
+.yaxis1.major.clear
+.yaxis1.reset_scale reinit
+.insert (r1title = .sized_textbox.new, mtextq(`""') style(scheme r1title) orientation(vertical)) rightof plotregion1 , ring(1) 
+.insert (r2title = .sized_textbox.new, mtextq(`""') style(scheme r2title) orientation(vertical)) rightof plotregion1 , ring(2) 
+.insert (l1title = .sized_textbox.new, mtextq(`""') style(scheme l1title) orientation(vertical)) leftof plotregion1 , ring(1) 
+.insert (l2title = .sized_textbox.new, mtextq(`""') style(scheme l2title) orientation(vertical)) leftof plotregion1 , ring(2) 
+.insert (t1title = .sized_textbox.new, mtextq(`""') style(scheme t1title) ) above plotregion1 , ring(1) 
+.insert (t2title = .sized_textbox.new, mtextq(`""') style(scheme t2title) ) above plotregion1 , ring(2) 
+.insert (b1title = .sized_textbox.new, mtextq(`""') style(scheme b1title) ) below plotregion1 , ring(1) 
+.insert (b2title = .sized_textbox.new, mtextq(`""') style(scheme b1title) ) below plotregion1 , ring(2) 
+.insert (note = .sized_textbox.new, mtextq(`""') style(scheme note) ) below plotregion1 , ring(4) 
+.note.style.editstyle box_alignment(SW) editcopy
+.note.style.editstyle horizontal(left) editcopy
+.insert (caption = .sized_textbox.new, mtextq(`""') style(scheme caption) ) below plotregion1 , ring(5) 
+.caption.style.editstyle box_alignment(SW) editcopy
+.caption.style.editstyle horizontal(left) editcopy
+.insert (subtitle = .sized_textbox.new, mtextq(`""') style(scheme subtitle) ) above plotregion1 , ring(6) 
+.subtitle.style.editstyle box_alignment(N) editcopy
+.subtitle.style.editstyle horizontal(center) editcopy
+.insert (title = .sized_textbox.new, mtextq(`""') style(scheme title) ) above plotregion1 , ring(7) 
+.title.style.editstyle box_alignment(N) editcopy
+.title.style.editstyle horizontal(center) editcopy
+.insert (spacert = .spacer.new) above plotregion1 , ring(11)
+.insert (spacerb = .spacer.new) below plotregion1 , ring(11)
+.insert (spacerl = .spacer.new) leftof plotregion1 , ring(11)
+.insert (spacerr = .spacer.new) rightof plotregion1 , ring(11)
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox1 = .pos_textbox.new , ypos(4.5) xpos(1) forcesized mtextq(`" `"R-I"'"') style(scheme text_option) 
+.plotregion1.textbox1.style.editstyle  box_alignment(w) editcopy
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox2 = .pos_textbox.new , ypos(9) xpos(1) forcesized mtextq(`" `"R-II"'"') style(scheme text_option) 
+.plotregion1.textbox2.style.editstyle  box_alignment(w) editcopy
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox3 = .pos_textbox.new , ypos(13.5) xpos(1) forcesized mtextq(`" `"R-III"'"') style(scheme text_option) 
+.plotregion1.textbox3.style.editstyle  box_alignment(w) editcopy
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox4 = .pos_textbox.new , ypos(4.5) xpos(3) forcesized mtextq(`" `"S-I"'"') style(scheme text_option) 
+.plotregion1.textbox4.style.editstyle  box_alignment(e) editcopy
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox5 = .pos_textbox.new , ypos(9) xpos(3) forcesized mtextq(`" `"S-II"'"') style(scheme text_option) 
+.plotregion1.textbox5.style.editstyle  box_alignment(e) editcopy
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox6 = .pos_textbox.new , ypos(13.5) xpos(3) forcesized mtextq(`" `"S-III"'"') style(scheme text_option) 
+.plotregion1.textbox6.style.editstyle  box_alignment(e) editcopy
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox7 = .pos_textbox.new , ypos(2) xpos(2) forcesized mtextq(`" `"C-1"'"') style(scheme text_option) 
+.plotregion1.textbox7.style.editstyle  drawbox(yes) editcopy
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox8 = .pos_textbox.new , ypos(4) xpos(2) forcesized mtextq(`" `"C-2"'"') style(scheme text_option) 
+.plotregion1.textbox8.style.editstyle  drawbox(yes) editcopy
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox9 = .pos_textbox.new , ypos(6) xpos(2) forcesized mtextq(`" `"C-3"'"') style(scheme text_option) 
+.plotregion1.textbox9.style.editstyle  drawbox(yes) editcopy
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox10 = .pos_textbox.new , ypos(8) xpos(2) forcesized mtextq(`" `"C-4"'"') style(scheme text_option) 
+.plotregion1.textbox10.style.editstyle  drawbox(yes) editcopy
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox11 = .pos_textbox.new , ypos(10) xpos(2) forcesized mtextq(`" `"C-5"'"') style(scheme text_option) 
+.plotregion1.textbox11.style.editstyle  drawbox(yes) editcopy
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox12 = .pos_textbox.new , ypos(12) xpos(2) forcesized mtextq(`" `"C-6"'"') style(scheme text_option) 
+.plotregion1.textbox12.style.editstyle  drawbox(yes) editcopy
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox13 = .pos_textbox.new , ypos(14) xpos(2) forcesized mtextq(`" `"C-7"'"') style(scheme text_option) 
+.plotregion1.textbox13.style.editstyle  drawbox(yes) editcopy
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox14 = .pos_textbox.new , ypos(16) xpos(2) forcesized mtextq(`" `"C-8"'"') style(scheme text_option) 
+.plotregion1.textbox14.style.editstyle  drawbox(yes) editcopy
+local tfmt `.plotregion1.get_time_format'
+.plotregion1.Declare textbox15 = .pos_textbox.new , ypos(18) xpos(2) forcesized mtextq(`" `"C-9"'"') style(scheme text_option) 
+.plotregion1.textbox15.style.editstyle  drawbox(yes) editcopy
+.command = `"twoway (rarea yy0_1 yy1_1 xx_1, color("navy%70") pstyle() lwidth(none)) (rarea yy0_2 yy1_2 xx_2, color("navy%70") pstyle() lwidth(none)) (rarea yy0_3 yy1_3 xx_3, color("maroon%70") pstyle() lwidth(none)) (rarea yy0_4 yy1_4 xx_4, color("maroon%70") pstyle() lwidth(none)) (rarea yy0_5 yy1_5 xx_5, color("maroon%70") pstyle() lwidth(none)) (rarea yy0_6 yy1_6 xx_6, color("navy%70") pstyle() lwidth(none)) (rarea yy0_7 yy1_7 xx_7, color("navy%50") pstyle() lwidth(none)) (rarea yy0_8 yy1_8 xx_8, color("maroon%50") pstyle() lwidth(none)) (rarea yy0_9 yy1_9 xx_9, color("maroon%50") pstyle() lwidth(none)) (rarea yy0_10 yy1_10 xx_10, color("maroon%50") pstyle() lwidth(none)) (rarea yy0_11 yy1_11 xx_11, color("navy%50") pstyle() lwidth(none)) (rarea yy0_12 yy1_12 xx_12, color("navy%50") pstyle() lwidth(none)) (rarea yy0_13 yy1_13 xx_13, color("maroon%30") pstyle() lwidth(none)) (rarea yy0_14 yy1_14 xx_14, color("maroon%30") pstyle() lwidth(none)) (rarea yy0_15 yy1_15 xx_15, color("maroon%30") pstyle() lwidth(none)) (rarea yy0_16 yy1_16 xx_16, color("navy%30") pstyle() lwidth(none)) (rarea yy0_17 yy1_17 xx_17, color("navy%30") pstyle() lwidth(none)) (rarea yy0_18 yy1_18 xx_18, color("navy%30") pstyle() lwidth(none)) , legend(off) xlabel("") text(4.5 1 "R-I" 9 1 "R-II" 13.5 1 "R-III", placement(w) ) text(4.5 3 "S-I" 9 3 "S-II" 13.5 3 "S-III", placement(e) ) ylabel("") xscale(r(0.75 3.25)) text(2 2 "C-1" 4 2 "C-2" 6 2 "C-3" 8 2 "C-4" 10 2 "C-5" 12 2 "C-6" 14 2 "C-7" 16 2 "C-8" 18 2 "C-9", box)"'
+.date = "14 Mar 2022"
+.time = "12:14:22"
+.dta_file = ""
+.dta_date = ""
+<EndItem>

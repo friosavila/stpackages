@@ -1,0 +1,122 @@
+{smcl}
+{* 24February2023}{...}
+{hi:help sim_marhist}{...}
+{right:{browse "https://github.com/":Marginal Histogram v1.0 (GitHub)}}
+
+{p 4 4 2}
+{marker syntax}{...}
+{title:Marginal Histogram}: A Stata Package for generating Marginal Histograms.
+
+{p 8 15 2}
+{cmd:sim_marhist} {varlist} {ifin} [{it:{help weight:weight}}] {cmd:[}{cmd:,} 
+												{cmd:{it:Twoway_Options}}
+												{cmd:{it:lowess}}
+												{cmd:{it:lowess_options}({it:{help twoway lowess##options:lowess_opts}})} 
+												{cmd:scatter_options}({it:options}) 
+												{cmd:hhistogram_options}([{it:{help histogram##continuous_opts:continuous_opts}} {c |} {it:{help histogram##discrete_opts:discrete_opts}}] {it:{help histogram##options:options}}]) 
+												{cmd:vhistogram_options}([{it:{help histogram##continuous_opts:continuous_opts}} {c |} {it:{help histogram##discrete_opts:discrete_opts}}] {it:{help histogram##options:options}}]){cmd:]}
+
+{p 4 4 2}
+
+{pstd}
+where {it:varlist} is 
+{p_end}
+                {it:y} {it:x}
+
+{synoptset 30}{...}
+{p2col:{it:Scatter Options}}Description{p_end}
+{p2line}
+{p2col:{it:{help scatter##marker_options:marker_options}}}change look of
+       markers (color, size, etc.){p_end}
+{p2col:{it:{help scatter##marker_label_options:marker_label_options}}}add
+       marker labels; change look or position{p_end}
+{p2col:{it:{help scatter##connect_options:connect_options}}}change look of
+       lines or connecting method{p_end}
+
+{p2col:{it:{help scatter##composite_style_option:composite_style_option}}}overall style of the plot{p_end}
+
+{p2col:{it:{help scatter##jitter_options:jitter_options}}}jitter marker
+       positions using random noise{p_end}
+
+{p2col:{it:{help scatter##axis_choice_options:axis_choice_options}}}associate
+       plot with alternate axis{p_end}
+
+{p2line}
+
+
+
+
+
+{hline}
+
+{title:Marginal Histogram}: A Stata package for visualizing a Marginal Histogram.
+
+{p 4 4 2}
+The Marginal Histogram is a command version of the following guide in Medium (The Stata Gallery): {browse "https://medium.com/the-stata-gallery/top-25-stata-visualizations-with-full-code-668b5df114b6":Top 25 Stata Visualizations - With Full Code}.
+This command is a {it:beta} version and is subject to improve over time. Please regularly check the {browse "https://github.com/":GitHub} page for version changes and updates.
+
+
+
+{p 4 4 2}
+
+
+
+{title:Dependencies}
+
+The {browse "http://repec.sowi.unibe.ch/stata/palettes/index.html":palette} package (Jann 2018) is required for {cmd:Marginal Histogram}:
+
+{stata ssc install palettes, replace}
+{stata ssc install colrspace, replace}
+
+Even if you have these installed, it is highly recommended to update the dependencies:
+{stata ado update, update}
+
+{title:Examples}
+
+See {browse "https://github.com/":GitHub} for examples.
+
+
+
+{hline}
+
+{title:Version history}
+
+- {bf:1.0} : First version.
+
+
+{title:Package details}
+
+Version      : {bf:Marginal Histogram} v1.0
+This release : 24 Feb 2023
+First release: 24 Feb 2023
+Repository   : {browse "https://github.com/":GitHub}
+Keywords     : Stata, graph, visualization, marginal histogram, scatter
+License      : {browse "https://opensource.org/licenses/MIT":MIT}
+
+Author       : {browse "https://github.com/fahad-mirza":Fahad Mirza}
+E-mail       : fahadmirza04@outlook.com
+GitHub       : {browse "https://github.com/fahad-mirza":Git Repository}
+Website      : {browse "https://medium.com/@fahad-mirza":Medium Blog}
+Twitter      : {browse "https://twitter.com/theFstat":@theFstat}
+
+Author       : {browse "https://github.com/friosavila":Fernando Rios-Avila}
+E-mail       : f.rios.a@gmail.com
+GitHub       : {browse "https://github.com/friosavila":Git Repository}
+Website      : {browse "https://friosavila.github.io/playingwithstata/index.html":Playing With Stata}
+Twitter      : {browse "https://twitter.com/friosavila":@friosavila}
+
+
+{title:Acknowledgements}
+
+
+
+{title:Feedback}
+
+Please submit bugs, errors, feature requests on {browse "https://github.com/":GitHub} by opening a new issue.
+
+{title:References}
+
+{p 4 8 2}Jann, B. (2018). {browse "https://www.stata-journal.com/article.html?article=gr0075":Color palettes for Stata graphics}. The Stata Journal 18(4): 765-785.
+
+{psee}
+    {helpb histogram}, {helpb scatter}, {helpb schemepack}

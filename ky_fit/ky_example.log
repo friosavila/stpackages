@@ -1,0 +1,954 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Fernando\Dropbox\projects\00 Stata Projects\ssc ky_fit\ky
+> _example.log
+  log type:  text
+ opened on:  14 Apr 2022, 11:28:47
+
+. 
+. 
+. /////////////////////////////////////////////////////////////////////////////
+> ///
+> /// This file provides a working example that uses ky_fit
+> /// to simulate data used in Kapteyn-Ypma (Journal of Labor Economics, 2007) 
+> = "KY" 
+> /// , estimate those models, and provide relevant summary statistics
+> ///
+> /// The code replicates some of the tables in KY as well as the
+> /// reliability reports in Meijer, Rohwedder & Wansbeek (Journal of Business
+> ///             and Economic Statistics, 2012) = "MRW"
+> /////////////////////////////////////////////////////////////////////////////
+> ///
+> 
+. /// SET UP: Storing model parameters reported in KY, Table C2
+> 
+. global mean_e  12.283
+
+. global mean_t   9.187
+
+. global mean_w  (-0.304)
+
+. global mean_n  (-0.048)
+
+. 
+. global sig_e  0.717
+
+. global sig_t  1.807
+
+. global sig_w  1.239
+
+. global sig_n  0.099 
+
+. 
+. global pi_r  0.959
+
+. global pi_s  0.152
+
+. global pi_w  0.156
+
+. 
+. global rho_s  (-0.013)
+
+. 
+. /// Step 1: Simulating data using -ky_fit-
+> 
+. /// Notice that this includes option "clear" to replace any data in memory
+> 
+. // First, declare the model to be used for simulation
+. // Second,      declare values of model parameters
+. ky_sim, nobs(400) model(4) seed(101) /// 
+>                 mean_e($mean_e) mean_t($mean_t) mean_w($mean_w) mean_n($mean_
+> n) /// 
+>                 sig_e($sig_e)   sig_t($sig_t)   sig_w($sig_w)   sig_n($sig_n)
+>    ///
+>                 pi_r($pi_r)     pi_s($pi_s)     pi_w($pi_w)     rho_s($rho_s)
+>   clear
+
+.                 
+. /// This also stores all coefficients in equation form:
+> 
+. ereturn display
+------------------------------------------------------------------------------
+             |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+mu_e         |
+       _cons |     12.283          .        .       .            .           .
+-------------+----------------------------------------------------------------
+mu_n         |
+       _cons |      -.048          .        .       .            .           .
+-------------+----------------------------------------------------------------
+mu_t         |
+       _cons |      9.187          .        .       .            .           .
+-------------+----------------------------------------------------------------
+mu_w         |
+       _cons |      -.304          .        .       .            .           .
+-------------+----------------------------------------------------------------
+ln_sig_e     |
+       _cons |  -.3326794          .        .       .            .           .
+-------------+----------------------------------------------------------------
+ln_sig_n     |
+       _cons |  -2.312635          .        .       .            .           .
+-------------+----------------------------------------------------------------
+ln_sig_t     |
+       _cons |    .591668          .        .       .            .           .
+-------------+----------------------------------------------------------------
+ln_sig_w     |
+       _cons |   .2143046          .        .       .            .           .
+-------------+----------------------------------------------------------------
+arho_s       |
+       _cons |  -.0130007          .        .       .            .           .
+-------------+----------------------------------------------------------------
+lpi_r        |
+       _cons |   3.152319          .        .       .            .           .
+-------------+----------------------------------------------------------------
+lpi_s        |
+       _cons |     -1.719          .        .       .            .           .
+-------------+----------------------------------------------------------------
+lpi_w        |
+       _cons |  -1.688296          .        .       .            .           .
+------------------------------------------------------------------------------
+
+. 
+. /// which are stored for later use      
+> 
+. estimates store model0          
+
+. 
+. /// some summary statistics and data description
+>         
+. describe *
+
+              storage   display    value
+variable name   type    format     label      variable label
+-------------------------------------------------------------------------------
+e_var           double  %10.0g                True Latent log(earnings)
+n_var           double  %10.0g                Noise in RTM survey data
+w_var           double  %10.0g                Contamination error in survey
+t_var           double  %10.0g                Mismatched values to admin data
+pi_si           byte    %8.0g                 =1 if data reported correctly
+pi_wi           byte    %8.0g                 =1 if data have additional
+                                                contamination in survey data
+pi_ri           byte    %8.0g                 =1 if data are matched correctly
+r_var           double  %10.0g                Administrative log(earnings)
+s_var           double  %10.0g                Survey log(earnings)
+l_var           double  %10.0g                =1 if r_i and s_i are error free
+rclass          byte    %8.0g                 Data type for R
+sclass          byte    %8.0g                 Data type for S
+class           byte    %8.0g                 Data type for (R,S)
+
+. summarize *, sep(0)
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+       e_var |        400    12.34898     .665869    10.4206   14.51099
+       n_var |        400   -.0513431    .1030404  -.3312704   .2292065
+       w_var |        400   -.3139371    1.128783  -3.336294   2.629267
+       t_var |        400    9.012969    1.753307   4.315567   13.78396
+       pi_si |        400        .135    .3421515          0          1
+       pi_wi |        400       .1525    .3599551          0          1
+       pi_ri |        400       .9725      .16374          0          1
+       r_var |        400    12.23967    .9549137   5.839129   14.51099
+       s_var |        400    12.25409    .7501207   9.732128   15.20382
+       l_var |        400       .1325    .3394581          0          1
+      rclass |        400      1.0275      .16374          1          2
+      sclass |        400       1.985    .5053845          1          3
+       class |        400      2.0675    .6958119          1          5
+
+.         
+. /// We first show how -ky_fit- can be used to estimate KY models using simula
+> ted data
+> /// For simplicity, we replicate all models shown in KY, Table 2C:
+> 
+. // Basic model (using contraint)
+. constraint 1 [mu_n]_cons = 0
+
+. ky_fit r_var s_var l_var, model(1) technique(nr bhhh) constraint(1)
+
+initial:       log likelihood = -1511.7161
+rescale:       log likelihood = -1511.7161
+rescale eq:    log likelihood = -1268.2513
+(setting technique to nr)
+Iteration 0:   log likelihood = -1268.2513  
+Iteration 1:   log likelihood = -1211.3344  
+Iteration 2:   log likelihood = -1044.4524  
+Iteration 3:   log likelihood = -1041.7467  
+Iteration 4:   log likelihood = -1041.7267  
+(switching technique to bhhh)
+Iteration 5:   log likelihood = -1041.7267  
+
+                                                Number of obs     =        400
+                                                Wald chi2(0)      =          .
+Log likelihood = -1041.7267                     Prob > chi2       =          .
+
+------------------------------------------------------------------------------
+             |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+mu_e         |
+       _cons |   12.23967    .047686   256.67   0.000     12.14621    12.33313
+-------------+----------------------------------------------------------------
+mu_n         |
+       _cons |   .0093517   .0443901     0.21   0.833    -.0776513    .0963547
+-------------+----------------------------------------------------------------
+ln_sig_e     |
+       _cons |  -.0473859   .0353553    -1.34   0.180    -.1166811    .0219093
+-------------+----------------------------------------------------------------
+ln_sig_n     |
+       _cons |  -.4487339   .0379595   -11.82   0.000    -.5231331   -.3743347
+-------------+----------------------------------------------------------------
+arho_s       |
+       _cons |  -.6800077   .0535096   -12.71   0.000    -.7848845   -.5751309
+-------------+----------------------------------------------------------------
+lpi_s        |
+       _cons |  -1.879033    .147478   -12.74   0.000    -2.168085   -1.589981
+------------------------------------------------------------------------------
+
+. estimates store model1
+
+. 
+. //  No mismatch 
+. ky_fit r_var s_var l_var, model(2) 
+Estimating Basic model
+
+initial:       log likelihood = -1284.7239
+rescale:       log likelihood = -1284.7239
+rescale eq:    log likelihood = -1269.0608
+Iteration 0:   log likelihood = -1269.0608  
+Iteration 1:   log likelihood = -1213.0075  
+Iteration 2:   log likelihood = -1045.0791  
+Iteration 3:   log likelihood =  -1041.757  
+Iteration 4:   log likelihood = -1041.7267  
+Iteration 5:   log likelihood = -1041.7267  
+Estimating KY model with no mismatching: pi_r = 0
+
+initial:       log likelihood = -1059.9817
+rescale:       log likelihood = -1059.9817
+rescale eq:    log likelihood = -848.34995
+Iteration 0:   log likelihood = -848.34995  
+Iteration 1:   log likelihood = -833.59995  
+Iteration 2:   log likelihood = -803.50246  (not concave)
+Iteration 3:   log likelihood = -789.82289  
+Iteration 4:   log likelihood = -761.18277  
+Iteration 5:   log likelihood = -707.67795  
+Iteration 6:   log likelihood = -695.72189  
+Iteration 7:   log likelihood = -695.49892  
+Iteration 8:   log likelihood =  -695.4981  
+Iteration 9:   log likelihood =  -695.4981  
+
+                                                Number of obs     =        400
+                                                Wald chi2(0)      =          .
+Log likelihood =  -695.4981                     Prob > chi2       =          .
+
+------------------------------------------------------------------------------
+             |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+mu_e         |
+       _cons |   12.23967    .047686   256.67   0.000     12.14621    12.33313
+-------------+----------------------------------------------------------------
+mu_n         |
+       _cons |  -.0588547   .0064924    -9.07   0.000    -.0715796   -.0461298
+-------------+----------------------------------------------------------------
+mu_w         |
+       _cons |   .4794169   .2837865     1.69   0.091    -.0767944    1.035628
+-------------+----------------------------------------------------------------
+ln_sig_e     |
+       _cons |  -.0473859   .0353553    -1.34   0.180    -.1166811    .0219093
+-------------+----------------------------------------------------------------
+ln_sig_n     |
+       _cons |  -2.268464   .0464964   -48.79   0.000    -2.359595   -2.177333
+-------------+----------------------------------------------------------------
+ln_sig_w     |
+       _cons |   .7312064   .0996814     7.34   0.000     .5358345    .9265783
+-------------+----------------------------------------------------------------
+arho_s       |
+       _cons |  -.0263245   .0096821    -2.72   0.007    -.0453011    -.007348
+-------------+----------------------------------------------------------------
+lpi_s        |
+       _cons |  -1.879033    .147478   -12.74   0.000    -2.168085   -1.589981
+-------------+----------------------------------------------------------------
+lpi_w        |
+       _cons |  -1.682576   .1612965   -10.43   0.000    -1.998711    -1.36644
+------------------------------------------------------------------------------
+
+. estimates store model2 
+
+. 
+. //  No contamination
+. ky_fit r_var s_var l_var, model(3) 
+Estimating Basic KY model
+
+initial:       log likelihood = -1284.7239
+rescale:       log likelihood = -1284.7239
+rescale eq:    log likelihood = -1269.0608
+Iteration 0:   log likelihood = -1269.0608  
+Iteration 1:   log likelihood = -1213.0075  
+Iteration 2:   log likelihood = -1045.0791  
+Iteration 3:   log likelihood =  -1041.757  
+Iteration 4:   log likelihood = -1041.7267  
+Iteration 5:   log likelihood = -1041.7267  
+Estimating KY model with no contamination: pi_w = 0
+
+initial:       log likelihood = -1055.2145
+rescale:       log likelihood = -1055.2145
+rescale eq:    log likelihood = -774.99587
+Iteration 0:   log likelihood = -774.99587  
+Iteration 1:   log likelihood = -635.57627  
+Iteration 2:   log likelihood = -597.60716  
+Iteration 3:   log likelihood = -595.55598  
+Iteration 4:   log likelihood = -595.52796  
+Iteration 5:   log likelihood = -595.52796  
+
+                                                Number of obs     =        400
+                                                Wald chi2(0)      =          .
+Log likelihood = -595.52796                     Prob > chi2       =          .
+
+------------------------------------------------------------------------------
+             |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+mu_e         |
+       _cons |   12.30638   .0376808   326.60   0.000     12.23252    12.38023
+-------------+----------------------------------------------------------------
+mu_n         |
+       _cons |  -.0617516   .0063582    -9.71   0.000    -.0742135   -.0492898
+-------------+----------------------------------------------------------------
+mu_t         |
+       _cons |   11.62244   .2556069    45.47   0.000     11.12146    12.12342
+-------------+----------------------------------------------------------------
+ln_sig_e     |
+       _cons |  -.2851316   .0357302    -7.98   0.000    -.3551615   -.2151016
+-------------+----------------------------------------------------------------
+ln_sig_n     |
+       _cons |  -2.269749   .0467776   -48.52   0.000    -2.361432   -2.178067
+-------------+----------------------------------------------------------------
+ln_sig_t     |
+       _cons |   .6219185   .0978989     6.35   0.000     .4300402    .8137968
+-------------+----------------------------------------------------------------
+arho_s       |
+       _cons |   -.014559   .0096932    -1.50   0.133    -.0335572    .0044393
+-------------+----------------------------------------------------------------
+lpi_r        |
+       _cons |    1.83766   .1587687    11.57   0.000     1.526479    2.148841
+-------------+----------------------------------------------------------------
+lpi_s        |
+       _cons |  -1.708419   .1496447   -11.42   0.000    -2.001717   -1.415121
+------------------------------------------------------------------------------
+
+. estimates store model3 
+
+. 
+. //  Full model
+. ky_fit r_var s_var l_var, model(4) 
+Estimating Basic KY model
+
+initial:       log likelihood = -1284.7239
+rescale:       log likelihood = -1284.7239
+rescale eq:    log likelihood = -1269.0608
+Iteration 0:   log likelihood = -1269.0608  
+Iteration 1:   log likelihood = -1213.0075  
+Iteration 2:   log likelihood = -1045.0791  
+Iteration 3:   log likelihood =  -1041.757  
+Iteration 4:   log likelihood = -1041.7267  
+Iteration 5:   log likelihood = -1041.7267  
+Estimating KY model with no contamination: pi_w = 0
+
+initial:       log likelihood = -1055.2145
+rescale:       log likelihood = -1055.2145
+rescale eq:    log likelihood = -774.99587
+Iteration 0:   log likelihood = -774.99587  
+Iteration 1:   log likelihood = -635.57627  
+Iteration 2:   log likelihood = -597.60716  
+Iteration 3:   log likelihood = -595.55598  
+Iteration 4:   log likelihood = -595.52796  
+Iteration 5:   log likelihood = -595.52796  
+Estimating full KY full model with contamination and mismatch
+
+initial:       log likelihood = -651.19502
+rescale:       log likelihood = -651.19502
+rescale eq:    log likelihood = -625.46355
+Iteration 0:   log likelihood = -625.46355  (not concave)
+Iteration 1:   log likelihood = -558.05541  
+Iteration 2:   log likelihood = -552.11155  
+Iteration 3:   log likelihood = -543.12567  
+Iteration 4:   log likelihood = -543.02833  
+Iteration 5:   log likelihood =  -543.0282  
+Iteration 6:   log likelihood =  -543.0282  
+
+                                                Number of obs     =        400
+                                                Wald chi2(0)      =          .
+Log likelihood =  -543.0282                     Prob > chi2       =          .
+
+------------------------------------------------------------------------------
+             |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+mu_e         |
+       _cons |   12.34936   .0335341   368.26   0.000     12.28364    12.41509
+-------------+----------------------------------------------------------------
+mu_n         |
+       _cons |  -.0608566   .0063531    -9.58   0.000    -.0733084   -.0484048
+-------------+----------------------------------------------------------------
+mu_w         |
+       _cons |  -.3435237   .1479331    -2.32   0.020    -.6334672   -.0535802
+-------------+----------------------------------------------------------------
+mu_t         |
+       _cons |   8.586231   .6782989    12.66   0.000     7.256789    9.915672
+-------------+----------------------------------------------------------------
+ln_sig_e     |
+       _cons |  -.4064735   .0356129   -11.41   0.000    -.4762735   -.3366734
+-------------+----------------------------------------------------------------
+ln_sig_n     |
+       _cons |  -2.294618    .048419   -47.39   0.000    -2.389518   -2.199719
+-------------+----------------------------------------------------------------
+ln_sig_w     |
+       _cons |  -.0255896   .1117823    -0.23   0.819    -.2446789    .1934997
+-------------+----------------------------------------------------------------
+ln_sig_t     |
+       _cons |   .5011477   .3145949     1.59   0.111    -.1154469    1.117742
+-------------+----------------------------------------------------------------
+arho_s       |
+       _cons |  -.0220849   .0097251    -2.27   0.023    -.0411458    -.003024
+-------------+----------------------------------------------------------------
+lpi_r        |
+       _cons |   3.519683     .33491    10.51   0.000     2.863271    4.176094
+-------------+----------------------------------------------------------------
+lpi_s        |
+       _cons |  -1.843984   .1478913   -12.47   0.000    -2.133845   -1.554122
+-------------+----------------------------------------------------------------
+lpi_w        |
+       _cons |  -1.784123   .1893322    -9.42   0.000    -2.155207   -1.413039
+------------------------------------------------------------------------------
+
+. estimates store model4
+
+. 
+. // all models can be also be estimated allowing for covariates. 
+. //              For illustrative purposes, create a covariate as a random var
+> iable
+. 
+. generate x = rnormal()
+
+. 
+. ky_fit r_var s_var l_var, model(4) mu_e(x) ln_sig_e(x) 
+Estimating Basic KY model
+
+initial:       log likelihood = -1284.7239
+rescale:       log likelihood = -1284.7239
+rescale eq:    log likelihood = -1269.0608
+Iteration 0:   log likelihood = -1269.0608  
+Iteration 1:   log likelihood = -1214.0529  
+Iteration 2:   log likelihood = -1045.1765  
+Iteration 3:   log likelihood = -1041.7361  
+Iteration 4:   log likelihood = -1041.7036  
+Iteration 5:   log likelihood = -1041.7036  
+Estimating KY model with no contamination: pi_w = 0
+
+initial:       log likelihood = -1055.1698
+rescale:       log likelihood = -1055.1698
+rescale eq:    log likelihood = -774.29522
+Iteration 0:   log likelihood = -774.29522  
+Iteration 1:   log likelihood = -643.48587  
+Iteration 2:   log likelihood = -598.90895  
+Iteration 3:   log likelihood = -594.23683  
+Iteration 4:   log likelihood = -594.17167  
+Iteration 5:   log likelihood = -594.17164  
+Estimating full KY full model with contamination and mismatch
+
+initial:       log likelihood = -650.46562
+rescale:       log likelihood = -650.46562
+rescale eq:    log likelihood =  -625.1008
+Iteration 0:   log likelihood =  -625.1008  (not concave)
+Iteration 1:   log likelihood = -557.42776  
+Iteration 2:   log likelihood = -549.26627  
+Iteration 3:   log likelihood = -542.59991  
+Iteration 4:   log likelihood = -542.34277  
+Iteration 5:   log likelihood = -542.33674  
+Iteration 6:   log likelihood = -542.33672  
+
+                                                Number of obs     =        400
+                                                Wald chi2(1)      =       0.02
+Log likelihood = -542.33672                     Prob > chi2       =     0.8962
+
+------------------------------------------------------------------------------
+             |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+mu_e         |
+           x |  -.0041682   .0319384    -0.13   0.896    -.0667662    .0584299
+       _cons |   12.34934   .0339011   364.28   0.000      12.2829    12.41579
+-------------+----------------------------------------------------------------
+mu_n         |
+       _cons |  -.0608638   .0063529    -9.58   0.000    -.0733151   -.0484124
+-------------+----------------------------------------------------------------
+mu_w         |
+       _cons |  -.3461669   .1476505    -2.34   0.019    -.6355565   -.0567772
+-------------+----------------------------------------------------------------
+mu_t         |
+       _cons |   8.612821   .6935177    12.42   0.000     7.253551    9.972091
+-------------+----------------------------------------------------------------
+ln_sig_e     |
+           x |    .041901   .0358211     1.17   0.242    -.0283071    .1121091
+       _cons |  -.4045368   .0357443   -11.32   0.000    -.4745944   -.3344792
+-------------+----------------------------------------------------------------
+ln_sig_n     |
+       _cons |  -2.294627   .0484257   -47.38   0.000    -2.389539   -2.199714
+-------------+----------------------------------------------------------------
+ln_sig_w     |
+       _cons |  -.0276848   .1116491    -0.25   0.804     -.246513    .1911434
+-------------+----------------------------------------------------------------
+ln_sig_t     |
+       _cons |   .5124085   .3184895     1.61   0.108    -.1118195    1.136636
+-------------+----------------------------------------------------------------
+arho_s       |
+       _cons |    -.02202   .0097304    -2.26   0.024    -.0410912   -.0029488
+-------------+----------------------------------------------------------------
+lpi_r        |
+       _cons |   3.510551   .3355117    10.46   0.000      2.85296    4.168142
+-------------+----------------------------------------------------------------
+lpi_s        |
+       _cons |  -1.843674   .1479004   -12.47   0.000    -2.133553   -1.553794
+-------------+----------------------------------------------------------------
+lpi_w        |
+       _cons |  -1.786184    .189802    -9.41   0.000    -2.158189   -1.414179
+------------------------------------------------------------------------------
+
+. 
+. //  For reporting, we use Ben Jann's "estout"
+.                  
+. capture ssc install estout
+
+. esttab model0 model4 model3 model2 model1 , se wide compress b(3) ///
+>         nostar scalars(ll) nogaps ///
+>         mtitle(Original  "Full model" "No contamination" "No mismatch" "Basic
+>  Model") ///
+>         noeqline 
+
+-------------------------------------------------------------------------------
+> -------------------------------
+                 (1)                 (2)                 (3)                 (4
+> )                 (5)          
+            Original           Full mo~l           No cont~n           No mism~
+> h           Basic M~l          
+-------------------------------------------------------------------------------
+> -------------------------------
+mu_e                                                                           
+>                                
+_cons         12.283       (.)    12.349   (0.034)    12.306   (0.038)    12.24
+> 0   (0.048)    12.240   (0.048)
+mu_n                                                                           
+>                                
+_cons         -0.048       (.)    -0.061   (0.006)    -0.062   (0.006)    -0.05
+> 9   (0.006)     0.009   (0.044)
+mu_t                                                                           
+>                                
+_cons          9.187       (.)     8.586   (0.678)    11.622   (0.256)         
+>                                
+mu_w                                                                           
+>                                
+_cons         -0.304       (.)    -0.344   (0.148)                         0.47
+> 9   (0.284)                    
+ln_sig_e                                                                       
+>                                
+_cons         -0.333       (.)    -0.406   (0.036)    -0.285   (0.036)    -0.04
+> 7   (0.035)    -0.047   (0.035)
+ln_sig_n                                                                       
+>                                
+_cons         -2.313       (.)    -2.295   (0.048)    -2.270   (0.047)    -2.26
+> 8   (0.046)    -0.449   (0.038)
+ln_sig_t                                                                       
+>                                
+_cons          0.592       (.)     0.501   (0.315)     0.622   (0.098)         
+>                                
+ln_sig_w                                                                       
+>                                
+_cons          0.214       (.)    -0.026   (0.112)                         0.73
+> 1   (0.100)                    
+arho_s                                                                         
+>                                
+_cons         -0.013       (.)    -0.022   (0.010)    -0.015   (0.010)    -0.02
+> 6   (0.010)    -0.680   (0.054)
+lpi_r                                                                          
+>                                
+_cons          3.152       (.)     3.520   (0.335)     1.838   (0.159)         
+>                                
+lpi_s                                                                          
+>                                
+_cons         -1.719       (.)    -1.844   (0.148)    -1.708   (0.150)    -1.87
+> 9   (0.147)    -1.879   (0.147)
+lpi_w                                                                          
+>                                
+_cons         -1.688       (.)    -1.784   (0.189)                        -1.68
+> 3   (0.161)                    
+-------------------------------------------------------------------------------
+> -------------------------------
+N                                    400                 400                 40
+> 0                 400          
+ll                              -543.028            -595.528            -695.49
+> 8           -1041.727          
+-------------------------------------------------------------------------------
+> -------------------------------
+Standard errors in parentheses
+
+. 
+. //      The results reported are very similar to those reported by KY
+. 
+. /////////////////////////////////////////////////////////////////////////////
+> /////////////////////////
+> //  Post estimation:
+. 
+. quietly: ky_fit r_var s_var l_var, model(4) 
+Estimating Basic KY model
+Estimating KY model with no contamination: pi_w = 0
+Estimating full KY full model with contamination and mismatch
+
+. 
+. //  We can request the full report of probabilities and reliability from this
+>  data:
+. 
+. estat reliability,
+Model structure:
+Survey with RTM error and contamination and Admin data with Mismatch
+
+Pr of correctly reporting data pi_s:  0.1366
+Pr of contamination            pi_w:  0.1438
+Pr of correctly match          pi_r:  0.9712
+
+Data TYPE for R
+
+Type I  : r_i = e_i                                 
+with p =     pi_r          : 0.9712
+Type II : r_i = t_i                                 
+with p = (1- pi_r)         : 0.0288
+
+Data TYPE for S
+
+Type I  : s_i = e_i                                 
+with p =     pi_s          : 0.1366
+Type II : s_i = e_i+rho_s*[e_i-E(e_i|X)]+n_i    
+with pr  (1- pi_s)*(1-pi_w): 0.7393
+Type III: s_i = e_i+rho_s*[e_i-E(e_i|X)]+n_i+w_i
+with pr  (1- pi_s)*   pi_w : 0.1242
+
+Class probabilities
+
+Pr R type I  & S Type I  :  0.1327
+Pr R type I  & S Type II :  0.7180
+Pr R type I  & S Type III:  0.1206
+Pr R type II & S Type I  :  0.0039
+Pr R type II & S Type II :  0.0213
+Pr R type II & S Type III:  0.0036
+
+Summary Moments Statistics
+
+          E(x_i)      V(x_i)=  V(E(x_i|X))      Sig_x^2
+e_i      12.3494       0.4435       0.0000       0.4435
+n_i      -0.0609       0.0102       0.0000       0.0102
+w_i      -0.3435       0.9501       0.0000       0.9501
+t_i       8.5862       2.7245       0.0000       2.7245
+
+Reliability Statistics: R
+
+Var(r_i)      0.9047
+Cov(r_i,e_i)  0.4308
+Reliability   0.4762
+Reliability 2 0.4625
+
+Reliability Statistics: S
+
+Var(s_i)      0.5675
+Cov(s_i,e_i)  0.4351
+Reliability   0.7666
+Reliability 2 0.7520
+
+. 
+. //  and we can also obtain the simulation based reliabilities   
+. 
+. estat reliability, sim seed(10)
+
+Reliability Statistics: R
+
+Var(r_i)      0.8980
+Cov(r_i,e_i)  0.4207
+Reliability   0.4684
+Reliability 2 0.4512
+
+Reliability Statistics: S
+
+Var(s_i)      0.5578
+Cov(s_i,e_i)  0.4292
+Reliability   0.7694
+Reliability 2 0.7561
+
+. 
+. //  More interestingly, we can also report the coefficients in their original
+>  scales 
+. //   as well as estimating marginal effects via -margins-
+. //  Here is an example for predicted means, which could be extended 
+. //   to marginal effects, or means by groups defined by covariate levels and 
+> combinations
+. 
+. margins , predict(mean_e) predict(sig_e) ///
+>                   predict(mean_t) predict(sig_t) ///
+>                   predict(mean_w) predict(sig_w) ///
+>                   predict(mean_n) predict(sig_n) ///
+>                   predict(pi_r) predict(pi_s) predict(pi_w) ///
+>                   predict(rho_s)
+Warning: prediction constant over observations.
+Warning: prediction constant over observations.
+Warning: prediction constant over observations.
+Warning: prediction constant over observations.
+Warning: prediction constant over observations.
+Warning: prediction constant over observations.
+Warning: prediction constant over observations.
+Warning: prediction constant over observations.
+Warning: prediction constant over observations.
+Warning: prediction constant over observations.
+Warning: prediction constant over observations.
+Warning: prediction constant over observations.
+
+Predictive margins                              Number of obs     =        400
+Model VCE    : OIM
+
+1._predict   : Conditional mean for component e, predict(mean_e)
+2._predict   : Conditional stdev for component e, predict(sig_e)
+3._predict   : Conditional mean for component t, predict(mean_t)
+4._predict   : Conditional stdev for component t, predict(sig_t)
+5._predict   : Conditional mean for component w, predict(mean_w)
+6._predict   : Conditional stdev for component w, predict(sig_w)
+7._predict   : Conditional mean for component n, predict(mean_n)
+8._predict   : Conditional stdev for component n, predict(sig_n)
+9._predict   : A priori Pi_r, predict(pi_r)
+10._predict  : A priori Pi_s, predict(pi_s)
+11._predict  : A priori Pi_r, predict(pi_w)
+12._predict  : Rho s: RTM Survey data, predict(rho_s)
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    _predict |
+          1  |   12.34936   .0335341   368.26   0.000     12.28364    12.41509
+          2  |   .6659948    .023718    28.08   0.000     .6195083    .7124813
+          3  |   8.586231   .6782989    12.66   0.000     7.256789    9.915672
+          4  |   1.650615   .5192749     3.18   0.001     .6328545    2.668375
+          5  |  -.3435237   .1479331    -2.32   0.020    -.6334672   -.0535802
+          6  |    .974735   .1089581     8.95   0.000      .761181    1.188289
+          7  |  -.0608566   .0063531    -9.58   0.000    -.0733084   -.0484048
+          8  |   .1007999   .0048806    20.65   0.000      .091234    .1103657
+          9  |   .9712426   .0093542   103.83   0.000     .9529088    .9895765
+         10  |   .1365808   .0174403     7.83   0.000     .1023985    .1707632
+         11  |   .1437948   .0233102     6.17   0.000     .0981077    .1894819
+         12  |  -.0220813   .0097204    -2.27   0.023     -.041133   -.0030297
+------------------------------------------------------------------------------
+
+. 
+. /////////////////////////////////////////////////////////////////////
+> /// The last exercise uses -predict-'s "star" option to obtain 
+> ///     hybrid earnings predictors, combining information from the survey and
+>  admin data
+> /// For this we simulate the data again, using KY's parameters for the excerc
+> ise
+>         
+. // First, declare the model to be used for simulation
+. // Second,      declare values of model parameters
+. ky_sim, nobs(400) model(4) seed(101) /// 
+>         mean_e($mean_e) mean_t($mean_t) mean_w($mean_w) mean_n($mean_n) /// 
+>         sig_e($sig_e)   sig_t($sig_t)   sig_w($sig_w)   sig_n($sig_n)   ///
+>         pi_r($pi_r)     pi_s($pi_s)     pi_w($pi_w)     rho_s($rho_s)  clear
+
+.                 
+. predict xi_, star
+
+. // we can compare the true value of the latent data (simulated) with estimato
+> rs
+. // proposed by MRW(12)
+. sum e_var xi_*, sep(0)
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+       e_var |        400    12.34898     .665869    10.4206   14.51099
+        xi_1 |        400    12.24331    .8960243   6.575324   14.48422
+        xi_2 |        400    12.24466    .8982783   6.576832    14.4954
+        xi_3 |        400     12.3475    .6613628   10.44586   14.51076
+        xi_4 |        400    12.34792     .663123   10.43073   14.51101
+        xi_5 |        400     12.3493    .6660313    10.4206   14.51099
+        xi_6 |        400    12.34937    .6662144    10.4206   14.51099
+        xi_7 |        400    12.33033    .5635707   10.61069   14.25576
+
+. 
+. corr e_var xi_*, 
+(obs=400)
+
+             |    e_var     xi_1     xi_2     xi_3     xi_4     xi_5     xi_6
+-------------+---------------------------------------------------------------
+       e_var |   1.0000
+        xi_1 |   0.7160   1.0000
+        xi_2 |   0.7177   1.0000   1.0000
+        xi_3 |   0.9989   0.7213   0.7230   1.0000
+        xi_4 |   0.9990   0.7157   0.7173   0.9999   1.0000
+        xi_5 |   0.9998   0.7147   0.7163   0.9986   0.9987   1.0000
+        xi_6 |   0.9998   0.7140   0.7156   0.9985   0.9987   1.0000   1.0000
+        xi_7 |   0.8911   0.8436   0.8452   0.8970   0.8957   0.8906   0.8904
+
+             |     xi_7
+-------------+---------
+        xi_7 |   1.0000
+
+
+. // The following provides simple plots for the true e_var and the predictions
+>  based on MRW
+. plot e_var xi_1
+
+  14.511 +  
+    T    |                                                                 *
+    r    |  
+    u    |  
+    e    |                                                            **
+         |                                                          **
+    L    |                                                       *** *
+    a    |                *                                     ***
+    t    |                                                    ***
+    e    |                                                   ***
+    n    |            *                         *          ***
+    t    |          *           *                       ****
+         | *       *                *                  ***
+    l    |                 *               *          ***
+    o    |                                         ****
+    g    |                                        ****
+    (    |                          *           ***
+    e    |                                     ***
+    a    |                                   ***
+    r    |                                 ***
+ 10.4206 +                                **
+          +----------------------------------------------------------------+
+          6.57532     Weighted unconditional prediction for e      14.4842
+
+
+. plot e_var xi_2
+
+  14.511 +  
+    T    |                                                                *
+    r    |  
+    u    |  
+    e    |                                                            **
+         |                                                          **
+    L    |                                                       *** *
+    a    |                *                                     ***
+    t    |                                                    ***
+    e    |                                                   ***
+    n    |            *                         *          ***
+    t    |          *           *                       ****
+         | *       *                *                 ****
+    l    |                 *               *         ****
+    o    |                                        * ***
+    g    |                                        ****
+    (    |                          *           ***
+    e    |                                     ***
+    a    |                                   ***
+    r    |                                 ***
+ 10.4206 +                                **
+          +----------------------------------------------------------------+
+          6.57683    Weighted unconditional, unbiased predict     14.4954
+
+
+. plot e_var xi_7
+
+  14.511 +  
+    T    |                                                            *
+    r    |  
+    u    |  
+    e    |                                                     ***     *
+         |                                                ****
+    L    |                                    **  *   *  **      *         *
+    a    |                       *                   *****
+    t    |                                  *    ******
+    e    |                                  * ***** *         *
+    n    |               *  * *         * ********
+    t    |             *  *   **         *****   *
+         |      *   * *   * *    * *  ******
+    l    |            ** *     * * *****          **
+    o    |    *             *  *******
+    g    |                   *******            *
+    (    |         *  *  * ***
+    e    |               ****   *
+    a    |       *    ***
+    r    | *       **
+ 10.4206 +       * *
+          +----------------------------------------------------------------+
+          10.6107      System-wide, linear prediction for e       14.2558
+
+
+. 
+. // we could even produce the predictions assuming we only have access to surv
+> ey data:
+. predict xis_, star surv_only
+
+. corr e_var xis_*, 
+(obs=400)
+
+             |    e_var    xis_1    xis_2    xis_3    xis_4    xis_5    xis_6
+-------------+---------------------------------------------------------------
+       e_var |   1.0000
+       xis_1 |   0.8920   1.0000
+       xis_2 |   0.8907   0.9998   1.0000
+       xis_3 |   0.9008   0.9728   0.9711   1.0000
+       xis_4 |   0.8834   0.9986   0.9987   0.9653   1.0000
+       xis_5 |   0.8748   0.9247   0.9270   0.9606   0.9163   1.0000
+       xis_6 |   0.8700   0.9821   0.9856   0.9436   0.9853   0.9310   1.0000
+       xis_7 |   0.8677   0.9833   0.9870   0.9439   0.9846   0.9310   0.9978
+
+             |    xis_7
+-------------+---------
+       xis_7 |   1.0000
+
+
+. 
+. // finally, we prepare some summary statistics that show 
+. // the reliability of the data as suggested by MRW
+. // This replicates MRW reliability (rel2) for survey and admin data exactly. 
+. quietly: estat reliability
+
+. matrix rel_analytical = r(rel)
+
+. quietly: estat reliability, sim reps(100) seed(10)
+
+. matrix rel_simulation = r(rel)
+
+. matrix roweq rel_analytical = Analytical
+
+. matrix roweq rel_simulation = Simulation
+
+. matrix result = rel_analytical \ rel_simulation
+
+. matrix list result, format(%5.4f)
+
+result[4,4]
+                 Var     Cov    Rel1    Rel2
+Analytical:R  1.0038  0.4930  0.4912  0.4710
+Analytical:S  0.7257  0.5084  0.7006  0.6929
+Simulation:R  0.9947  0.4866  0.4892  0.4662
+Simulation:S  0.7169  0.5055  0.7051  0.6981
+
+. 
+. // We can report the Reliability for all 7 hybrid earnings predictors
+. // following MRW's methodology. 
+. // This replicates MRW's Table 6: 
+. estat xirel, seed(10) reps(100)
+Rel Statistics for 'e' predictions
+
+            Rel1       Rel2        MSE    E(Bias)  Var(Bias)
+r_var     0.5005     0.4786     0.5480    -0.1267     0.5321
+s_var     0.7097     0.7021     0.2227    -0.0783     0.2165
+  e_1     0.5605     0.5353     0.4344    -0.1189     0.4204
+  e_2     0.5600     0.5375     0.4342    -0.1178     0.4204
+  e_3     1.0020     0.9795     0.0105     0.0009     0.0105
+  e_4     0.9879     0.9738     0.0137     0.0013     0.0136
+  e_5     0.9892     0.9758     0.0125    -0.0002     0.0125
+  e_6     0.9805     0.9714     0.0150    -0.0003     0.0150
+  e_7     1.0068     0.7627     0.1216     0.0018     0.1217
+
+. 
+. ****
+. log close       
+      name:  <unnamed>
+       log:  C:\Users\Fernando\Dropbox\projects\00 Stata Projects\ssc ky_fit\ky
+> _example.log
+  log type:  text
+ closed on:  14 Apr 2022, 11:29:12
+-------------------------------------------------------------------------------

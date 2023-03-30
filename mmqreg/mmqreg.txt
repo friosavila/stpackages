@@ -1,0 +1,22 @@
+TITLE
+      'MMQREG': Estimation of quantile regressions via Method of Moments
+
+DESCRIPTION/AUTHOR(S)
+     
+    'mmqreg' estimates quantile regressions using the method of moments as proposed by  Machado and Santos Silva (2019).
+In contrast with -xtqreg-, this command allows for the estimation of quantile regressions without fixed effects, as well
+as when multiple fixed effects are used. 
+     
+      KW: qreg
+      KW: xtqreg
+      KW: quantile regression
+      KW: method of moments
+      KW: Predict
+     
+      Requires: Stata version 13, and community-contributed programs hdfe and ftools
+     
+      Author:  Fernando Rios-Avila, Levy Economics Institute of Bard College
+      Support: email  friosavi@levy.org
+     
+Files:
+mmqreg.ado, mmqreg.sthlp, mmqreg_example.do

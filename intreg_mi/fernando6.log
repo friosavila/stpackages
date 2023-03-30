@@ -1,0 +1,22 @@
+--------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\user\Dropbox2\Dropbox (Personal)\projects\00 Stata Projects\ssc intreg_mi\fernando6.log
+  log type:  text
+ opened on:  21 Oct 2021, 16:02:50
+
+. 
+. use oaxaca, clear
+file oaxaca.dta not found
+r(601);
+
+end of do-file
+
+r(601);
+
+. cd "C:\Users\user\Dropbox2\Dropbox (Personal)\radn"
+C:\Users\user\Dropbox2\Dropbox (Personal)\radn
+
+. do "C:\Users\user\Dropbox2\Dropbox (Personal)\radn\fernando6.do"
+
+. 
+. capture log close

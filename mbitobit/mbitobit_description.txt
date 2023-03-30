@@ -1,0 +1,31 @@
+TITLE
+      'MBITOBIT': module to fit bivariate Tobit regression
+
+DESCRIPTION/AUTHOR(S)
+      
+      mbitobit fits a maximum-likelihood two-equation tobit models.
+      It contains modules for easy estimation of predicted values (predict)
+      and marginal effects (margins) for most commom outcomes for the model.
+      It can also be used to obtained simulated data based on a previously estimated model.
+      
+      KW: Tobit
+      KW: bivariate
+      KW: margins 
+      KW: predict
+      KW: simulation
+      
+      Requires: Stata version 13
+      
+      Author: Fernando Rios-Avila, 
+	      Levy Economics Institute
+      Support:friosavi@levy.org
+      
+
+INSTALLATION FILES                             
+      mbitobit.ado
+      mbitobit_lf.ado
+      mbitobit_p.ado
+      mbitobit.sthlp
+Other files:
+      data_sample.dta
+-------------------------------------------------------------------------------------

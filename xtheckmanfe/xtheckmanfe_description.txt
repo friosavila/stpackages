@@ -1,0 +1,30 @@
+TITLE
+      'xtheckmanfe': module to fit Panel data models in the presence of endogeneity and selection
+
+DESCRIPTION/AUTHOR(S)
+      
+      xtheckmanfe estimates fixed effects panel models in the presence of endogeneity and sample selection
+using a Mundlak estimation device, following the estimator proposed in Wooldridge(1995), and 
+Semykina and Wooldridge (2010). 
+      xtheckmanfe provides standard errors using a bootstrap procedure.
+      
+      KW: xtheckman
+      KW: heckman
+      KW: xtreg 
+      KW: probit
+      KW: selection 
+      KW: panel 
+      
+      Requires: Stata version 13 and ftools from ssc.
+      
+      Author: Fernando Rios-Avila, 
+	      Levy Economics Institute
+      Support:friosavi@levy.org
+      
+
+INSTALLATION FILES                             
+      xtheckmanfe.ado
+      xtheckmanfe.sthlp
+      _xthck.ado	
+      _xthckiv.ado
+-------------------------------------------------------------------------------------

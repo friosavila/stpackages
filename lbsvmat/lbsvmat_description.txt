@@ -1,0 +1,28 @@
+TITLE
+      'LBSVMAT': module to create labelled variables from matrix
+
+DESCRIPTION/AUTHOR(S)
+      
+      lbsvmat is a module similar to -svmat-. Different from the original 
+	command, the newly created variables are labeled using the matrix
+	column name and column equations. See do_file for an example on how
+	data is created and how can be used for plotting. 
+      
+      KW: svmat
+      KW: var labels
+
+      Requires: Stata version 7
+      
+      Author: Fernando Rios-Avila, 
+	      Levy Economics Institute
+      Support:friosavi@levy.org
+      
+
+INSTALLATION FILES                             
+      lbsvmat.ado
+      lbsvmat.sthlp
+      do_file.do
+	
+Other files:
+      do_file.do
+-------------------------------------------------------------------------------------
