@@ -1,8 +1,8 @@
 program drop harmonogram
 program harmonogram
-syntax, x(string asis) y(string asis)
+syntax, x(string asis) y(string asis) [len(int 100) points(int 2000)] 
 clear
-range t 0 100 2000
+range t 0 `len' `points'
 gen x1 = `x'
 gen y1 = `y'
 replace t = -t
@@ -18,4 +18,4 @@ local p2 = _pi/2
 local d1 = 0.02
 local d2 = 0.02
 harmonogram, y(`a1'*sin(`f1'*t+`p1')*exp(-(`d1'*t))+250*sin(2*t + `p1')) ///
-			 x(`a2'*cos(`f2'*t+`p2')*exp(-(`d2'*t))+50*sin(3*t + `p2'))
+			 x(`a2'*cos(`f2'*t+`p2')*exp(-(`d2'*t))+50*sin(3*t + `p2')) len(200) points(1000)
