@@ -1,0 +1,15 @@
+d 'frainstall': Small program to install all programs in my repository
+d 
+d Using this, you will be able to access to some of the odds and ends programs
+d I write for different tasks. Not all of them are on SSC 
+d (mostly because they lack a helpfile of may be of limited interest).
+d In any case, you can use them to have first hand access to updates to these programs!
+d it works just like ssc:
+d     fra install package
+d and done
+d
+d Requires: Stata 9 or above
+d
+d Distribution-Date: 20230330
+d 
+F fra/fra.ado

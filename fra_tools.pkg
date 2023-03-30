@@ -3,6 +3,8 @@ d
 d This is a bag of holdings of small programs
 d I write for myself, to automize some everyday tasks
 d
+d Distribution-Date: 20230330
+d 
 d Requires: Stata 9 or above
 F fra_tools/fra_tools.sthlp
 F fra_tools/adde.ado

@@ -10,8 +10,8 @@ d KW: DID
 d 
 d Requires: Stata 14 or above
 d
-d Distribution data: 20230328
-d
+d Distribution-Date: 20230330
+d 
 F csdid2/csdid2.ado
 F csdid2/csdid2_clean.ado
 F csdid2/csdid2_estat.ado
