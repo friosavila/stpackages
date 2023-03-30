@@ -11,3 +11,31 @@ p csdid2 Module for the implementation of Callaway and Sant'Anna 2021. V2
 p drdid Module for the implementation of Sant'Anna and Zhao 2020
 p jwdid Module for the implementation of DID Wooldridge
 p fra_tools Odds and ends programs
+p color_style
+p cv_regress
+p drdid
+p f_able
+p f_stat
+p fra_tools
+p frainstall
+p frause
+p ghreg
+p intreg_mi
+p joy_plot
+p ky_fit
+p lbsvmat
+p mbitobit
+p mmqreg
+p mscatter
+p qregplot
+p radial_plot
+p regxfe
+p ridge_plot
+p rif
+p sankey_plot
+p spyrograph
+p ssmatch
+p sum_tables
+p vc_pack
+p waffle_plot
+p xtheckmanfe
