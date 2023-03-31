@@ -6,6 +6,7 @@ DESCRIPTION/AUTHOR(S)
       
       FRAUSE provides easy access to all Stata-format datasets
       used in "Introductory Econometrics: A Modern Approach" by J.M. Wooldridge.
+      It also contains some datasets used in other Textbooks.
       
       KW: data management
       KW: instruction
