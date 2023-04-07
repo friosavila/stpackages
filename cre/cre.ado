@@ -1,4 +1,4 @@
-*! v1  CRE Correlated RE model. 
+*! v1.1  CRE Correlated RE model. Drops unnecessary Means
 * does not work with "complex" heckman, because that requires different variables. 
 
 * requires reghdfe
@@ -75,19 +75,25 @@ program myhdmean, rclass
 		
 		local vflist `vflist' `vn'
 	}
+	***
 	
 	if "`compact'"=="" {
 		foreach i in `vflist' {
+			local vplist
 			local cnt
 			local fex
 			foreach j of varlist `abs' {
 				local cnt=`cnt'+1
 				capture drop `prefix'`cnt'_`i'
 				local fex `fex' `prefix'`cnt'_`i'=`j'
-				local vlist `vlist' `prefix'`cnt'_`i'
+				local vplist `vplist' `prefix'`cnt'_`i'
 			}
-			qui:reghdfe `i' `if'  [`weight'`exp'], abs(`fex')  `keepsingletons'
+			qui:reghdfe `i' `if'  [`weight'`exp'], abs(`fex')  `keepsingletons' resid
+			qui:sum _reghdfe_resid, meanonly
+			if abs(`r(max)'-`r(min)')>epsfloat() local vlist `vlist' `vplist'
+			else  local dropvlist `dropvlist' `vplist'
 		}
+		
 		local vflist `vlist'
 		local vlist
 		foreach i in `vflist' {
@@ -102,24 +108,27 @@ program myhdmean, rclass
 		foreach i in  `vflist' {
 			local cnt
 			local fex
+			local vplist
 			capture drop `prefix'`cnt'_`i'
 			qui:reghdfe `i' `if'  [`weight'`exp'], abs(`abs') resid `keepsingletons'
-			qui:gen double `prefix'`cnt'_`i'=`i'-_reghdfe_resid-_cons
-			local vlist `vlist' `prefix'`cnt'_`i'
-			qui:drop _reghdfe_resid
-			
+			qui:sum _reghdfe_resid, meanonly
+			if abs(`r(max)'-`r(min)')>epsfloat() {
+				qui:gen double `prefix'`cnt'_`i'=`i'-_reghdfe_resid-_cons
+				local vlist `vlist' `prefix'`cnt'_`i'
+			}
+ 			qui:drop _reghdfe_resid			
 		}
 		
-		local vflist `vlist'
+		/*local vflist `vlist'
 		local vlist
 		foreach i in `vflist' {
 			sum `i', meanonly
 			if abs(`r(max)'-`r(min)')>epsfloat() local vlist `vlist' `i'
 			else local dropvlist `dropvlist' `i'
-		}
+		}*/
 		return local vlist   `vlist'
 	}
-	display in w "`dropvlist'"
+	*display in w "`dropvlist'"
 	if "`dropvlist'"!="" drop `dropvlist'
 	
 end
