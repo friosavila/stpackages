@@ -1,4 +1,5 @@
-*! v1.21 Waffle_plot. Corrects IF
+*! v1.22 Waffle_plot. adds total to i
+* v1.21 Waffle_plot. Corrects IF
 * v1.2 Waffle_plot. With Stata 14 or earlier?
 * v1.1 Waffle_plot. adds default size
 * v1 Waffle_plot. Simple Waffle plot
@@ -51,16 +52,34 @@ program waffle_i
 			TOTAL TOTAL1(str)           /// <- to give a manual CAP
 			rseed(int 0) legend(str asis)]
 	** define dimensions
-	numlist "`anything'", range(>=0 <=100 )
-	local value `r(numlist)'
+	numlist "`anything'", range(>=0 )
+	local ovalue `r(numlist)'
 	capture numlist "`anything'", range(>=0 <=1 )
 	if _rc==0 {
-		foreach i in `value' {
+		foreach i in `ovalue' {
 			local vvalue `vvalue' `=`i'*100'			
 		}
 		local value `vvalue'
 	}
- 
+
+	if "`total'`total1'"!="" {
+		if "`total'"!="" {
+			foreach i in `ovalue' {
+				local tt = `tt'+`i'
+			}
+			foreach i in `ovalue' {
+				local value `value' `=`i'/`tt'*100'
+			}
+	
+		}		
+
+		else if "`total1'"!="" {
+			foreach i in `ovalue' {
+				local value `value' `=`i'/`total1'*100'
+			}
+		}
+	}
+	else local value `ovalue'
 	
  *************************************
 	if `nobs'!=0 {
@@ -78,12 +97,22 @@ program waffle_i
 	default , `sctopt' xnobs(`xnobs') ynobs(`xnobs') waffle_i
 	local sctopt `sctopt' `r(msize)'
 	** create FR
-	clear
+	
 *	tempname fr
 *	frame create `fr'
 *	qui:frame `fr':
-	qui: {
-		
+if c(stata_version)>=16 {
+	tempname f1
+	local c1 frame create `f1'
+	local c2 frame `f1': 
+	local c3 }
+}	
+else {
+	local c1 preserve
+	local c3 restore
+}
+	`c1'
+	`c2' qui: {		
 		set obs `ynobs'	
 		gen y=_n
 		expand `xnobs'	
@@ -139,16 +168,13 @@ program waffle_i
 			local mlg legend(off)
 			local legend 
 		}
-		
-
-	   *display  in w "`ymrg':`xmrg'"
-	   ** The plot
 		two `sct' , ///
 			aspect(`=`ynobs'/`xnobs'') ///	
 			ylabel("") xlabel("")  xtitle("") ytitle("") ///
 			`options' ///
 			xscale( range(-`xmrg'  `xmrg')) yscale( range(-`ymrg'  `ymrg')) `mlg' legend(`legend')
 	}
+ 
 end
  
 
@@ -193,13 +219,13 @@ program waffle_plot
 			subtitle(passthru)             ///         subtitle of title
 			note(passthru)                 ///         note about graph
 			caption(passthru)              ///         explanation of graph
-			legend(string asis) flip * newframe(name) TOTAL TOTAL1(varname) INDividual]
+			legend(string asis) flip * newframe(name) TOTAL TOTAL1(str) INDividual]
 			
 	qui:mbyparser `by'
 	local over  `r(rvars)'
 	local byopt `r(ropt)'
 	
-	capture numlist "`anything'", range(>=0 <=100 )
+	capture numlist "`anything'", range(>=0 )
 	if _rc==0 	{
 		waffle_i `0'
 		exit

@@ -181,7 +181,7 @@ void csdid_estat::make_table(){
 	serr = iqrse(bsmean)
 	// Critical value
 	
-	t_stat =qtc(bsmean:/serr, cilevel )
+	t_stat =qtc( abs(bsmean:/serr) , cilevel )
 
 	// bb are point estimates
 	ci = (bb:-serr:*t_stat) \ (bb:+serr:*t_stat)
