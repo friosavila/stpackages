@@ -57,17 +57,21 @@ end
 				 string scalar tvar,
 				 string scalar touse){
 		real matrix i, t
-		real scalar ntt, ni, nt
+		real scalar ntt, ni, nt, max
 		st_view(i=.,.,ivar,touse)
 		st_view(t=.,.,tvar,touse)
 		ntt=rows(i)
 		ni=rows(uniqrows(i))
 		nt=rows(uniqrows(t))
-		
-		if ( (ni*nt) > ntt) {
-			stata(`"display in red "Panel is not balanced"')
-			stata(`"display in red "Will use observations with Pair balanced (observed at t0 and t1)"')
+		max = max(uniqrows((i,t),1)[,3])
+		if (max>1) {
+			_error(451, "repeated time values within panel")
 		}
+		if ( (ni*nt) > ntt) {
+			stata(`"display in red "Panel is not balanced""')
+			stata(`"display in red "Will use observations with Pair balanced (observed at t0 and t1)""')
+		}
+ 
 	}
 end
 
@@ -134,8 +138,7 @@ end
 	local post_mean `r(mean)'
 	
 	if `pre_mean'!=`post_mean' display "Always Treated units have been excluded"
-	
-	
+		
 	** is gvar nested iwthing county
 	if "`ivar'"!="" {
 		_xtreg_chk_cl2 `gvar' `ivar'
