@@ -18,8 +18,8 @@ d
 d      Author:  Fernando Rios-Avila, Levy Economics Institute of Bard College
 d      Support: email  friosavi@levy.org
 d
-F jwdid.ado
-F jwdid_estat.ado; 
-F jwdid.sthlp
-F jwdid_plot.sthlp
-F jwdid_postestimation.sthlp
+F jwdid/jwdid.ado
+F jwdid/jwdid_estat.ado; 
+F jwdid/jwdid.sthlp
+F jwdid/jwdid_plot.sthlp
+F jwdid/jwdid_postestimation.sthlp
