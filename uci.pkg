@@ -1,0 +1,11 @@
+d 'uci': Module to obtain Uniform Confidence Intervals via Simulation
+d 
+d This command aims to help producing uniform confidence intervals, given that a model has already been estimated correctly
+d It will just take the coefficient and VCV matrix from a previously estimated model, and produce a new r() object with the 
+d new CI. 
+d
+d Requires: Stata 9 or above
+d
+d Distribution-Date: 20230330
+d 
+F uci/uci.ado

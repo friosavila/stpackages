@@ -1,5 +1,4 @@
 ** Program for CUI 
-capture program drop uci
 program uci, rclass
 	syntax, [reps(int 999) level(real 95) rseed(str) bmatrix(name) vmatrix(name)]
 	if "`rseed'"!="" set seed `rseed'
