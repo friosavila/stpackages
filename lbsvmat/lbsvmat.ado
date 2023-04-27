@@ -1,9 +1,10 @@
-*! V1.1 Bug fixed when N is small
+*! V1.2 Ads ROW info
+* V1.1 Bug fixed when N is small
 * random program bc svmat doesnt do what i want it to do.
 * solution. write my own version.
-capture program drop lbsvmat
+*capture program drop lbsvmat
 program define lbsvmat
-	syntax anything, [name(string) matname]
+	syntax anything, [name(string) matname row]
 	version 7
     parse "`anything'", parse(" ,")
 	if "`2'" == "" | "`2'" == "," {
@@ -30,6 +31,12 @@ program define lbsvmat
 		qui:gen `type' ``i''=matrix(`A'[_n,`i'])
 	}
 	// here is where they are renamed.
+	if "row"!="" {
+		mata:ms=st_matrixrowstripe("`A'")
+		if  "`name'"!="" getmata (`name'_eq `name'_nm)=ms , force
+		else getmata (`A'_eq `A'_nm)=ms , force
+		capture mata mata drop ms
+	}
 	
 	if "`name'`matname'"=="" {
 		local eqn:coleq `A'
@@ -96,4 +103,5 @@ program define lbsvmat
 		   }
 		}
 	}
+
 end
