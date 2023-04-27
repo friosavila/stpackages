@@ -270,7 +270,8 @@ program define grqreg_x, rclass
 	if inlist("`cmd'","smqreg") {
 		local bw0 = `e(bw)'		
 		tempname binit
- 		foreach q of local qlist {
+		set trace on
+		foreach q of local qlist {
 			local cnt = `cnt'+1
 			if `cnt'==1 qui:qreg `yvar' `xvar' `ifin' `wgt',  q(`q') 
 			matrix `binit' = e(b)
@@ -292,7 +293,8 @@ program define grqreg_x, rclass
 				matrix `ulo'=nullmat(`ulo') \ `olsaux'["ul",":"]
 			}
 		}
- 	}
+		set trace off
+	}
 	
 	if inlist("`cmd'","sivqr") {
 		tempname binit
