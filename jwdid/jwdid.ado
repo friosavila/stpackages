@@ -76,20 +76,23 @@ program jwdid, eclass
 			if `r(N)'>0 {
 				if "`never'"!="" {
 					if (`i'-`gap')!=`j' {
-					local xvar `xvar' c.__tr__#i`i'.`gvar'#i`j'.`tvar' ///
-									  c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
-								  
-					local xvar2 `xvar2' i`i'.`gvar'#i`j'.`tvar' 
-					
-					local xvar3 `xvar3' i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
-					}
+						capture drop _g`i_t`j'=i`i'.`gvar'#i`j'.`tvar'
+						local xvar `xvar' c.__tr__#_g`i_t`j'   									  
+						local xvar2 `xvar2' _g`i_t`j' 												  
+						if "`x'"!="" {
+							local xvar `xvar'  c.__tr__#_g`i_t`j'#c.(`xxvar') 
+							local xvar3 `xvar3' _g`i_t`j'#c.(`xxvar')  
+						}
 				}
 				else if `j'>=`i' {
-					local xvar `xvar' c.__tr__#i`i'.`gvar'#i`j'.`tvar' ///
-									  c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')   
-								 
-					local xvar2 `xvar2' i`i'.`gvar'#i`j'.`tvar' 		
-					local xvar3 `xvar3' i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
+						capture drop _g`i_t`j'=i`i'.`gvar'#i`j'.`tvar'
+						local xvar `xvar' c.__tr__#_g`i_t`j'  									  
+						local xvar2 `xvar2' _g`i_t`j' 
+												  
+						if "`x'"!="" {
+							local xvar `xvar'  c.__tr__#_g`i_t`j'#c.(`xxvar') 
+							local xvar3 `xvar3' _g`i_t`j'#c.(`xxvar')  
+						}
 				}
 			}
 		}
