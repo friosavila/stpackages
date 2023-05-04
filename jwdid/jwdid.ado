@@ -1,4 +1,5 @@
-*! v1.33 reduces ammount of ommited empty
+*! v1.34 Minor Improv to Combinations. Also only works St15 or above
+* v1.33 reduces ammount of ommited empty
 * v1.32 Corrects for bug with no ivar
 * v1.31 Corrects for Never group
 * v1.3 Corrects for Nonlinear models
@@ -8,7 +9,7 @@
 * v1   FRA 8/5/2022 Has almost everything we need
 
 program jwdid, eclass
-	version 14
+	version 15
 	syntax varlist [if] [in] [pw], [Ivar(varname) cluster(varname) ] [Tvar(varname) time(varname)] Gvar(varname) [never group method(name) nocorr]
 	marksample  touse
 	markout    `touse' `ivar' `tvar' `gvar'
@@ -69,27 +70,34 @@ program jwdid, eclass
 	mata: gap=min((xs[2..rows(xs),1]:-xs[1..rows(xs)-1,1]))
 	mata: st_local("gap",strofreal(gap))
 	mata: mata drop xs gap xs1 xs2
-	***
+	*** dropping newv
+	**
 	foreach i of local glist {
 		foreach j of local tlist {
 			qui:count if `i'==`gvar' & `j'==`tvar'
 			if `r(N)'>0 {
 				if "`never'"!="" {
 					if (`i'-`gap')!=`j' {
-					local xvar `xvar' c.__tr__#i`i'.`gvar'#i`j'.`tvar' ///
-									  c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
-								  
+					
+					local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar' 							  
 					local xvar2 `xvar2' i`i'.`gvar'#i`j'.`tvar' 
 					
-					local xvar3 `xvar3' i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
+					if "`x'"!="" {
+						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
+						local xvar3 `xvar3' i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
+						}
 					}
 				}
 				else if `j'>=`i' {
-					local xvar `xvar' c.__tr__#i`i'.`gvar'#i`j'.`tvar' ///
-									  c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')   
-								 
-					local xvar2 `xvar2' i`i'.`gvar'#i`j'.`tvar' 		
-					local xvar3 `xvar3' i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
+
+					local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar' 							  
+					local xvar2 `xvar2' i`i'.`gvar'#i`j'.`tvar' 
+					
+					if "`x'"!="" {
+						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
+						local xvar3 `xvar3' i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
+					}
+
 				}
 			}
 		}
@@ -147,6 +155,12 @@ program jwdid, eclass
 	
 	ereturn local cmd jwdid
 	ereturn local cmdline jwdid `0'
+	if "`method'"!="" {
+		ereturn local scmd `method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr'   i.`gvar' i.`tvar' if `touse' [`weight'`exp'], cluster(`cvar') 
+	}
+	else {
+		ereturn local scmd reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr' 	if `touse' [`weight'`exp'], abs(`gvar'  `tvar') cluster(`cvar') keepsingletons noempty
+	}
 	ereturn local estat_cmd jwdid_estat
 	if "`never'"!="" ereturn local type  never
 	else 			 ereturn local type  notyet

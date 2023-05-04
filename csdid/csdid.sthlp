@@ -179,7 +179,7 @@ even if covariates are time-varying, only the base-period (earlier-period) value
 {pstd}
 When using crossection data, while all characteristics can be considered time-varying, the underlying assumption is that 
 within treated and untreated group, characteristics are stationary (time constant). In other words, 
-be careful of controlling for characteristics that are either time constant (e.g. sex or race), or for 
+be careful and try controlling for characteristics that are either time constant (e.g. sex or race), or for 
 pretreatment characteristics.
 {p_end}
  
