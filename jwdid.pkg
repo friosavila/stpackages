@@ -13,10 +13,12 @@ d      KW: DID
 d      KW: Event Studies
 d      KW: jwdid
 d      
-d      Requires: Stata version 14, rehdfe
+d      Requires: Stata version 15, reghdfe, hdfe, ftools
 d      
 d      Author:  Fernando Rios-Avila, Levy Economics Institute of Bard College
 d      Support: email  friosavi@levy.org
+d
+d   Distribution-Date: 20230503
 d
 F jwdid/jwdid.ado
 F jwdid/jwdid_estat.ado
