@@ -1,4 +1,6 @@
 *! v1. FRA 
+* Allows plot with extra stuff
+
 program define clrreturn, rclass
         exit
 end
@@ -27,7 +29,7 @@ end
 			csdid_do `key' `rest'
 			addr local cmd  estat
 			addr local cmd2 csdid2
-			if "`plot'"!="" csdid2_plot ,  ktype(`ktype') `options'
+			if "`plot'"!="" csdid2_plot ,  ktype(`ktype') 
 		}
 		else if inlist("`key'","plot") {
 			csdid2_plot, `options'
