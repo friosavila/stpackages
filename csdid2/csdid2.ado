@@ -1,3 +1,4 @@
+*! v1.11 Corrects For missing in cluster
 *! v1.1 adds Rolling
 *! v1 Wrapper for CSDID2-Mata version
 
@@ -141,12 +142,12 @@ end
 		
 	** is gvar nested iwthing county
 	if "`ivar'"!="" {
-		_xtreg_chk_cl2 `gvar' `ivar'
+		_xtreg_chk_cl2 `gvar' `ivar' `touse'
 	}
 	** is cluster correct?
 	if "`cluster'"!="" {
-		if "`ivar'"!="" _xtreg_chk_cl2 `cluster' `ivar'
-		else _xtreg_chk_cl2  `gvar' `cluster'
+		if "`ivar'"!="" _xtreg_chk_cl2 `cluster' `ivar' `touse'
+		else _xtreg_chk_cl2  `gvar' `cluster' `touse'
 	}
 	** Is a balanced panel?
 	if "`ivar'"!="" {
