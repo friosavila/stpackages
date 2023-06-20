@@ -43,7 +43,7 @@ class csdid_estat {
 	// to be initialized
 	real scalar t_stat
 	// Required Info
-	real scalar cilevel, bwtype, reps, max_mem, test_type
+	real scalar cilevel, bwtype, reps, max_mem, test_type, noavg
 	// info created
 	real scalar nclust, nobs, ggroups, ccalendar, eevent, error
 	// to transfer Range Info.
@@ -313,6 +313,13 @@ void csdid_estat::group_att(class csdid scalar csdid ){
 		onames = onames[1..iic+1,]
 		sumwgt = colsum(sumwgt)
 		erif= aggte(aux,sumwgt ), aux
+		// If request no AVG
+
+		if (noavg==1) {
+			erif   =  erif[.,2..cols(erif)]
+			onames =onames[2..rows(onames),] 
+		}
+		
 	}
 	else {
 		error=1
@@ -361,6 +368,12 @@ void csdid_estat::calendar_att(class csdid scalar csdid ){
 		aux    =    aux[,1..iic]
 		onames = onames[1..iic+1,]
 		erif  = aggte(aux, J(1,cols(aux),1) ), aux
+		// If request no AVG
+		if (noavg==1) {
+			erif   =  erif[.,2..cols(erif)]
+			onames =onames[2..rows(onames),] 
+		}
+		
 	}
 	else {
 		error=1
@@ -562,8 +575,16 @@ void csdid_estat::event_att(class csdid scalar csdid){
 		if (sum(iim:==1)) {
 			erif =erif, aggte(select(aux,iim:==1) )
 		}
+		real scalar col_erif
+		col_erif=cols(erif)+1
 		// erif
 		erif  = erif, aux
+ 
+		// If request no AVG
+		if (noavg==1) {
+			erif   =  erif[.,col_erif..cols(erif)]
+			onames =onames[col_erif..rows(onames),] 
+		}		
 	}
 	else {
 		error=1

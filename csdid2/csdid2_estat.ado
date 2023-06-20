@@ -1,3 +1,4 @@
+*! v1.1 adds option for CSname
 *! v1. FRA 
 * Allows plot with extra stuff
 
@@ -20,19 +21,22 @@ end
 
  program define csdid2_estat, sortpreserve    
 	version 14
-		syntax anything, [* plot]
-        capture mata:csdid
+		syntax anything, [* plot csname(name)]
+		if "`csname'"=="" local csname csdid
+        capture mata:`csname'
 		if _rc!=0   error 301
  		gettoken key rest : 0, parse(", ")
+		if "`rest'"=="" local rest ", csname(`csname')"
+		else local rest `rest' csname(`csname')
 		
 		if inlist("`key'","attgt","simple","pretrend","group","calendar","event","cevent") {
-			csdid_do `key' `rest'
+			csdid_do `key' `rest' 
 			addr local cmd  estat
 			addr local cmd2 csdid2
 			if "`plot'"!="" csdid2_plot ,  ktype(`ktype') 
 		}
 		else if inlist("`key'","plot") {
-			csdid2_plot, `options'
+			csdid2_plot, `options' 
 		}
 		else {
 		    display in red "Option `key' not recognized"
@@ -54,7 +58,10 @@ end
 					rcalendar(numlist) /// 
 					revent(numlist)    ///
 					REBALance(numlist)    /// <-- restricts groups and event, unless event is used too
-					max_mem(real 1)  plot  * ]
+					max_mem(real 1)  ///
+					noavg   ///
+					csname(name) ///
+					plot  * ]
 	
 	// confirm csdid exists and if csdidstat=csdid_estat()
 	local key `namelist'
@@ -73,9 +80,12 @@ end
 	
 	/// initialize
 	if "`rseed'"!="" set seed `rseed'
+	local nov 0
+	if "`avg'"!="" local nov 1
 	
 	mata: csdidstat.cilevel = `level'/100
 	mata: csdidstat.bwtype  = 1      
+	mata: csdidstat.noavg   = `nov' 
 	mata: csdidstat.reps    = `reps'
 	mata: csdidstat.max_mem = `max_mem'
 	mata: csdidstat.range.selgvar = J(0,0,.)
@@ -105,7 +115,7 @@ end
 	}	
 	if `ktype'>0 		mata: csdidstat.test_type  = `ktype'      
 	else {
-		mata: csdidstat.pretrend(csdid)
+		mata: csdidstat.pretrend(`csname')
 		display "Pre-trend test"
 		display "H0: All ATTGT=g for all T<G"
 		display "chi2(`r(df)') = " %10.4f scalar(chi2_)
@@ -117,7 +127,7 @@ end
 	}
 	
 	if "`wboot'`wboot1'"=="" {
-		mata:csdidstat.atts_asym(csdid)
+		mata:csdidstat.atts_asym(`csname')
 		
 		capture:est store `lastreg'	
 		ereturn clear
@@ -144,15 +154,18 @@ end
 		
 	}
 	else {
-		mata:csdidstat.atts_wboot(csdid)
-		
+		mata:csdidstat.atts_wboot(`csname')
 		capture:est store `lastreg'	
 		ereturn clear
 		return matrix table = _table, copy
- 		tempname bb
+		
+ 		tempname bb vv
 		matrix `bb' = _table[1,....]
+		matrix `vv' = diag(_table[2,....])
+		matrix `vv' = `vv'*`vv'
 		return matrix b = `bb', copy
-		adde post `bb'
+		return matrix v = `vv', copy
+		adde post `bb' `vv'
 		adde matrix table1 = _table, copy
 		adde local vcetype WBoot
 		adde local cmd 	   csdid2

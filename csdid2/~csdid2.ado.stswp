@@ -108,7 +108,7 @@ end
 	}	
 	
 	if "`short'"=="" {
-		local long long
+		local long "`long'"
 		display "Producing Long Gaps by default"
 	}	
 	else {
@@ -195,7 +195,6 @@ end
 	local ntyet = 0
 	if "`tyet'"!=""  local ntyet = 1
 	local shrt = 1
-	
 	if "`long'"!=""  local shrt  = 0
 	local asr= 0
 	if "`asinr'"!="" local asr   = 1
