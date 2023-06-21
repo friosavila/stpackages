@@ -1,4 +1,5 @@
-*! version 1.22  (Marcj 2023) Small changes to SIVQR weights, Ifs and ins
+*! version 1.23  (June 2023) Bug with IFs and String variable
+* version 1.22  (March 2023) Small changes to SIVQR weights, Ifs and ins
 * version 1.21  (Feb 2023) Adds smqreg and sivqr
 * version 1.2  (Dec 2022) Options for Other Range plots
 * version 1.1  (APR 2022) Adds new options and default
@@ -113,7 +114,7 @@ program define grqreg_x, rclass
 	
 	if inlist("`e(cmd)'","qreg","bsqreg","mmqreg","qrprocess") | ///
 	   inlist("`e(cmd)'","qreg2","xtqreg","ivqreg2" ) {
-	    local xvars `=subinstr("`e(cmdline)'","`e(cmd)'","",1)'
+	    local xvars `=subinstr(`"`e(cmdline)'"',"`e(cmd)'","",1)'
 	 	qui:qreg_stripper `xvars'
 		** estimate all variables
 		local cmd  `e(cmd)'
@@ -127,7 +128,7 @@ program define grqreg_x, rclass
 	}
 	** Modify so it can also capture instruments...
 	if inlist("`e(cmd)'","smqreg") {
-	    local xvars `=subinstr("`e(cmdline)'","`e(cmd)'","",1)'
+	    local xvars `=subinstr(`"`e(cmdline)'"',"`e(cmd)'","",1)'
 	 	qui:qreg_stripper `xvars'
 		** estimate all variables
 		local cmd  `e(cmd)'
@@ -155,7 +156,7 @@ program define grqreg_x, rclass
 	}
 	if inlist("`e(cmd)'","sqreg") { 
 		tempname aux2
-	    local xvars `=subinstr("`e(cmdline)'","`e(cmd)'","",1)'
+	    local xvars `=subinstr(`"`e(cmdline)'"',"`e(cmd)'","",1)'
 		qui:ereturn display
 		matrix `aux2'=r(table)
 	    qui:sqreg_stripper `xvars'
@@ -172,7 +173,7 @@ program define grqreg_x, rclass
 	}
 	if inlist("`e(cmd)'","rifhdreg","bsrifhdreg") {
 		
-	    local xvars `=subinstr("`e(cmdline)'","`e(cmd)'","",1)'
+	    local xvars `=subinstr(`"`e(cmdline)'"',"`e(cmd)'","",1)'
 	    qui:rifhdreg_stripper `xvars'
 		local cmd  `e(cmd)'
 		local xvar `r(xvar)'
