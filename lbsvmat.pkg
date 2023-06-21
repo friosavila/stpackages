@@ -1,0 +1,27 @@
+d DESCRIPTION/AUTHOR(S)
+d      
+d      lbsvmat is a module similar to -svmat-. Different from the original 
+d	command, the newly created variables are labeled using the matrix
+d	column name and column equations. See do_file for an example on how
+d	data is created and how can be used for plotting. 
+d      
+d      KW: svmat
+d      KW: var labels
+d
+d      Requires: Stata version 7
+d      
+d      Author: Fernando Rios-Avila, 
+d	      Levy Economics Institute
+d      Support:friosavi@levy.org
+d      
+d
+d INSTALLATION FILES                             
+d      lbsvmat.ado
+d      lbsvmat.sthlp
+d      do_file.do
+d
+d Distribution-Date: 20230621
+d 
+F lbsvmat.ado
+F lbsvmat.sthlp
+F lbsvmat.ado
