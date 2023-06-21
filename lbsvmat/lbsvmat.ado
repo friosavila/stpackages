@@ -33,7 +33,9 @@ program define lbsvmat
 	// here is where they are renamed.
 	if "row"!="" {
 		mata:ms=st_matrixrowstripe("`A'")
-		if  "`name'"!="" getmata (`name'_eq `name'_nm)=ms , force
+		if  "`name'"!="" {
+			getmata (`name'_eq `name'_nm)=ms , force
+		}	
 		else getmata (`A'_eq `A'_nm)=ms , force
 		capture mata mata drop ms
 	}
