@@ -22,6 +22,6 @@ d      do_file.do
 d
 d Distribution-Date: 20230621
 d 
-F lbsvmat.ado
-F lbsvmat.sthlp
-F lbsvmat.ado
+F lbsvmat/lbsvmat.ado
+F lbsvmat/lbsvmat.sthlp
+
