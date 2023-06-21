@@ -31,7 +31,7 @@ program define lbsvmat
 		qui:gen `type' ``i''=matrix(`A'[_n,`i'])
 	}
 	// here is where they are renamed.
-	if "row"!="" {
+	if "`row'"!="" {
 		mata:ms=st_matrixrowstripe("`A'")
 		if  "`name'"!="" {
 			getmata (`name'_eq `name'_nm)=ms , force
