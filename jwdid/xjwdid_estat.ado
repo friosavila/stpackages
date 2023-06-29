@@ -1,6 +1,5 @@
-*! v1.34 FRA. Small changes on Other
-* v1.33 FRA. Changes output (not AT anymore)
-* Also allows for "other" as condition
+*! v1.33 FRA. Changes output (not AT anymore)
+*! Also allows for "other" as condition
 * v1.32 FRA. Prepares for did_plot
 * v1.31 FRA. Prepares for jwdid_plot
 * v1.3 FRA. Corrects Never
@@ -43,12 +42,10 @@ program define jwdid_simple, rclass
 		capture:est store `lastreg'	
 		tempname lastreg
 		capture:qui:est store `lastreg'   
-		tempvar etr
-		if "`other'"!="" qui: gen `etr'=`other' if !inlist(`other',0,.)
-		else local etr 
+
 		qui:margins  ,  subpop(if __etr__==1) at(__tr__=(0 1)) ///
 					noestimcheck contrast(atcontrast(r)) ///
-					`options' post over(`etr')
+					`options' post over(`other')
 		tempname table b V			
 		matrix `table' = r(table)
 		matrix `b' = e(b)
@@ -90,7 +87,7 @@ program define jwdid_group, rclass
 		
 		capture drop __group__
 		qui:clonevar __group__ =  `e(gvar)' if __etr__==1 & `aux'<`e(gvar)'
-		if "`other'"!="" replace __group__=. if inlist(`other',0,.)
+		if "`other'"!="" replace __group__=__group__*`other'
 		qui:margins , subpop(if __etr__==1) at(__tr__=(0 1)) ///
 				  over(__group__) noestimcheck contrast(atcontrast(r)) ///
 				  `options'  post
@@ -134,8 +131,7 @@ program define jwdid_calendar, rclass
 		capture:est store `lastreg'	
 		tempname lastreg
 		capture:qui:est store `lastreg'  
-		
-		if "`other'"!="" replace __calendar__=. if inlist(`other',0,.)
+		if "`other'"!="" replace __calendar__=__calendar__*`other'
 		qui:margins , subpop(if __etr__==1) at(__tr__=(0 1)) ///
 				over(__calendar__) noestimcheck contrast(atcontrast(r)) ///
 				`options' post
@@ -184,7 +180,7 @@ program define jwdid_event, rclass
 		
 		*qui:replace __event__ =__event__ - 1 if  __event__ <0
 		if "`e(type)'"=="notyet" {
-			if "`other'"!="" replace __event__=. if inlist(`other',0,.)
+			if "`other'"!="" replace __event__=__event__*`other'
 			qui:margins , subpop(if __etr__==1) at(__tr__=(0 1)) ///
 				over(__event__) noestimcheck contrast(atcontrast(r)) ///
 				`options' post
@@ -198,7 +194,7 @@ program define jwdid_event, rclass
 			foreach i of local lv {
 				label define __event__ `i' "`=`i'+`rmin''", modify
 			}
-			if "`other'"!="" replace __event__=. if inlist(`other',0,.)
+			if "`other'"!="" replace __event__=__event__*`other'
 
 			label values __event__ __event__
 			qui:margins , subpop(if __tr__==1) at(__tr__=(0 1)) ///
