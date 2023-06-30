@@ -1,4 +1,6 @@
-*! v1.34 FRA. Small changes on Other
+*! v1.35 FRA. adds method to mlogit
+
+* v1.34 FRA. Small changes on Other
 * v1.33 FRA. Changes output (not AT anymore)
 * Also allows for "other" as condition
 * v1.32 FRA. Prepares for did_plot
@@ -18,22 +20,29 @@ end
 
 program define jwdid_estat, sortpreserve   
 	version 14
-    syntax anything, [* ]
+    syntax anything, [* plot]
         if "`e(cmd)'" != "jwdid" {
                 error 301
         }
+		
+		if "`e(cmd2)'"!="" adde local cmd  `e(cmd2)'
         gettoken key rest : 0, parse(", ")
-        if inlist("`key'","simple","group","calendar","event") {
+		
+		capture noisily {
+			if inlist("`key'","simple","group","calendar","event","plot") {
+				
+				jwdid_`key'  `rest'
+				addr local cmd  estat, 
+				addr local cmd2 jwdid, 
+			}
+			else {
+				display in red "Option `key' not recognized"
+					error 199
+			}
 			
-			jwdid_`key'  `rest'
-			addr local cmd  estat, 
-			addr local cmd2 jwdid, 
-        }
-		else {
-			display in red "Option `key' not recognized"
-				error 199
+ 
 		}
-
+		adde local cmd jwdid
 end
 
 program define jwdid_simple, rclass

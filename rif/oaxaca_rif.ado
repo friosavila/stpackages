@@ -1,4 +1,5 @@
-*!version 2.5 Oct 2021 Fernando Rios Avila Adds IPT
+*!version 2.51 Jun 2023 fixes Retain
+*version 2.5 Oct 2021 Fernando Rios Avila Adds IPT
 *version 2.4 Nov 2020 Fernando Rios Avila
 * Took out the Robust and cluster as default options. This may give users more flexibility, and avoid the "robust" problem/
 * version 2.34 April  2020 Fernando Rios Avila
@@ -126,7 +127,7 @@ program oaxaca_rif, eclass sortpreserve byable(recall)  properties( svyb )
 	tempvar rifretain
 		if "`old'"=="" qui:egen `rifretain'=rifvar(`y')     if `touse', `rif' weight(`exp') by(`by')
 		else           qui:egen `rifretain'=rifvar_old(`y') if `touse', `rif' weight(`exp') by(`by')
-		qui: replace `rifretain'=`rif_var'*`scale' 
+		qui: replace `rifretain'=`rifretain'*`scale' 
 		
 		if "`replace'"!="" {
 			capture:gen double `retain'=`rifretain'

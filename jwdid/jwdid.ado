@@ -1,4 +1,5 @@
-*! v1.34 Minor Improv to Combinations. Also only works St15 or above
+*! v1.35 Adds method for margins
+* v1.34 Minor Improv to Combinations. Also only works St15 or above
 * v1.33 reduces ammount of ommited empty
 * v1.32 Corrects for bug with no ivar
 * v1.31 Corrects for Never group
@@ -154,6 +155,7 @@ program jwdid, eclass
 	}
 	
 	ereturn local cmd jwdid
+	ereturn local cmd2 `method'
 	ereturn local cmdline jwdid `0'
 	if "`method'"!="" {
 		ereturn local scmd `method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr'   i.`gvar' i.`tvar' if `touse' [`weight'`exp'], cluster(`cvar') 
