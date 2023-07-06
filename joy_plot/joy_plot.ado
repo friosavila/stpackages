@@ -1,4 +1,5 @@
-*! v1.53 Corrects xlabel for biviolin
+*! v1.54 Corrects xlabel for biviolin
+* v1.53 Corrects xlabel for biviolin
 * v1.52 Corrects if 
 * v1.51 Refinements for Default Options
 * v1.5 over and by
@@ -435,11 +436,11 @@ program make_joy
 
 		***************************************************************************************************************
 		if "`alegend'"!="" local leg   legend(order(`aleg'))
-		else if strpos( "`options'" , "legend")==0 local leg legend(off)
+		else if strpos( `"`options'"' , "legend")==0 local leg legend(off)
 		else local leg
  		if "`gap0'"!="" | "`violin'"!="" 	local ylabx 
 		else local ylabx ylabel("")
-		*** text defai;t
+		*** text default
 		text_default , `textopt' `right'
 		local textopt `r(textopt)'
 		xlabel_default, vio(`vtotext') `xlabel' `text' `options'
@@ -822,7 +823,7 @@ program make_joy2
 
 		***************************************************************************************************************
 		if "`alegend'"!="" local leg   legend(order(`aleg'))
-		else if strpos( "`options'" , "legend")==0 local leg legend(off)
+		else if strpos( `"`options'"' , "legend")==0 local leg legend(off)
 		else local leg
  		if "`gap0'"!="" | "`violin'"!="" 	local ylabx 
 		else local ylabx ylabel("")

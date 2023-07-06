@@ -1,0 +1,23 @@
+d   TITLE
+d   'joy_plot': Module to create joyplots and violin plots.
+d
+d   DESCRIPTION/AUTHOR(S)
+d      
+d	'joy_plot' is a command that can be used to create joyplots, also known as ridgeplots.
+d	These are plots for a single variable across different categories. It also allows you 
+d   to easily use or change colors with colorpalette options (if installed).
+d
+d      KW: joyplot
+d      KW: ridgeplot
+d      KW: kdensity
+d      KW: violin plot
+d
+d      Requires: Stata version 14, 
+d      Also:     palettes, colrspace
+d      
+d      Author:  Fernando Rios-Avila, Levy Economics Institute of Bard College
+d      Support: email  friosavi@levy.org
+d      
+d Files:
+F joy_plot/joy_plot.sthlp
+F joy_plot/joy_plot.ado
