@@ -1,3 +1,4 @@
+*! v1.13 Cluster Corrections for RCS
 *! v1.12 Adds Option for CSname
 *! v1.11 Corrects For missing in cluster
 *! v1.1 adds Rolling
@@ -158,7 +159,7 @@ end
 	** is cluster correct?
 	if "`cluster'"!="" {
 		if "`ivar'"!="" _xtreg_chk_cl2 `cluster' `ivar' `touse'
-		else _xtreg_chk_cl2  `gvar' `cluster' `touse'
+		** else _xtreg_chk_cl2  `gvar' `cluster' `touse'
 	}
 	** Is a balanced panel?
 	if "`ivar'"!="" {
