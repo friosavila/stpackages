@@ -1,4 +1,4 @@
-*! v1.13 Cluster Corrections for RCS
+*! v1.13 Cluster Corrections for RCS and RC
 *! v1.12 Adds Option for CSname
 *! v1.11 Corrects For missing in cluster
 *! v1.1 adds Rolling

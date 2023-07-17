@@ -141,6 +141,7 @@ void drdid::ipt(){
 	moptimize_init_conv_maxiter(M, 100)
 	moptimize_init_tracelevel(M, "none")
 	moptimize_init_conv_warning(M, "off")
+	moptimize_init_verbose(M, "off")
 	moptimize(M)
 	b=	 moptimize_result_coefs(M)
 	conv=moptimize_result_converged(M)
@@ -163,6 +164,7 @@ void drdid::ilogit(){
 	moptimize_init_conv_maxiter(M, 50)
 	moptimize_init_tracelevel(M, "none")
 	moptimize_init_conv_warning(M, "off")
+	moptimize_init_verbose(M, "off")
 	moptimize(M)
 	b	=moptimize_result_coefs(M)
 	psv =moptimize_result_V(M)
@@ -341,7 +343,13 @@ void drdid::msetup_rc(){
 	if (kx>0) {
 		// Drop data with constant
 		xvar = select(xvar, select4() )
+		kx   = cols(xvar)
 	}
+	
+	if (kx ==0)  {
+		method_type=4 
+	}
+	
 	kx   = cols(xvar)
 	wtrt = wvar:*trt
 	wvar = wvar:/mean(wvar)
