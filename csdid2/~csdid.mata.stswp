@@ -421,7 +421,7 @@ void csdid::csdid(){
 		
 		//smsel = sample_select(fgtvar[i,])
 		smsel = select(index1, sample_select(fgtvar[i,]))
- 
+		"here"
 		gv = fgtvar[i,1]; tv = fgtvar[i,4]
 		 
 		///minn = min(fgtvar[i,6..9])

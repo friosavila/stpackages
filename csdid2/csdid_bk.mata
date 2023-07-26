@@ -400,44 +400,32 @@ real matrix csdid::nsample_select() {
 	// Otherwise use t0 t1 fgtvar34
 }
  
-    mata
+    
 void csdid::csdid(){
  	//frif=oid,gvar,wvar
 	class drdid scalar drdid
 	real matrix smsel
 	real scalar gv, tv, dots, i
-	// To make it faster
-	real matrix index1
 	
 	frwt=frif=J( ((type_data==1) ? max(oid) : rows(oid))	, 
 	             rows(fgtvar),.)	
-	index1 = range(1,rows(oid),1)
-			 
 	stata("_dots 0") 
 	drdid.rolljw=rolljw
 	for(i=1;i<=rows(fgtvar);i++) {
 		dots = 1
 		drdid.init()
 		
-		//smsel = sample_select(fgtvar[i,])
-		smsel = select(index1, sample_select(fgtvar[i,]))
- 
+		smsel = sample_select(fgtvar[i,])
 		gv = fgtvar[i,1]; tv = fgtvar[i,4]
 		 
 		///minn = min(fgtvar[i,6..9])
-		drdid.yvar=yvar[smsel,]
-		//if (cols(xvar)>0) drdid.xvar=select(xvar,smsel)
-		if (cols(xvar)>0) drdid.xvar=xvar[smsel,]
-		//drdid.tmt =select(tvar,smsel):==tv
-		//drdid.trt =select(gvar,smsel):==gv
-		drdid.tmt =tvar[smsel,]:==tv
-		drdid.trt =gvar[smsel,]:==gv
-		//if (cols(wvar)>0) drdid.wvar=select(wvar,smsel)     
-		if (cols(wvar)>0) drdid.wvar=wvar[smsel,]
-		//drdid.id  =select(ivar,smsel)
-		//drdid.oid =select(oid ,smsel) 
-		drdid.id  =ivar[smsel,]
-		drdid.oid =oid[smsel,]
+		drdid.yvar=select(yvar,smsel)
+		if (cols(xvar)>0) drdid.xvar=select(xvar,smsel)
+		drdid.tmt =select(tvar,smsel):==tv
+		drdid.trt =select(gvar,smsel):==gv
+		if (cols(wvar)>0) drdid.wvar=select(wvar,smsel)     
+		drdid.id  =select(ivar,smsel)
+		drdid.oid =select(oid ,smsel) 
 		drdid.data_type   = type_data
 		drdid.method_type = type_est 
 		drdid.conv=1	
