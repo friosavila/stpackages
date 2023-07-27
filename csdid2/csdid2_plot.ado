@@ -1,4 +1,5 @@
-*! v1.01 csdid2_plot for csdid2 only
+*! v1.02 csdid2_plot Fixes `'
+*  v1.01 csdid2_plot for csdid2 only
  
 program csdid2_plot, rclass
 
@@ -67,9 +68,9 @@ program csdid2_default, sclass
 	if "`pstyle2'"=="" local pstyle2 pstyle(p2)
 	else  local pstyle2 pstyle(`pstyle2') 
 	
-	if "`color1'"=="" local color1 color(%40)
+	if `"`color1'"'=="" local color1 color(%40)
 	else local color1 color(`"`color1'"')
-	if "`color2'"=="" local color2 color(%40)
+	if `"`color2'"'=="" local color2 color(%40)
 	else local color2 color(`"`color2'"')
 	
 	if "`style'"=="rspike" {
