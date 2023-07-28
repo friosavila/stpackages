@@ -54,7 +54,7 @@ program define mynlist,rclass
 end
 
 ** Main program calling on mmqreg
-program define mmqreg_old , eclass 
+program define mmqreg , eclass 
 
  if replay() {
 	if "`e(cmd)'"=="mmqreg" {
@@ -71,7 +71,7 @@ program define mmqreg_old , eclass
 								[Absorb(varlist) /// Indicates what to "absorb"
 								 Quantile(str)   /// Which quintile to use. may allow for dups
 								denopt(str)      /// this will allow alternative definitions of quantiles. default: qreg  qv2: pctile  qv3: interpolation empirical
-								robust	 old		 /// hidden option. Alternative method for Standard errors
+								robust	 		 /// hidden option. Alternative method for Standard errors
 								cluster(varname) /// hidden
 								dfadj            /// Degrees of freedom adjustment 
 								nowarning NOLS ///
@@ -117,7 +117,7 @@ end
 
 program define mmqreg1, eclass sortpreserve
 	qui:syntax varlist(fv) [in] [if] [ aw ], ///
-		[Quantile(str)  denopt(str) robust cluster(varname) dfadj nowarning NOLS old]
+		[Quantile(str)  denopt(str) robust cluster(varname) dfadj nowarning NOLS ]
 	** start with sample checks
 	capture drop ___zero___
 	marksample touse
@@ -294,13 +294,13 @@ program define mmqreg1, eclass sortpreserve
 	if "`dfadj'"!= "" {
 		ereturn scalar df_r = scalar(df_r)
 	}
-	ereturn local old old
+
 end
 
 
 program define mmqreg2, eclass sortpreserve
 	qui:syntax varlist(fv) [in] [if] [aw ], ///
-		[Quantile(str) Absorb(varlist) cluster(varname) denopt(str) dfadj robust nowarning NOLS old]
+		[Quantile(str) Absorb(varlist) cluster(varname) denopt(str) dfadj robust nowarning NOLS]
 	** start with sample checks
 	capture drop _i_* 
 	capture drop ___zero___

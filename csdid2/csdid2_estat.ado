@@ -26,7 +26,7 @@ end
         capture mata:`csname'
 		if _rc!=0   error 301
  		gettoken key rest : 0, parse(", ")
-		if "`rest'"=="" local rest ", csname(`csname')"
+		if `"`rest'"'=="" local rest ", csname(`csname')"
 		else local rest `rest' csname(`csname')
 		
 		if inlist("`key'","attgt","simple","pretrend","group","calendar","event","cevent") {
