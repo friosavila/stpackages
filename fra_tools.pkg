@@ -23,3 +23,5 @@ F fra_tools/fgsum.ado
 F fra_tools/funct.ado
 F fra_tools/tabstat2.ado
 F fra_tools/sum2.ado
+F fra_tools/display_file.ado
+F fra_tools/model_display.ado
