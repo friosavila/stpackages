@@ -1,21 +1,18 @@
-d 'CRE': Module for the estimation of Correlated Random Effects models
+d 'CREG': Constrained Regression post estimation
 d 
-d This package aims to provide an easy to implement program for
-d the estimation of CRE models.
-d It is a prefix type of program that you indicate the levels
-d desired of fixed effects for any model of interest.
-d It will obtain the averages for all explanatory variables, and integrate them
-d in the model specification.
+d This package helps with impossing constrains when regressions have dummies.
+d helpful for an alternative interpretation of RIF-regression
 d 
-d KW: Panel data
-d KW: fixed effects
+d KW: Constraint Regression
+d KW: RIF-regression
 d 
 d Requires: Stata 13 or above
 d
-d Distribution-Date: 20230407
+d Distribution-Date: 20230802
 d 
 d Author: Fernando Rios-Avila, Levy Economics Institute of Bard College
 d Support: f.rios.a@gmail.com
+d Author: John P. de New 
 d
-f cre/cre.ado
-f cre/cre.sthlp
+f creg/creg.ado
+f creg/creg.sthlp
