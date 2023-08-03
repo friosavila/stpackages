@@ -24,5 +24,6 @@ program model_display
 		local cnamex:word `i' of `cname'
 		local todisp `todisp' `sgn' `coef' `cnamex'
 	}
-	display "{p}`todisp'{p_end}"
+	display "{p}`todisp'{p_end}" _n
+	display "N = " %10.0f `e(N)' "  R^2 = " %5.3f `e(r2)'
 end
