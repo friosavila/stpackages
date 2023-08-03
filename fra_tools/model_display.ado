@@ -14,7 +14,7 @@ program model_display
 	local coef = `b'[1,`k']
 	if sign(`coef')==-1 local sgn "-"
 	local coef:display %5.3f (`coef')
-	local todisp "`dep' = `coef'"
+	local todisp "E(`dep'|X) = `coef'"
 	
 	forvalues i = 1/`=`k'-1' {
 		local coef = `b'[1,`i']
