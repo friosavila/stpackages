@@ -638,7 +638,7 @@ void mmqreg::setup() {
 	sw    = if3 :/xvargamma
 	suvw  = (su,sv,sw)
  	if (rows(wvar)>1) {
-		omgs  = cross(suvw,wvar,suvw) 
+		omgs  = cross(suvw,wvar,suvw):/nobs 
 		// (x'x)^-1 * (x'xg)
 		Qxx   = if1:/su  
 		Pxx   = cross(Qxx,wvar,xvargamma)
