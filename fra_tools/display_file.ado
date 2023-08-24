@@ -17,8 +17,8 @@ void display_file(string scalar s){
 			i=i+1
 		}
 		else {
-			if (j>0) linex="\n"+linex
-			printf(linex)
+			if (j>0) linex
+			//linex
 		}
 		j = j+1
     }

@@ -4,13 +4,13 @@
 *** drop2
 *capture program drop drop2
 program drop2
-	novarabbrev {
-		syntax anything 
-		foreach i in `anything' {
-			capture noisily fvexpand `i'			
-			if _rc == 0 {
-				drop `r(varlist)' 
-			}
-		}
-	}
+    novarabbrev {
+        syntax anything 
+        foreach i in `anything' {
+            capture noisily fvexpand `i'            
+            if _rc == 0 {
+                drop `r(varlist)' 
+            }
+        }
+    }
 end
