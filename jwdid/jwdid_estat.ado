@@ -1,5 +1,5 @@
-*! v1.35 FRA. adds method to mlogit
-
+*! v1.37 FRA. Adds Over for Simple aggregations: Will allow for other aggregations at will
+* v1.35 FRA. adds method to mlogit
 * v1.34 FRA. Small changes on Other
 * v1.33 FRA. Changes output (not AT anymore)
 * Also allows for "other" as condition
@@ -9,6 +9,7 @@
 * v1.2 FRA. some beutification
 * v1.1 FRA. Adds margins event with labels
 * v1 8/5/2022 FRA. Adds margins the right way
+
 program define addr, rclass
 		return add
         return `0'
@@ -28,33 +29,37 @@ program define jwdid_estat, sortpreserve
 		if "`e(cmd2)'"!="" adde local cmd  `e(cmd2)'
         gettoken key rest : 0, parse(", ")
 		
+		tempname last
+		qui:est sto `last'
 		capture noisily {
-			if inlist("`key'","simple","group","calendar","event","plot") {
-				
+			if inlist("`key'","simple","group","calendar","event","plot") {				
 				jwdid_`key'  `rest'
 				addr local cmd  estat, 
 				addr local cmd2 jwdid, 
+				
 			}
 			else {
 				display in red "Option `key' not recognized"
 					error 199
-			}
-			
- 
+			}			
+		}
+		if _rc!=0 {
+			qui:est restore `last'
 		}
 		adde local cmd jwdid
 end
 
 program define jwdid_simple, rclass
-		syntax, [* post estore(str) esave(str) replace other(varname)]
+		syntax, [* post estore(str) esave(str) replace over(varname)]
 		//tempvar aux
 		//qui:bysort `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
 		capture:est store `lastreg'	
 		tempname lastreg
 		capture:qui:est store `lastreg'   
 		tempvar etr
-		if "`other'"!="" qui: gen `etr'=`other' if !inlist(`other',0,.)
+		if "`over'"!="" qui: gen `etr'=`over' if !inlist(`over',0,.) & __etr__==1
 		else local etr 
+ 
 		qui:margins  ,  subpop(if __etr__==1) at(__tr__=(0 1)) ///
 					noestimcheck contrast(atcontrast(r)) ///
 					`options' post over(`etr')
@@ -66,9 +71,18 @@ program define jwdid_simple, rclass
 		local nm:colnames `b'
 		local nm = subinstr("`nm'","r2vs1._at@","",.)
 
-		matrix colname `b' = simple
-		matrix colname `V' = simple
-		matrix rowname `V' = simple
+		if `"`over'"'!="" qui:levelsof `etr'  , local(ol)
+		
+		if `:word count `ol''>1 {
+			foreach i of local ol {
+				local snm `snm' simple`i'
+			}	
+		}
+		else local snm simple	
+		
+		matrix colname `b' = `snm'
+		matrix colname `V' = `snm'
+		matrix rowname `V' = `snm'
 		tempname bb VV
 		matrix `bb' = `b'
 		matrix `VV' = `V'
