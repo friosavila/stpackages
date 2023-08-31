@@ -1,8 +1,7 @@
 ** THis is a small wrapper for regress command to allow for the use of gen functions but not factor variables
 ** requires Stata 15
 
-capture program drop fgreg
-program fgreg, eclass
+ program fgreg, eclass
 syntax anything [if] [in] [aw fw iw  ] , [,* ] 
 	** First Expand anything
 	marksample touse

@@ -1,6 +1,5 @@
 ** sum for generated variables
-capture program drop fgsum 
-program fgsum, rclass
+ program fgsum, rclass
 syntax anything [if] [in] [aw fw iw], [Detail]
 	tempname sumr
 	marksample touse

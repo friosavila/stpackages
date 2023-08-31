@@ -9,7 +9,7 @@ program mhistogram
 	syntax varname [iw fw / ] [if] [in], [over(varname) width(real 0) ///
 					start(string asis) * ///
 					height(real 1.0) ///
-					gap(real 0.0) cum V1(str asis)]
+					gap(real 0.0) cum COLOR1(str asis)]
 	
 	tempname hist
 	marksample touse
@@ -59,4 +59,4 @@ end
 
 replace rr = rr + 3*over
 mhistogram rr, over(over) gap(0.5)   
-mhistogram rr, over(over) width(.3)  gap(0.5) 
+mhistogram rr, over(over) width(.3)  gap(1.5) 

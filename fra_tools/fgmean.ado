@@ -1,8 +1,7 @@
 ** THis is a small wrapper for mean command to allow for the use of gen functions but not factor variables
 ** requires Stata 15
 
-capture program drop fgmean
-program fgmean, eclass
+ program fgmean, eclass
 syntax anything [if] [in] [aw fw iw  ] , [,* over(varname)] 
 	** First Expand anything
 	marksample touse
