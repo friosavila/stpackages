@@ -84,7 +84,7 @@ end
 							[Ivar(varname numeric)] 		///
 							[TIme(varname numeric)]  		///
 							[Tvar(varname numeric)]  		///
-							Gvar(varname numeric)  			/// 
+							[Gvar(varname numeric)]  		/// 
 							[cluster(varname numeric) 		/// 
 							notyet 							/// att_gt basic option. May prepare others as Post estimation
 							method(str) 	 				///
@@ -96,11 +96,19 @@ end
 							 short 							/// for compatability
 							 antici(int 0)                  /// anticipation
 							]  
-	** Marking Sample		
+	** Checking if Setup
+ 	local issetup:char _dta[csdid2]
+	if "`issetup'"=="csdid2" {
+		local tvar:char _dta[tvar]
+		local gvar:char _dta[gvar]
+		local ivar:char _dta[ivar]
+	}
+ 	** Marking Sample		
 	if "`csname'"=="" local csname csdid
 	marksample touse
 	** First determine outcome and xvars
 	gettoken y xvar:varlist
+	** Is time set?
 	if "`time'`tvar'"=="" {
 		display in red "Option tvar() or time() is required"
 		error 198
@@ -109,7 +117,13 @@ end
 		// Tvar will superseed time
 		if "`tvar'"=="" local tvar `time'
 	}	
+	** is gvar set
+	if "`gvar'"=="" {
+		display in red "Option gvar() is required"
+		error 198
+	}
 	
+	*** OLD for SHORT
 	if "`short'"=="" {
 		local long long
 		display "Producing Long Gaps by default"
