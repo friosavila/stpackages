@@ -31,7 +31,7 @@ end
 		else local rest `rest' csname(`csname')
 		
 		if inlist("`key'","attgt","simple","pretrend","group","calendar","event","cevent") {
-			csdid_do `key' `rest' 
+			csdid_do `key' `rest' `csname'
 			addr local cmd  estat
 			addr local cmd2 csdid2
 			if "`plot'"!="" csdid2_plot ,  ktype(`ktype') 

@@ -1,3 +1,5 @@
+*! v1 Allows for anticipation
+
 mata:
  	void event_p( string scalar newvars, string scalar tblx){
 	    real   matrix tbl, ntbl2
@@ -60,6 +62,7 @@ class csdid {
 	real scalar asinr
 	real scalar type_data
 	real scalar type_est
+	real scalar antici
 	/// Special Option for JW Rolling Regressopm
 	real scalar rolljw
 	
@@ -185,7 +188,9 @@ void csdid::csdid_setup(){
 	/// final Tunning to model
 	// oid. Original ID. Useful for RC. DROP 
 	// IF RC
-	rolljw =0
+	// antici for Anticipation
+	antici = 0
+	rolljw = 0
 	if (length(ivar)==0) {
 		type_data = 2
 		oid  = 1::rows(yvar)	
@@ -277,6 +282,10 @@ void csdid::gtvar(){
 	delta=min(aux[2..length(aux)]:-
 	          aux[1..length(aux)-1])
 			  
+	// rescale antici to folow Delta.		  
+	antici=antici*delta
+	sgvar=sgvar:-antici
+	gvar=gvar:-antici:*(gvar:>0)
 	// recreate stvar
 	stvar=range(min(stvar),max(stvar),delta)
 	real matrix stvar2
@@ -345,8 +354,7 @@ real matrix csdid::nvalid(real matrix sgtvar,
 			sum(sgtvar[,3]:*(sgtvar[,1]:==gv):*(sgtvar[,2]:==tv0)),
 			sum(sgtvar[,3]:*(sgtvar[,1]:==gv):*(sgtvar[,2]:==tv1)) )	
 }
-
- 
+  
 real matrix csdid::nsample_select() {
 	real scalar i
 	real matrix tsel, gsel, sgtvar
@@ -360,7 +368,7 @@ real matrix csdid::nsample_select() {
 	// This is to determine Obs  
 	for(i=1;i<=rows(fgtvar);i++){
 		gv = fgtvar[i,1];tv = fgtvar[i,2]
-		
+ 
 		if (notyet==0) 	gsel = (ogtvar[,1]:==0    :| ogtvar[,1]:==gv)
 		else {
 										gsel = (ogtvar[,1]:==0 :| ogtvar[,1]:>max((gv,tv)) :| ogtvar[,1]:==gv)			
@@ -400,7 +408,7 @@ real matrix csdid::nsample_select() {
 	// Otherwise use t0 t1 fgtvar34
 }
  
-    mata
+  
 void csdid::csdid(){
  	//frif=oid,gvar,wvar
 	class drdid scalar drdid

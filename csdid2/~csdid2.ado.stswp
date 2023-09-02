@@ -1,3 +1,4 @@
+*! v1.2  Allows for Antici
 *! v1.13 Cluster Corrections for RCS and RC
 *! v1.12 Adds Option for CSname
 *! v1.11 Corrects For missing in cluster
@@ -93,6 +94,7 @@ end
 							 rolljw							/// Rolling Regression Estimator
 							 csname(name)					/// To change name to csobj
 							 short 							/// for compatability
+							 antici(int 0)                  /// anticipation
 							]  
 	** Marking Sample		
 	if "`csname'"=="" local csname csdid
@@ -176,9 +178,12 @@ end
 	if "`ivar'"!="" mata:`csname'.setup_ivar("`ivar'" ,"`touse'")
 	if "`wvar'"!="" mata:`csname'.setup_wvar("`wvar'" ,"`touse'")	
 	if "`cvar'"!="" mata:`csname'.setup_cvar("`cvar'" ,"`touse'")	
- 	** Setup as panel or rc
+	** Setup as panel or rc
 	mata:`csname'.csdid_setup()
+	** 
 	
+	mata:`csname'.antici=`antici'
+ 	
 	** Rolling Regression
 	if "`rolljw'"!="" mata:`csname'.rolljw = 1
 	
