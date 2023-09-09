@@ -177,7 +177,11 @@ end
 		//syntax namelist(min=1 max=1 ), [*]
 		adde local cmdline estat `0'
 		adde local agg     `key'
-		
+		adde local aggt     `ktype'
+ 		
+		if "`estore'"!="" est store `estore'
+		if "`esave'" !="" est save  `esave', `replace'
+ 		
 		csdid_tablex, `diopts' level(`level')	
 		display "WildBootstrap Standard errors"	_n ///
 				"with `reps' Repetitions"
