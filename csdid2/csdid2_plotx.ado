@@ -28,7 +28,7 @@ program csdid2_plot, rclass
 end
 
 program csdid2_plot_wh
-	syntax, [  * ktype(int 5) table(str) asy] 	
+	syntax, [  * ktype(int 5) table(str) asy level(int 95)] 	
 	
 	tempname tbl
 	matrix `tbl'=`table'
@@ -58,14 +58,13 @@ program csdid2_plot_wh
 		if `ktype'==5 {
 			tempvar t b ll uu se all auu
 			
-			mata:event_p2("`t' `b' `ll' `uu' `se' `all' `auu'","`tbl'")
-			sum `t' `b' `ll' `uu' `se' `all' `auu'
+			mata:event_p2("`t' `b' `ll' `uu' `se' `all' `auu'","`tbl'", `=`level'/100')
 			csdid_plot_eventx 	`t' `b' `ll' `uu' `all' `auu',  `options'	asy	
 		}
 		else if `ktype'==3 | `ktype'==4 {
 			// Group Calendar
 			tempvar t b ll uu se all auu
-			mata:other_p2("`t' `b' `ll' `uu' `se' `all' `auu'","`tbl'")
+			mata:other_p2("`t' `b' `ll' `uu' `se' `all' `auu'","`tbl'", `=`level'/100')
 			`t' `b' `ll' `uu' `se' `all' `auu'
 			csdid_plot_other `t' `b' `ll' `uu' `all' `auu',   `options' ktype(`ktype')	asy	
 		}
@@ -77,32 +76,33 @@ program csdid2_plot_wh
 end
 
 mata:
- 	void event_p2( string scalar newvars, string scalar tblx){
+ 	void event_p2( string scalar newvars, string scalar tblx, real scalar level){
 	    real   matrix tbl, ntbl2
 		string matrix ntbl
 		real scalar alpha
 	    tbl = st_matrix(tblx)	
 		//asume always here
  
-		alpha = .95
+		alpha = 1-level
 		ntbl = st_matrixcolstripe(tblx)
 		ntbl = usubinstr(ntbl,"tp","+",.)
 		ntbl = usubinstr(ntbl,"tm","-",.)	
 		ntbl2= strtoreal(ntbl)	
 		tbl  = tbl[(1,5,6,2),]'	
 		tbl  = tbl,tbl[,1]-tbl[,4]*invnormal(1-alpha/2),tbl[,1]+tbl[,4]*invnormal(1-alpha/2)
+		 
 		tbl  = select(tbl,(ntbl2[,2]:!=.))		
 		ntbl2= select(ntbl2[,2],(ntbl2[,2]:!=.))
         real matrix ss
  		ss= _st_addvar("double",tokens(newvars))
  		st_store((1::rows(tbl)) ,tokens(newvars),(ntbl2,tbl))	
 	}
- end
-	void other_p2(string scalar newvars, string scalar tblx){
+ 
+	void other_p2(string scalar newvars, string scalar tblx, real scalar level){
 	    real   matrix tbl
 		string matrix ntbl
 		real scalar alpha
-		alpha = csdidstat.cilevel
+		alpha = 1-level
 	    tbl  = st_matrix(tblx)		
 		ntbl = st_matrixcolstripe(tblx)
 		//ntbl = usubinstr(ntbl,"g","",.)
@@ -125,7 +125,7 @@ program csdid2_default, sclass
 	syntax, [style(str) PSTYle1(str) color1(str) ///
 						PSTYLE2(str) color2(str) ///
 						LWidth1(str) lwidth2(str) ///
-						BARWidth1(str) barwidth2(str) * ]  
+						BARWidth1(str) barwidth2(str) * asy]  
 	
  	if "`style'"=="" local style rspike
 	
@@ -213,19 +213,19 @@ program csdid_plot_eventx
 		  yline(0 , lp(dash) lcolor(black))   `dels'
 	}
 	else {
-			gettoken se rest:rest 
+			//gettoken se rest:rest 
 			gettoken all rest:rest 
 			gettoken auu rest:rest
-			sum `ll'  `uu'  `t' 
-			sum  `all' `auu' `t'
+			
 		   	two   (`style'  `ll'  `uu'  `t'  if `t'<=(-1- `adj'), `gf11') ///
 				  (scatter  `b'         `t'  if `t'<=(-1- `adj'), `gf12')  ///
 				  (`style'  `ll'  `uu'  `t'  if `t'> (-1- `adj'), `gf21')  ///
-				  (scatter  `b'      `t'   if `t'> (-1- `adj'), `gf22') ///
-				  (`style'  `all' `auu' `t'  if `t'<=(-1- `adj'), lwidth(3) `gf11')  ///
-				  (`style'  `all' `auu' `t'  if `t'<=(-1- `adj'), lwidth(3) `gf21'),  /// 
+				  (scatter  `b'        `t'   if `t'> (-1- `adj'), `gf22') ///
+				  (`style'  `all' `auu' `t'  if `t'<=(-1- `adj'), `gf11' lwidth(3))  ///
+				  (`style'  `all' `auu' `t'  if `t'> (-1- `adj'), `gf21' lwidth(3)),  /// 
 				   `legend'  `xtitle' `ytitle' ///
 					yline(0 , lp(dash) lcolor(black))   `dels'	
+			
 	}
 end
 
@@ -265,7 +265,7 @@ program csdid_plot_other
 			  xlab(   ,val) `name'   `dels' 
 	}
 	else {
-			gettoken se rest:rest 
+			//gettoken se rest:rest 
 			gettoken all rest:rest 
 			gettoken auu rest:rest
 		two   (`style'  `ll' `uu' `t2'  , `gf11' )  ///

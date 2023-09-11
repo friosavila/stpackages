@@ -28,30 +28,96 @@ program csdid2_plot, rclass
 end
 
 program csdid2_plot_wh
-	syntax, [  * ktype(int 5) table(str)] 	
+	syntax, [  * ktype(int 5) table(str) asy level(int 95)] 	
 	
 	tempname tbl
 	matrix `tbl'=`table'
 	capture: confirm matrix `tbl'
 	
 	*if det(`tbl')==. matrix `tbl'=rtb
-	
-	if `ktype'==5 {
-		tempvar t b ll uu
-		
-		mata:event_p("`t' `b' `ll' `uu'","`tbl'")
-		
-		csdid_plot_eventx 	`t' `b' `ll' `uu',  `options'		
-	}
-	else if `ktype'==3 | `ktype'==4 {
-	    // Group Calendar
-		tempvar t b ll uu
-		mata:other_p("`t' `b' `ll' `uu'","`tbl'")
-		
-		csdid_plot_other `t' `b' `ll' `uu',   `options' ktype(`ktype')		
+	if "`asy'"=="" {
+		if `ktype'==5 {
+			tempvar t b ll uu
+			
+			mata:event_p("`t' `b' `ll' `uu'","`tbl'")
+			
+			csdid_plot_eventx 	`t' `b' `ll' `uu',  `options'		
+		}
+		else if `ktype'==3 | `ktype'==4 {
+			// Group Calendar
+			tempvar t b ll uu
+			mata:other_p("`t' `b' `ll' `uu'","`tbl'")
+			
+			csdid_plot_other `t' `b' `ll' `uu',   `options' ktype(`ktype')		
+		}
+		else {
+			display in red "Plot option not allowed"
+		}
 	}
 	else {
-	    display in red "Plot option not allowed"
+		if `ktype'==5 {
+			tempvar t b ll uu se all auu
+			
+			mata:event_p2("`t' `b' `ll' `uu' `se' `all' `auu'","`tbl'", `=`level'/100')
+			csdid_plot_eventx 	`t' `b' `ll' `uu' `all' `auu',  `options'	asy	
+		}
+		else if `ktype'==3 | `ktype'==4 {
+			// Group Calendar
+			tempvar t b ll uu se all auu
+			mata:other_p2("`t' `b' `ll' `uu' `se' `all' `auu'","`tbl'", `=`level'/100')
+			`t' `b' `ll' `uu' `se' `all' `auu'
+			csdid_plot_other `t' `b' `ll' `uu' `all' `auu',   `options' ktype(`ktype')	asy	
+		}
+		else {
+			display in red "Plot option not allowed"
+		}
+	}
+
+end
+
+mata:
+ 	void event_p2( string scalar newvars, string scalar tblx, real scalar level){
+	    real   matrix tbl, ntbl2
+		string matrix ntbl
+		real scalar alpha
+	    tbl = st_matrix(tblx)	
+		//asume always here
+ 
+		alpha = 1-level
+		ntbl = st_matrixcolstripe(tblx)
+		ntbl = usubinstr(ntbl,"tp","+",.)
+		ntbl = usubinstr(ntbl,"tm","-",.)	
+		ntbl2= strtoreal(ntbl)	
+		tbl  = tbl[(1,5,6,2),]'	
+		tbl  = tbl,tbl[,1]-tbl[,4]*invnormal(1-alpha/2),tbl[,1]+tbl[,4]*invnormal(1-alpha/2)
+		 
+		tbl  = select(tbl,(ntbl2[,2]:!=.))		
+		ntbl2= select(ntbl2[,2],(ntbl2[,2]:!=.))
+        real matrix ss
+ 		ss= _st_addvar("double",tokens(newvars))
+ 		st_store((1::rows(tbl)) ,tokens(newvars),(ntbl2,tbl))	
+	}
+ 
+	void other_p2(string scalar newvars, string scalar tblx, real scalar level){
+	    real   matrix tbl
+		string matrix ntbl
+		real scalar alpha
+		alpha = 1-level
+	    tbl  = st_matrix(tblx)		
+		ntbl = st_matrixcolstripe(tblx)
+		//ntbl = usubinstr(ntbl,"g","",.)
+		//ntbl = usubinstr(ntbl,"t","",.)
+		ntbl = ntbl [,2]
+		tbl  = tbl[(1,5,6,2),]'	
+		tbl  = tbl,tbl[,1]-tbl[,4]*invnormal(1-alpha/2),tbl[,1]+tbl[,4]*invnormal(1-alpha/2)
+
+		string matrix tnv
+		tnv = tokens(newvars)
+		real matrix ss
+		ss= _st_addvar(sprintf("str%f",max(strlen(ntbl))),tnv[1])
+		ss= _st_addvar("double",tnv[2..4])
+		st_sstore((1::rows(tbl)) ,tnv[1],ntbl)	
+		st_store((1::rows(tbl)) ,tnv[2..4],tbl)	
 	}
 end
 
@@ -59,7 +125,7 @@ program csdid2_default, sclass
 	syntax, [style(str) PSTYle1(str) color1(str) ///
 						PSTYLE2(str) color2(str) ///
 						LWidth1(str) lwidth2(str) ///
-						BARWidth1(str) barwidth2(str) * ]  
+						BARWidth1(str) barwidth2(str) * asy]  
 	
  	if "`style'"=="" local style rspike
 	
@@ -77,6 +143,10 @@ program csdid2_default, sclass
 	if "`style'"=="rspike" {
 		if "`lwidth1'"=="" local lwidth1 lwidth(3)		
 		if "`lwidth2'"=="" local lwidth2 lwidth(3)
+		if "`asy'"!="" {
+			local lwidth1 lwidth(1)		
+			local lwidth2 lwidth(1)		
+		}
 	}
 	
 	if "`style'"=="rarea" {
@@ -101,20 +171,22 @@ program csdid2_default, sclass
 	 
 	
 	sreturn local style `style' 
-	sreturn local df11  `pstyle1'  `color1'  `lwidth1'  `barwidth1' 
+	sreturn local df11  `pstyle1'  `color1' `lwidth1' `barwidth1' 
 	sreturn local df12  `pstyle1'  `conn'
-	sreturn local df21  `pstyle2' `color2' `lwidth2' `barwidth2'
+	sreturn local df21  `pstyle2'  `color2' `lwidth2' `barwidth2'
 	sreturn local df22  `pstyle2'  `conn'					  
 	sreturn local delse `options'
 end
 
 program csdid_plot_eventx 
 	syntax varlist,  [ 			 xtitle(passthru)     ytitle(passthru) ///
-								 legend(passthru)  * ]
+								 legend(passthru) asy * ]
 	gettoken t rest:varlist
 	gettoken b rest:rest
 	gettoken ll rest:rest 
 	gettoken uu rest:rest 
+	
+ 
 	** defaults
 	
 	** defaults
@@ -122,8 +194,8 @@ program csdid_plot_eventx
 	if `"`ytitle'"'=="" local ytitle ytitle("ATT")
 	
 	if `"`legend'"'=="" local legend legend(order(1 "Pre-treatment" 3 "Post-treatment"))
-	csdid2_default , `options'  
-	
+	csdid2_default , `options'  `asy'
+	 
 	local gf11  `s(df11)'
 	local gf12 `s(df12)'
 	local gf21 `s(df21)'
@@ -132,15 +204,32 @@ program csdid_plot_eventx
 	local dels  `s(delse)'
 	
 	mata:st_local("adj",strofreal(csdid.antici))
+	if "`asy'"=="" {
    	two   (`style'  `ll' `uu' `t'  if `t'<=(-1- `adj'), `gf11') ///
 		  (scatter  `b'      `t'   if `t'<=(-1- `adj'), `gf12')  ///
 		  (`style'  `ll' `uu' `t'  if `t'> (-1- `adj'), `gf21')  ///
 		  (scatter  `b'      `t'   if `t'> (-1- `adj'), `gf22') , ///
 		   `legend'  `xtitle' `ytitle' ///
 		  yline(0 , lp(dash) lcolor(black))   `dels'
- 
+	}
+	else {
+			//gettoken se rest:rest 
+			gettoken all rest:rest 
+			gettoken auu rest:rest
+			
+		   	two   (`style'  `ll'  `uu'  `t'  if `t'<=(-1- `adj'), `gf11') ///
+				  (scatter  `b'         `t'  if `t'<=(-1- `adj'), `gf12')  ///
+				  (`style'  `ll'  `uu'  `t'  if `t'> (-1- `adj'), `gf21')  ///
+				  (scatter  `b'        `t'   if `t'> (-1- `adj'), `gf22') ///
+				  (`style'  `all' `auu' `t'  if `t'<=(-1- `adj'), `gf11' lwidth(3))  ///
+				  (`style'  `all' `auu' `t'  if `t'> (-1- `adj'), `gf21' lwidth(3)),  /// 
+				   `legend'  `xtitle' `ytitle' ///
+					yline(0 , lp(dash) lcolor(black))   `dels'	
+			
+	}
 end
 
+ 
 program csdid_plot_other
 	syntax varlist,  [ktype(int 3) * ///
 	                  xtitle(passthru) ytitle(passthru) ///
@@ -168,13 +257,24 @@ program csdid_plot_other
 	tempvar t2
 	
  	qui:encode `t', gen(`t2')
-
-	two   (`style'  `ll' `uu' `t2'  , `gf11' )  ///
-		  (scatter  `b'      `t2'   , `gf12' ) , ///
-		  legend(off) `xtitle'  `ytitle'  ///
-		  yline(0 , lp(dash) lcolor(black)) `title' ///
-		  xlab(   ,val) `name'   `dels' 
-		  
+	if "`asy'"=="" {
+		two   (`style'  `ll' `uu' `t2'  , `gf11' )  ///
+			  (scatter  `b'      `t2'   , `gf12' ) , ///
+			  legend(off) `xtitle'  `ytitle'  ///
+			  yline(0 , lp(dash) lcolor(black)) `title' ///
+			  xlab(   ,val) `name'   `dels' 
+	}
+	else {
+			//gettoken se rest:rest 
+			gettoken all rest:rest 
+			gettoken auu rest:rest
+		two   (`style'  `ll' `uu' `t2'  , `gf11' )  ///
+			  (`style'  `all' `auu' `t2'  , lwidth(3) `gf11' )  ///
+				(scatter  `b'      `t2'   , `gf12' ) , ///
+				legend(off) `xtitle'  `ytitle'  ///
+				yline(0 , lp(dash) lcolor(black)) `title' ///
+				xlab(   ,val) `name'   `dels' 	
+	}
  
 	
 end
