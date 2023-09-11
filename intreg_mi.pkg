@@ -1,0 +1,13 @@
+d 'intreg_mi': Program for Imputation with Interval Regression with heteroskedasticity
+d 
+d This is a small program for the implementation of the method that uses Interval Regression
+d modeling for imputing data when the dependent variable is censored in brackets.
+d
+d In contrast with the implementation in Stata, this program allows for heteroskedasticity, providing
+d a more flexible imputation. The imputed data can be used for other contexts, like quantile regressions,
+d unconditional quantile regressions, etc.
+d
+d Distribution-Date: 20230911
+d 
+F intreg_mi/intreg_mi.ado
+F intreg_mi/intreg_mi.sthlp
