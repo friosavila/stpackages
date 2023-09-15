@@ -31,8 +31,7 @@ program histogram2
 			  (histogram `varlist' if `touse' & `by'==`i', ///
 			  `freq' pstyle(p`jj') color(`r(rcolor`jj')') start(`start') width(`width'))
 	}
-	display "`toplot'"
-	// plot
+ 	// plot
  	two `toplot', `options'
 end	
 
@@ -40,8 +39,7 @@ program parse_colors, rclass
 	syntax, [color(string asis)]
 	forvalues i = 1/15 {
 		gettoken thiscolor color: color, parse(",") 
-		display "`thiscolor'"
-		if `"`thiscolor'"'=="," {
+ 		if `"`thiscolor'"'=="," {
 			gettoken thiscolor color: color, parse(",")   
 		}
 		if `"`thiscolor'"'!="" {
