@@ -10,6 +10,7 @@ F fra_tools/fra_tools.sthlp
 F fra_tools/adde.ado
 F fra_tools/addr.ado
 F fra_tools/checkvar.ado
+F fra_tools/display_file.ado
 F fra_tools/drop2.ado
 F fra_tools/editsource.ado
 F fra_tools/emargins.ado
@@ -20,8 +21,9 @@ F fra_tools/fgmean.ado
 F fra_tools/fgreg.ado
 F fra_tools/fgscatter.ado
 F fra_tools/fgsum.ado
+F fra_tools/getcmdline.ado
 F fra_tools/funct.ado
-F fra_tools/tabstat2.ado
-F fra_tools/sum2.ado
-F fra_tools/display_file.ado
 F fra_tools/model_display.ado
+F fra_tools/sum2.ado
+F fra_tools/tabstat2.ado
+F fra_tools/vjoin.ado
