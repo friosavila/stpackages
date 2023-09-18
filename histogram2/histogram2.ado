@@ -1,5 +1,5 @@
-capture program drop histogram2
-program drop parse_colors
+*capture program drop histogram2
+*program drop parse_colors
 program histogram2
 	syntax varname [if] [in] [fw], ///
 		by(varname) ///
