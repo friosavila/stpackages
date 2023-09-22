@@ -1,4 +1,5 @@
-*! v1.35 Adds method for margins
+*! v1.36 Adds TrtVar or Gvar
+* v1.35 Adds method for margins
 * v1.34 Minor Improv to Combinations. Also only works St15 or above
 * v1.33 reduces ammount of ommited empty
 * v1.32 Corrects for bug with no ivar
@@ -11,7 +12,10 @@
 
 program jwdid, eclass
 	version 15
-	syntax varlist [if] [in] [pw], [Ivar(varname) cluster(varname) ] [Tvar(varname) time(varname)] Gvar(varname) [never group method(name) nocorr]
+	syntax varlist [if] [in] [pw], [Ivar(varname) cluster(varname) ] ///
+								  [Tvar(varname) time(varname)] ///
+								  [Gvar(varname) trtvar(varname)] ///
+								  [never group method(name) nocorr]
 	marksample  touse
 	markout    `touse' `ivar' `tvar' `gvar'
 	gettoken y x:varlist 
@@ -21,7 +25,26 @@ program jwdid, eclass
 		error 198
 	}
 	if "`tvar'"=="" local tvar `time'
-	
+
+	if "`gvar'`trtvar'"=="" {
+		display in red "option gvar/trtvar() required"
+		error 198
+	}
+
+	if "`trtvar'`gvar'"=="" {
+		display as error "Cohort variable not specified"
+		error 198
+	} 
+	else if "`trtvar'"!="" & "`gvar'"!="" {
+		display as error "You can only specify gvar or trtvar. Not both"		
+		error 198
+	}
+	else if "`trtvar'"!="" {
+		capture drop __gvar
+		qui:_gjwgvar __gvar=`trtvar', tvar(`tvar') ivar(`ivar') 
+		local gvar __gvar
+	}
+	// Groups refer to Gvar. Not compatible if not panel
 	if "`ivar'"=="" local group group
 	
 	*easter_egg
@@ -281,4 +304,30 @@ program myhdmean, rclass
 	*display in w "`dropvlist'"
 	if "`dropvlist'"!="" drop `dropvlist'
 	
+end
+
+** Aux var for jwdid
+program _gjwgvar, sortpreserve
+	syntax newvarname =/exp [if] [in], tvar(varname) ivar(varname)
+	local exp = subinstr("`exp'","(","",.)
+	local exp = subinstr("`exp'",")","",.)
+	tempvar touse
+	qui:gen byte `touse'=0
+	qui:replace `touse'=1 `if' `in'
+	qui:replace `touse'=0 if `tvar'==. | `ivar'==. | `exp'==.
+	tempvar vals
+	bys `touse' `exp' : gen byte `vals' = (_n == 1) * `touse'
+	su `vals' if `touse', meanonly
+	if r(sum)>2 {
+			display in r "display More than 2 values detected in `exp'."
+			error 4444
+	}
+	qui: {
+		tempvar aux
+		bysort `touse' `ivar' `exp':egen `aux'=min((`tvar'>0))
+		replace `aux'=0 if `exp'==0
+		by     `touse' `ivar':egen `varlist'=max(`aux')
+		replace `varlist'=. if `exp'==. | !`touse'
+	}
+	label var `varlist' "Group Variable based on `exp'"
 end
