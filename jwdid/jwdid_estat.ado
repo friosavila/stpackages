@@ -1,4 +1,5 @@
-*! v1.37 FRA. Adds Over for Simple aggregations: Will allow for other aggregations at will
+*! v1.4 FRA. Allows for treatment to be continuous. With ASIS
+* v1.37 FRA. Adds Over for Simple aggregations: Will allow for other aggregations at will
 * v1.35 FRA. adds method to mlogit
 * v1.34 FRA. Small changes on Other
 * v1.33 FRA. Changes output (not AT anymore)
@@ -50,7 +51,7 @@ program define jwdid_estat, sortpreserve
 end
 
 program define jwdid_simple, rclass
-		syntax, [* post estore(str) esave(str) replace over(varname)]
+		syntax, [* post estore(str) esave(str) replace over(varname) asis]
 		//tempvar aux
 		//qui:bysort `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
 		capture:est store `lastreg'	
@@ -59,10 +60,16 @@ program define jwdid_simple, rclass
 		tempvar etr
 		if "`over'"!="" qui: gen `etr'=`over' if !inlist(`over',0,.) & __etr__==1
 		else local etr 
- 
-		qui:margins  ,  subpop(if __etr__==1) at(__tr__=(0 1)) ///
+		if "`asis'"=="" {
+			qui:margins  ,  subpop(if __etr__==1) at(__tr__=(0 1)) ///
 					noestimcheck contrast(atcontrast(r)) ///
 					`options' post over(`etr')
+		}
+		else {
+			qui:margins  ,  subpop(if __etr__==1) at(__tr__=0) at((asobserved) __tr__) ///
+					noestimcheck contrast(atcontrast(r)) ///
+					`options' post over(`etr')
+		}
 		tempname table b V			
 		matrix `table' = r(table)
 		matrix `b' = e(b)
@@ -102,7 +109,7 @@ program define jwdid_simple, rclass
 end
 
 program define jwdid_group, rclass
-		syntax, [* post estore(str) esave(str) replace  other(varname)]
+		syntax, [* post estore(str) esave(str) replace  other(varname) asis]
 		tempvar aux
 		qui:bysort `e(gvar)' `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
 		
@@ -113,10 +120,22 @@ program define jwdid_group, rclass
 		
 		capture drop __group__
 		qui:clonevar __group__ =  `e(gvar)' if __etr__==1 & `aux'<`e(gvar)'
-		if "`other'"!="" replace __group__=. if inlist(`other',0,.)
-		qui:margins , subpop(if __etr__==1) at(__tr__=(0 1)) ///
+		if "`other'"!="" {
+			*replace __group__=. if inlist(`other',0,.)
+			local otherif "| !inlist(`other',0,.)"
+		}
+		if "`asis'"=="" {
+			qui:margins , subpop(if __etr__==1 `otherif') at(__tr__=(0 1)) ///
 				  over(__group__) noestimcheck contrast(atcontrast(r)) ///
 				  `options'  post
+		}
+		else {
+			qui:margins  ,  subpop(if __etr__==1 `otherif') at(__tr__=0) at((asobserved) __tr__) ///
+					over(__group__) noestimcheck contrast(atcontrast(r)) ///
+				  `options'  post
+		}
+		
+ 
 		tempname table b V			
 		matrix `table' = r(table)
 		matrix `b' = e(b)
@@ -158,10 +177,21 @@ program define jwdid_calendar, rclass
 		tempname lastreg
 		capture:qui:est store `lastreg'  
 		
-		if "`other'"!="" replace __calendar__=. if inlist(`other',0,.)
-		qui:margins , subpop(if __etr__==1) at(__tr__=(0 1)) ///
-				over(__calendar__) noestimcheck contrast(atcontrast(r)) ///
-				`options' post
+		if "`other'"!="" {
+			*replace __group__=. if inlist(`other',0,.)
+			local otherif "| !inlist(`other',0,.)"
+		}
+		if "`asis'"=="" {
+			qui:margins , subpop(if __etr__==1 `otherif') at(__tr__=(0 1)) ///
+				  over(__calendar__) noestimcheck contrast(atcontrast(r)) ///
+				  `options'  post
+		}
+		else {
+			qui:margins  ,  subpop(if __etr__==1 `otherif') at(__tr__=0) at((asobserved) __tr__) ///
+					over(__calendar__) noestimcheck contrast(atcontrast(r)) ///
+				  `options'  post
+		}
+		
 		tempname table b V			
 		matrix `table' = r(table)
 		matrix `b' = e(b)
@@ -204,13 +234,24 @@ program define jwdid_event, rclass
 		capture:est store `lastreg'	
 		tempname lastreg
 		capture:qui:est store `lastreg'  
-		
+		if "`other'"!="" {
+			*replace __group__=. if inlist(`other',0,.)
+			local otherif "| !inlist(`other',0,.)"
+		}
 		*qui:replace __event__ =__event__ - 1 if  __event__ <0
 		if "`e(type)'"=="notyet" {
-			if "`other'"!="" replace __event__=. if inlist(`other',0,.)
-			qui:margins , subpop(if __etr__==1) at(__tr__=(0 1)) ///
-				over(__event__) noestimcheck contrast(atcontrast(r)) ///
-				`options' post
+
+				if "`asis'"=="" {
+					qui:margins , subpop(if __etr__==1 `otherif') at(__tr__=(0 1)) ///
+						  over(__event__) noestimcheck contrast(atcontrast(r)) ///
+						  `options'  post
+				}
+				else {
+					qui:margins  ,  subpop(if __etr__==1 `otherif') at(__tr__=0) at((asobserved) __tr__) ///
+							over(__event__) noestimcheck contrast(atcontrast(r)) ///
+						  `options'  post
+				}
+ 
 		}
 		else if "`e(type)'"=="never" {
 			capture drop __event2__
@@ -221,12 +262,19 @@ program define jwdid_event, rclass
 			foreach i of local lv {
 				label define __event__ `i' "`=`i'+`rmin''", modify
 			}
-			if "`other'"!="" replace __event__=. if inlist(`other',0,.)
-
 			label values __event__ __event__
-			qui:margins , subpop(if __tr__==1) at(__tr__=(0 1)) ///
-				over(__event__) noestimcheck contrast(atcontrast(r)) ///
-				`options' post
+
+			if "`asis'"=="" {
+				qui:margins , subpop(if __tr__==1 `otherif') at(__tr__=(0 1)) ///
+					  over(__event__) noestimcheck contrast(atcontrast(r)) ///
+					  `options'  post
+			}
+			else {
+				qui:margins  ,  subpop(if __tr__==1 `otherif') at(__tr__=0) at((asobserved) __tr__) ///
+						over(__event__) noestimcheck contrast(atcontrast(r)) ///
+					  `options'  post
+			}
+ 
 		}
 		
 		

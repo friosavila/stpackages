@@ -1,4 +1,5 @@
-*! v1.36 Adds TrtVar or Gvar
+*!v1.4  Allows for TRT to be continuous, and adds example
+* v1.36 Adds TrtVar or Gvar
 * v1.35 Adds method for margins
 * v1.34 Minor Improv to Combinations. Also only works St15 or above
 * v1.33 reduces ammount of ommited empty
@@ -10,12 +11,44 @@
 * v1.1 FRA 8/5/2022 Redef not yet treated. 
 * v1   FRA 8/5/2022 Has almost everything we need
 
+program jwdid_example
+	preserve
+	frause mpdta, clear
+	display "jwdid lemp, ivar(countyreal) tvar(year) gvar(first) never"
+	jwdid lemp, ivar(countyreal) tvar(year) gvar(first) never
+	display "estat simple"
+	estat simple
+	display "estat calendar"
+	estat calendar
+	display "estat group"
+	estat group
+	display "estat event"
+	estat event
+	restore  	
+end
+
 program jwdid, eclass
 	version 15
+	** Replay
+	syntax [ anything(everything)], [example *]
+	if replay() {
+		if "`example'" !="" {
+			jwdid_example
+		}
+		else {
+			if "e(cmd)"=="jwdid" ereturn display
+			else display "Last estimation not found"
+		}
+		exit
+	}
+	
 	syntax varlist [if] [in] [pw], [Ivar(varname) cluster(varname) ] ///
 								  [Tvar(varname) time(varname)] ///
-								  [Gvar(varname) trtvar(varname)] ///
-								  [never group method(name) nocorr]
+								  [Gvar(varname) trtvar(varname) trgvar(varname)] ///
+								  [never group method(name) nocorr  ]
+	
+
+
 	marksample  touse
 	markout    `touse' `ivar' `tvar' `gvar'
 	gettoken y x:varlist 
@@ -65,11 +98,20 @@ program jwdid, eclass
 		qui:sum `gvar' if `touse'==1 , meanonly
 		qui:replace `touse'=0 if `touse'==1 & `tvar'>=`r(max)' 
 	}
-	
-	qui:capture drop __tr__
-	qui:gen byte __tr__=0 if `touse'
-	qui:replace  __tr__=1 if `tvar'>=`gvar' & `gvar'>0  & `touse'
-	qui:replace  __tr__=1 if `touse' & "`never'"!=""
+	** Never makes estimation like SUN ABRaham
+	** or CSDID with REG
+	if "`trtvar'"=="" {
+		qui:capture drop __tr__
+		qui:gen byte __tr__=0 if `touse'
+		qui:replace  __tr__=1 if `tvar'>=`gvar' & `gvar'>0  & `touse'
+		qui:replace  __tr__=1 if `touse' & "`never'"!=""
+	}	
+	else {
+		qui:capture drop __tr__
+		qui:gen      __tr__=`trtvar' if `touse'
+		qui:replace  __tr__=1        if `touse' & "`never'"!="" & `trtvar'==0
+	}
+	** But effect is done for effectively treated so
 	qui:capture drop __etr__
 	qui:gen byte __etr__=0 if `touse'
 	qui:replace  __etr__=1 if `touse' & `tvar'>=`gvar' & `gvar'>0
@@ -316,15 +358,17 @@ program _gjwgvar, sortpreserve
 	qui:replace `touse'=1 `if' `in'
 	qui:replace `touse'=0 if `tvar'==. | `ivar'==. | `exp'==.
 	tempvar vals
-	bys `touse' `exp' : gen byte `vals' = (_n == 1) * `touse'
-	su `vals' if `touse', meanonly
-	if r(sum)>2 {
-			display in r "display More than 2 values detected in `exp'."
+	sum `exp' if `touse' , meanonly
+	local lmin=r(min)
+	local lmax=r(max)
+	if `lmin'<0 | `lmax'>1 {
+			display in r "`exp' can only have values between 0 and 1"
 			error 4444
 	}
 	qui: {
-		tempvar aux
-		bysort `touse' `ivar' `exp':egen `aux'=min((`tvar'>0))
+		tempvar aux auxd
+		qui: gen byte `auxd'=`exp'>0 if `exp'!=.
+		bysort `touse' `ivar' `auxd':egen `aux'=min(`tvar')
 		replace `aux'=0 if `exp'==0
 		by     `touse' `ivar':egen `varlist'=max(`aux')
 		replace `varlist'=. if `exp'==. | !`touse'
