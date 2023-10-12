@@ -1,4 +1,5 @@
-*! v1.4 FRA. Allows for treatment to be continuous. With ASIS
+*! v1.41 FRA. Changes | fpr &
+* v1.4 FRA. Allows for treatment to be continuous. With ASIS
 * v1.37 FRA. Adds Over for Simple aggregations: Will allow for other aggregations at will
 * v1.35 FRA. adds method to mlogit
 * v1.34 FRA. Small changes on Other
