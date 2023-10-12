@@ -122,7 +122,7 @@ program define jwdid_group, rclass
 		qui:clonevar __group__ =  `e(gvar)' if __etr__==1 & `aux'<`e(gvar)'
 		if "`other'"!="" {
 			*replace __group__=. if inlist(`other',0,.)
-			local otherif "| !inlist(`other',0,.)"
+			local otherif "& !inlist(`other',0,.)"
 		}
 		if "`asis'"=="" {
 			qui:margins , subpop(if __etr__==1 `otherif') at(__tr__=(0 1)) ///
@@ -179,7 +179,7 @@ program define jwdid_calendar, rclass
 		
 		if "`other'"!="" {
 			*replace __group__=. if inlist(`other',0,.)
-			local otherif "| !inlist(`other',0,.)"
+			local otherif "& !inlist(`other',0,.)"
 		}
 		if "`asis'"=="" {
 			qui:margins , subpop(if __etr__==1 `otherif') at(__tr__=(0 1)) ///
@@ -236,7 +236,7 @@ program define jwdid_event, rclass
 		capture:qui:est store `lastreg'  
 		if "`other'"!="" {
 			*replace __group__=. if inlist(`other',0,.)
-			local otherif "| !inlist(`other',0,.)"
+			local otherif "& !inlist(`other',0,.)"
 		}
 		*qui:replace __event__ =__event__ - 1 if  __event__ <0
 		if "`e(type)'"=="notyet" {

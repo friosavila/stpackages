@@ -1,4 +1,5 @@
-*! v 1.1 Loads data from my PWS site
+*! v 1.1.1 Bug for failsafe
+* v 1.1 Loads data from my PWS site
 * Also describes data (if description available)
 
 ** This script reads the info in file and shows all datasets available
@@ -40,7 +41,7 @@ program frause,
 	** for descriptions, gather from site
 	if "`describe'"=="" {
 		qui:webuse set https://friosavila.github.io/playingwithstata/data2
-		webuse `0'
+		capture noisily webuse `0'
 		qui:webuse set
 	}
 	else {
