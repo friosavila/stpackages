@@ -284,14 +284,14 @@ program csdid_default, sclass
 	else local color1 color(`"`color1'"')
 	if "`color2'"=="" local color2 color(%40)
 	else local color2 color(`"`color2'"')
-	set trace on 
+	
 	if "`style'"=="rspike" {
 		if "`lwidth1'"=="" local lwidth1 lwidth(3)		
 		else local lwidth1 lwidth(`lwidth1')		
 		if "`lwidth2'"=="" local lwidth2 lwidth(3)
 		else local lwidth2 lwidth(`lwidth2')		
 	}
-	set trace off
+	
 	if "`style'"=="rarea" {
 		if "`lwidth1'"=="" local lwidth1 lwidth(0)
 		else local lwidth1 lwidth(`lwidth1')		
@@ -321,8 +321,7 @@ program csdid_default, sclass
 		local conn connect(l)
 	}
 	 
-	display in w "`lwidth1'"
-	display in w "`lwidth2'"
+	
 	sreturn local style `style' 
 	sreturn local df11  `pstyle1' `color1' `lwidth1'  `barwidth1' 
 	sreturn local df12  `pstyle1' `conn'

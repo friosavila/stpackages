@@ -200,7 +200,6 @@ program csdid_plot_eventx
  
 	** defaults
 	
-	** defaults
 	if `"`xtitle'"'=="" local xtitle xtitle("Periods to Treatment")
 	if `"`ytitle'"'=="" local ytitle ytitle("ATT")
 	
