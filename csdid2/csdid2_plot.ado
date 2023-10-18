@@ -141,8 +141,10 @@ program csdid2_default, sclass
 	else local color2 color(`"`color2'"')
 	
 	if "`style'"=="rspike" {
-		if "`lwidth1'"=="" local lwidth1 lwidth(3)		
+		if "`lwidth1'"=="" local lwidth1 lwidth(3)
+		else local lwidth1 lwidth(`lwidth1')		
 		if "`lwidth2'"=="" local lwidth2 lwidth(3)
+		else local lwidth2 lwidth(`lwidth2')
 		if "`asy'"!="" {
 			local lwidth1 lwidth(1)		
 			local lwidth2 lwidth(1)		
@@ -150,22 +152,31 @@ program csdid2_default, sclass
 	}
 	
 	if "`style'"=="rarea" {
-		if "`lwidth1'"=="" local lwidth1 lwidth(0)		
+		if "`lwidth1'"=="" local lwidth1 lwidth(0)
+		else local lwidth1 lwidth(`lwidth1')						
 		if "`lwidth2'"=="" local lwidth2 lwidth(0) 
+		else local lwidth2 lwidth(`lwidth2')		
 		local conn connect(l)
 	}
 	
 	if "`style'"=="rcap" {
-		if "`lwidth1'"=="" local lwidth1 lwidth(1)		
+		if "`lwidth1'"=="" local lwidth1 lwidth(1)	
+		else local lwidth1 lwidth(`lwidth1')		
 		if "`lwidth2'"=="" local lwidth2 lwidth(1) 
+		else local lwidth2 lwidth(`lwidth2')		
+
 		local conn connect(l)
 	}
 		
 	if "`style'"=="rbar" {
 		if "`lwidth1'"=="" local lwidth1 lwidth(0)		
+		else local lwidth1 lwidth(`lwidth1')		
 		if "`lwidth2'"=="" local lwidth2 lwidth(0) 
+		else local lwidth2 lwidth(`lwidth2')		
 		if "`barwidth1'"=="" local barwidth1 barwidth(0.5)		
+		else local barwidth1 barwidth(`barwidth1')		
 		if "`barwidth2'"=="" local barwidth2 barwidth(0.5)
+		else local barwidth2 barwidth(`barwidth2')		
 		local conn connect(l)
 	}
 	 

@@ -1,4 +1,5 @@
-*! v1.22 Even more graph options
+*! v1.23 Bug with Lwidth abd Bardwidth
+* v1.22 Even more graph options
 * v1.21 other Graph options
 * v1.2  Compatible with new Group Averages
 * v1.1  Problem with TM TP
@@ -264,6 +265,7 @@ end
 
  
 
+
 program csdid_default, sclass
 	syntax, [style(str) PSTYle1(str) color1(str) ///
 						PSTYLE2(str) color2(str) ///
@@ -282,36 +284,48 @@ program csdid_default, sclass
 	else local color1 color(`"`color1'"')
 	if "`color2'"=="" local color2 color(%40)
 	else local color2 color(`"`color2'"')
-	
+	set trace on 
 	if "`style'"=="rspike" {
 		if "`lwidth1'"=="" local lwidth1 lwidth(3)		
+		else local lwidth1 lwidth(`lwidth1')		
 		if "`lwidth2'"=="" local lwidth2 lwidth(3)
+		else local lwidth2 lwidth(`lwidth2')		
 	}
-	
+	set trace off
 	if "`style'"=="rarea" {
-		if "`lwidth1'"=="" local lwidth1 lwidth(0)		
+		if "`lwidth1'"=="" local lwidth1 lwidth(0)
+		else local lwidth1 lwidth(`lwidth1')		
 		if "`lwidth2'"=="" local lwidth2 lwidth(0) 
+		else local lwdith2 lwidth(`lwidth2')		
 		local conn connect(l)
 	}
 	
 	if "`style'"=="rcap" {
 		if "`lwidth1'"=="" local lwidth1 lwidth(1)		
+		else local lwidth1 lwidth(`lwidth1')		
 		if "`lwidth2'"=="" local lwidth2 lwidth(1) 
+		else local lwidth2 lwidth(`lwidth2')		
 		local conn connect(l)
 	}
 		
 	if "`style'"=="rbar" {
-		if "`lwidth1'"=="" local lwidth1 lwidth(0)		
+		if "`lwidth1'"=="" local lwidth1 lwidth(0)	
+		else local lwidth1 lwidth(`lwidth1')
+		
 		if "`lwidth2'"=="" local lwidth2 lwidth(0) 
+		else local lwidth2 lwidth(`lwidth2')		
 		if "`barwidth1'"=="" local barwidth1 barwidth(0.5)		
+		else local barwidth1 barwidth(`barwidth1')		
 		if "`barwidth2'"=="" local barwidth2 barwidth(0.5)
+		else local barwidth2 barwidth(`barwidth2')		
 		local conn connect(l)
 	}
 	 
-	
+	display in w "`lwidth1'"
+	display in w "`lwidth2'"
 	sreturn local style `style' 
-	sreturn local df11  `pstyle1'  `color1'  `lwidth1'  `barwidth1' 
-	sreturn local df12  `pstyle1'  `conn'
+	sreturn local df11  `pstyle1' `color1' `lwidth1'  `barwidth1' 
+	sreturn local df12  `pstyle1' `conn'
 	sreturn local df21  `pstyle2' `color2' `lwidth2' `barwidth2'
 	sreturn local df22  `pstyle2'  `conn'					  
 	sreturn local delse `options'
