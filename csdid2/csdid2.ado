@@ -1,3 +1,4 @@
+*! v1.21 Allows for treatvar
 *! v1.2  Allows for Anticipation
 *! v1.13 Cluster Corrections for RCS and RC
 *! v1.12 Adds Option for CSname
@@ -79,12 +80,39 @@ end
 	}
 end
 
+program _gcsgvar, sortpreserve
+	syntax newvarname =/exp [if] [in], tvar(varname) ivar(varname)
+	local exp = subinstr("`exp'","(","",.)
+	local exp = subinstr("`exp'",")","",.)
+	tempvar touse
+	qui:gen byte `touse'=0
+	qui:replace `touse'=1 `if' `in'
+	qui:replace `touse'=0 if `tvar'==. | `ivar'==. | `exp'==.
+	tempvar vals
+	sum `exp' if `touse' , meanonly
+	local lmin=r(min)
+	local lmax=r(max)
+    
+	if `lmin'<0 | `lmax'>1 {
+			display in r "`exp' can only have values between 0 and 1"
+			error 4444
+	}
+	qui: {
+		tempvar aux auxd
+		qui: gen byte `auxd'=`exp'>0 if `exp'!=.
+		bysort `touse' `ivar' `auxd':egen `aux'=min(`tvar')
+		replace `aux'=0 if `exp'==0
+		by     `touse' `ivar':egen `varlist'=max(`aux')
+		replace `varlist'=. if `exp'==. | !`touse'
+	}
+	label var `varlist' "Group Variable based on `exp'"
+end
  program csdid_r, sortpreserve eclass
 	syntax varlist(fv ) [if] [in] [aw pw iw/], 			    /// Basic syntax  allows for weights
-							[Ivar(varname numeric)] 		///
+							[Ivar(varname numeric) group(varname)] 		///
 							[TIme(varname numeric)]  		///
 							[Tvar(varname numeric)]  		///
-							[Gvar(varname numeric)]  		/// 
+							[Gvar(varname numeric) trtvar(varname)]  		/// 
 							[cluster(varname numeric) 		/// 
 							notyet 							/// att_gt basic option. May prepare others as Post estimation
 							method(str) 	 				///
@@ -117,12 +145,26 @@ end
 		// Tvar will superseed time
 		if "`tvar'"=="" local tvar `time'
 	}	
-	** is gvar set
-	if "`gvar'"=="" {
-		display in red "Option gvar() is required"
+	** is gvar or trtvar set?
+	if "`gvar'`trtvar'"=="" {
+		display in red "option gvar/trtvar() required"
 		error 198
 	}
-	
+	else if "`trtvar'"!="" & "`gvar'"!="" {
+		display as error "You can only specify gvar or trtvar. Not both"		
+		error 198
+	}
+	else if "`trtvar'"!="" {
+		capture drop __gvar
+        if "`ivar'`group'"=="" display "You need to specifcy {it: ivar()} for panel or {it: group()} for Repeated Crossection"
+        else {
+            if "`ivar'"!="" local iivar "`ivar'"
+            else  local iivar "`group'"
+            
+        }
+		qui:_gcsgvar __gvar=`trtvar', tvar(`tvar') ivar(`iivar') 
+		local gvar __gvar
+	}
 	*** OLD for SHORT
 	if "`short'"=="" {
 		local long long
@@ -156,7 +198,9 @@ end
 		display in red "Method `method' not allowed"
 		error 1
 	}
-	
+	** What method is being used
+    display "Using method `method'"
+    
 	** Always Treated Excluded
 	qui: sum `touse', meanonly
 	local pre_mean `r(mean)'
