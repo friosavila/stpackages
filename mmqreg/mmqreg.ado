@@ -634,7 +634,7 @@ void mmqreg::setup() {
 	real matrix suvw, su , sv, sw
 	real matrix omgs, omg, Qxx, Pxx , us2
 	su    = uvar:/xvargamma
-	sv    = vvar:/xvargamma
+	sv    = vvar:/xvargamma:-1
 	sw    = if3 :/xvargamma
 	suvw  = (su,sv,sw)
  	if (rows(wvar)>1) {
