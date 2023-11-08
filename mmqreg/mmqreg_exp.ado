@@ -117,9 +117,10 @@ program define display_mmqreg
 	ereturn display, `level'
 end
 
-program define mmqreg_nose, eclass sortpreserve
+ 
+program define mmqreg_jkc, eclass sortpreserve
 	qui:syntax varlist(fv) [in] [if] [ pw ], ///
-		[Quantile(str) Absorb(varlist) cluster(varname) denopt(str) dfadj robust nowarning LS nose]
+		[Quantile(str) Absorb(varlist) cluster(varname) denopt(str) dfadj robust nowarning LS jkc]
 	** start with sample checks
 	capture drop _i_* 
 	capture drop ___zero___
@@ -206,10 +207,10 @@ program define mmqreg_nose, eclass sortpreserve
 	}
 
 end
- 
+  
 program define mmqregx, eclass sortpreserve
 	qui:syntax varlist(fv) [in] [if] [ pw ], ///
-		[Quantile(str) Absorb(varlist) cluster(varname) denopt(str) dfadj robust nowarning LS nose]
+		[Quantile(str) Absorb(varlist) cluster(varname) denopt(str) dfadj robust nowarning LS nose jkc]
 	** start with sample checks
 	capture drop _i_* 
 	capture drop ___zero___
@@ -555,6 +556,8 @@ class mmqreg {
 	real matrix        vce0()
 	real matrix        vce1()
 	real matrix        vce2()
+	real matrix        fix_rif()
+	real matrix        get_ifbeta()
 	void        post()
 	void 	    betas_vcv()
 	void        full_est()
@@ -630,15 +633,15 @@ void mmqreg::setup() {
 	}
 	
 }
- real matrix mmqreg::vce0(){
+real matrix mmqreg::vce0(){
 	real matrix suvw, su , sv, sw
 	real matrix omgs, omg, Qxx, Pxx , us2
 	su    = uvar:/xvargamma
-	sv    = vvar:/xvargamma
+	sv    = vvar:/xvargamma:-1
 	sw    = if3 :/xvargamma
 	suvw  = (su,sv,sw)
  	if (rows(wvar)>1) {
-		omgs  = cross(suvw,wvar,suvw):/ 
+		omgs  = cross(suvw,wvar,suvw):/nobs 
 		// (x'x)^-1 * (x'xg)
 		Qxx   = if1:/su  
 		Pxx   = cross(Qxx,wvar,xvargamma)
@@ -657,7 +660,7 @@ void mmqreg::setup() {
 	                    omgs[3..rows(omgs),1..2]#Pxx', omgs[3..rows(omgs),3..rows(omgs)]# us2 )
 	return(omg)					
 }
- real matrix mmqreg::vce1(){
+real matrix mmqreg::vce1(){
 	if (rows(wvar)>1) {
 		return(quadcross(iff,wvar,iff)/nobs^2)
 	}
@@ -732,6 +735,29 @@ void mmqreg::betas_vcv(){
 	
 }
   
+real matrix mmqreg:fix_rif(real matrix rif){
+	real matrix mn_rif, rif2
+	
+	//mn_rif= colsum(rif)
+	mn_rif= colsum(rif):/colnonmissing(rif)
+ 	rif2  = rif:-mn_rif
+	rif   = editmissing(rif2,0)
+	rif   = mn_rif:+rif:*(rows(rif2):/colnonmissing(rif2))
+	return(rif)
+
+}
+
+real matrix mmqreg:get_ifbeta(real matrix ifbeta, ifgamma, ifq, beta, gamma, q){
+	real scalar kq, qi
+	real matrix tq 
+	kq = cols(q)
+	tq = J(rows(beta),cols(beta)*kq)
+	for(qi=1;qi<=kq;qi++){
+		tq[,((qi-1)*kq+1)..(kq*qi)]=ifbeta:+gamma#ifq[,qi] :+q[,qi]:*ifgamma
+	}
+	return(tq)
+}
+
 
 
 void mmqreg::post(){
