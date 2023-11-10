@@ -1,4 +1,6 @@
-*!v1.4  Allows for TRT to be continuous, and adds example
+*!v1.41 Allows for multiple Options
+*       Also FV and TS     
+* v1.4  Allows for TRT to be continuous, and adds example
 * v1.36 Adds TrtVar or Gvar
 * v1.35 Adds method for margins
 * v1.34 Minor Improv to Combinations. Also only works St15 or above
@@ -27,6 +29,12 @@ program jwdid_example
 	restore  	
 end
 
+program method_parser, rclass
+	syntax namelist , [*]
+	return local command `namelist'
+	return local options `options'
+end
+
 program jwdid, eclass
 	version 15
 	** Replay
@@ -42,13 +50,16 @@ program jwdid, eclass
 		exit
 	}
 	
-	syntax varlist [if] [in] [pw], [Ivar(varname) cluster(varname) ] ///
+	syntax varlist( fv ts) [if] [in] [pw], [Ivar(varname) cluster(varname) ] ///
 								  [Tvar(varname) time(varname)] ///
 								  [Gvar(varname) trtvar(varname) trgvar(varname)] ///
-								  [never group method(name) nocorr  ]
+								  [never group method(string asis) nocorr  ]
 	
-
-
+	if "`method'"!="" {
+		method_parser `method'
+		local method `r(method)'
+		local method_option `r(options)'
+	}
 	marksample  touse
 	markout    `touse' `ivar' `tvar' `gvar'
 	gettoken y x:varlist 
@@ -216,11 +227,13 @@ program jwdid, eclass
 			} 
 		}
 		`method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr'    i.`gvar' i.`tvar' ///
-		if `touse' [`weight'`exp'], cluster(`cvar') 
+		if `touse' [`weight'`exp'], cluster(`cvar') `method_option'
 	}
 	
 	ereturn local cmd jwdid
 	ereturn local cmd2 `method'
+	ereturn local cmdopt `method_option'
+
 	ereturn local cmdline jwdid `0'
 	if "`method'"!="" {
 		ereturn local scmd `method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr'   i.`gvar' i.`tvar' if `touse' [`weight'`exp'], cluster(`cvar') 
