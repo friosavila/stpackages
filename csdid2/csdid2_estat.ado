@@ -1,3 +1,4 @@
+*! v1.3 Correct with group
 *! v1.2 for anticipation
 *! v1.1 adds option for CSname
 *! v1. FRA 

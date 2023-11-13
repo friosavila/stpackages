@@ -1,3 +1,4 @@
+*! v1.1 Corrects Group SE
 *! v1 Allows for anticipation
 mata
 class select_range {
@@ -306,13 +307,14 @@ void csdid_estat::group_att(class csdid scalar csdid ){
 				aux_wgt      = select(csdid.frwt,toselect)			
 				aux   [,iic]   = aggte(select(csdid.frif,toselect),aux_wgt )
 				sumwgt[,iic]   = rowsum(aux_wgt):/cols(aux_wgt)
+				//sumwgt[,iic]   = aggte(aux_wgt)
 			}		
 		}
 		// Drop Zeroes
 		sumwgt = sumwgt[,1..iic]
 		aux    =    aux[,1..iic]
 		onames = onames[1..iic+1,]
-		sumwgt = colsum(sumwgt)
+		//sumwgt = colsum(sumwgt)
 		erif= aggte(aux,sumwgt ), aux
 		// If request no AVG
 
