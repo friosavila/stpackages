@@ -495,7 +495,8 @@ void makerif2(string scalar rifgt_ , rifwt_ , agg,
 		}
 		_editmissing(sumwgt,0)
 		//# Bookmark #1 Uncertain if this is the best way to fix this, but right now gives best results
-		sumwgt=J(rows(sumwgt),1,colsum(sumwgt))
+		// Check this. To modify estat for group
+		// sumwgt=J(rows(sumwgt),1,colsum(sumwgt))
 		aux = aggte(aux,sumwgt ), aux
 		
 		// get table elements		
