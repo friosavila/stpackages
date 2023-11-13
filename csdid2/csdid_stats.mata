@@ -1,3 +1,4 @@
+*! v1.2 Balance event
 *! v1.1 Corrects Group SE
 *! v1 Allows for anticipation
 mata
@@ -457,27 +458,36 @@ real matrix csdid_estat::select_data(class csdid scalar csdid){
 		}
 	}
 	if (i4>0){
+		real matrix gg, selbal2
+		// Get smaller event: This is to verify we have all "reasonable" events in the list
+		gg = uniqrows(csdid.eventvar)
+		selbal2 = J(1,0,0)
+		for(i=1;i<=i4;i++){
+			if ( sum(gg[,1]:==range.selbal[i]) == 1) {
+				selbal2=selbal2,range.selbal[i]
+                 
+			}	
+		}		
+		i4 = length(selbal2)
 		toselect4 =J(rws,1,0)
 		for(i=1;i<=i4;i++){
-			toselect4=toselect4:+(csdid.eventvar[,1]:==range.selbal[i])
+			toselect4=toselect4:+(csdid.eventvar[,1]:==selbal2[i])
 		}
-		real matrix gg
+
 		// select Ggroups
-		 
+		  
 		gg = select(csdid.fgtvar[,1],toselect4:>0)
-		 
-		gg = uniqrows(gg,1) ; gg=select(gg[,1],gg[,2]:==max(gg[,2]))
-	 
+		gg = uniqrows(gg,1) ;  gg=select(gg[,1],gg[,2]:==i4)
+        
 		// do gvar again
-		toselect1 =J(rws,1,0)
+		toselect4 =J(rws,1,0)
 		for(i=1;i<=length(gg);i++){
-			toselect1=toselect1:+(csdid.fgtvar[,1]:==gg[i])
+			toselect4=toselect4:+(csdid.fgtvar[,1]:==gg[i])
 		}
-		
-		if (i3>0) {
-			toselect4=toselect3
-		}
+        if (sum(toselect4)==0) {
+            _error(123,"No observations after imposing balance")
  
+        }
 	}
 	
 	// tosel1 gvar
