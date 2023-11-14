@@ -12,37 +12,71 @@
 {p 8 17 2}
 {cmdab:estat}
 [aggregation]
+[{cmd:,} {it:aggregation}]
+
+{synoptset 20 tabbed}{...}
+{synopthdr}
+{synoptline}
+{syntab:Main}
+{synopt:{opt simple}}Estimates the ATT for all groups across all periods.{p_end}
+{synopt:{opt group}}Estimates the ATT for each group or cohort, over all periods.{p_end}
+{synopt:{opt calendar}}Estimates the ATT for each period, across all groups or cohorts.{p_end}
+{synopt:{opt event}}Dynamic aggregation. When default option is used (not-yet treated)
+this option only provides the post-treatment ATT aggregations.{p_end}
+{synoptline}
+
+Because {cmd:jwdid} uses {help margins} to estimate the ATT, you can use many margins options, including "post" to store the output for further reporting, or predict()
+to produce results for other outcomes (other than default).
+
+However, I added extra options to faciliate storing, as well as alternative effects.
+
 [{cmd:,} {it:options}]
 
 {synoptset 20 tabbed}{...}
 {synopthdr}
 {synoptline}
 {syntab:Main}
-{synopt:{opt simple}} Estimates the ATT for all groups across all periods.{p_end}
-{synopt:{opt group}}Estimates the ATT for each group or cohort, over all periods.{p_end}
-{synopt:{opt calendar}}Estimates the ATT for each period, across all groups or cohorts.{p_end}
-{synopt:{opt event}}Dynamic aggregation. When default option is used (not-yet treated)
-this option only provides the post-treatment ATT aggregations.{p_end}
+{synopt:{opt post[(plotting options)]}} You can request plotting the results after producing them. THis follows a syntax similar to margins, plot[()]
+Everything in parenthesis are two-way option plots that can be added to the figure construction.{p_end}
+{synopt:{opt esave(name)}}Saves the output into a ster file{p_end}
+{synopt:{opt estore(name)}}Saves the output in memory under name{p_end}
+{synopt:{opt other(varname)}}When using calendar, group or event aggregations, you can request getting the aggregations for specific subgroups. Say excluding first and last event period.
+This should be specified with a dummy that identifies with 1 observations to be kept in the analysis{p_end}
+{synopt:{opt over(varname)}}When using simple, one can request to estimate "simple" estimates across multiple subgroups. For example,
+to reproduce ATTGTs for all post-treament data in nonlinear model{p_end}
 {synoptline}
+
 {p2colreset}{...}
 
 {marker description}{...}
 {title:Description}
 
 {pstd}
-{cmd:jwdid} comes with a basic post-estimation command that estimates 4 types of aggregations: Simple, Calendar, group and event/dynamic ATTs. These are similar to the aggregations based on {cmd:csdid}.
+{cmd:jwdid} comes with a basic post-estimation command that estimates 4 types of aggregations: 
+Simple, Calendar, group and event/dynamic ATTs. These are similar to the aggregations based on {cmd:csdid}.
 
 {pstd}
-All estimations are constructed using {help margins} turning on and off the "treatment" dummy __tr__. You can use many margins options, including "post" to store the output for further reporting.
+All estimations are constructed using {help margins} turning on and off the "treatment" dummy __tr__.
+ You can use many margins options, including "post" to store the output for further reporting. For example, using predict(xb) to 
+ get effects based on the linear predictor.
 
 {pstd}
-When other estimation methods are used (probit/poisson) margins are calculated based on the default options in margins. 
+When other estimation methods are used (probit/poisson) margins are calculated based on the default options in margins.
+
+{pstd}
+The command allows you to directly save -esave- or store -estore- the outcomes from margins. As well as estimate margins for other subsamples using 
+the -other(varname)- and -over(name) options.
+
+{pstd}
+You can also request to create plots right after producing the aggregations. This follows a syntax similar to margins, plot[()].
 
 {marker remarks}{...}
 {title:Remarks}
 
 {pstd}
-This code shows how simple is to produce Aggregations for ATT's based on this approach. However, as experienced with the first round of CSDID, when you have too many periods and cohorts, the aggregations may take some time. At some point, I will attempt to write the Mata code to make aggregations as fast as with csdid.
+This code shows how simple is to produce Aggregations for ATT's based on this approach. 
+However, as experienced with the first round of CSDID, when you have too many periods and cohorts, 
+the aggregations may take some time.
 
 {pstd}
 Also, all errors are my own. And this code was not necessarily checked by Prof Wooldridge. So if something looks different from his, look into his work.
@@ -101,12 +135,13 @@ Also, all errors are my own. And this code was not necessarily checked by Prof W
  
 {title:{cmd:jwdid_plot}: Plots after jwdid}
 
-{p}{cmd:jwdid} also comes with its own command to produce simple plots for all aggregations. It automatically recognizes last estimated results left by {cmd: jwdid post estimation} to produce the corresponding plots.{p_end}
+{p}{cmd:jwdid} also comes with its own command to produce simple plots for all aggregations.
+ It automatically recognizes last estimated results left by {cmd: jwdid post estimation} to produce the corresponding plots.
+ This command is what is called when using -plot[()] option with -estat-. {p_end}
 
 
 {marker syntax}{...}
 {title:Syntax}
-
 
 {phang}{cmd:jwdid_plot}, [options]
 
@@ -195,9 +230,9 @@ with Panel Data. Working paper.{p_end}
 
 {pstd}This command was put together just for fun, and 
 as my last push of "productivity" before my 
-baby girl was born! {p_end}
+baby girl was born! Who is now 15months!{p_end}
 
-{pstd}jwdid_plot was also written due to request of people interested in this estmator.
+{pstd}jwdid_plot was also written due to request of people interested in this estimator.
 {p_end}
 
 

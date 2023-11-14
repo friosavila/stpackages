@@ -1,4 +1,5 @@
-*! v1.41 FRA. Changes | fpr &
+*! v1.42 FRA. flexible PLOT
+* v1.41 FRA. Changes | fpr &
 * v1.4 FRA. Allows for treatment to be continuous. With ASIS
 * v1.37 FRA. Adds Over for Simple aggregations: Will allow for other aggregations at will
 * v1.35 FRA. adds method to mlogit
@@ -23,7 +24,7 @@ end
 
 program define jwdid_estat, sortpreserve   
 	version 14
-    syntax anything, [* plot]
+    syntax anything, [* PLOT PLOT1(string asis)]
         if "`e(cmd)'" != "jwdid" {
                 error 301
         }
@@ -38,7 +39,10 @@ program define jwdid_estat, sortpreserve
 				jwdid_`key'  `rest'
 				addr local cmd  estat, 
 				addr local cmd2 jwdid, 
-				
+				if "`key'"!="plot" & ( "`plot'"!="" | `"`plot1'"'!="") {
+					jwdid_plot, `plot1'
+				} 
+
 			}
 			else {
 				display in red "Option `key' not recognized"
@@ -52,7 +56,7 @@ program define jwdid_estat, sortpreserve
 end
 
 program define jwdid_simple, rclass
-		syntax, [* post estore(str) esave(str) replace over(varname) asis]
+		syntax, [* post estore(str) esave(str) replace over(varname) asis PLOT PLOT1(string asis)]
 		//tempvar aux
 		//qui:bysort `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
 		capture:est store `lastreg'	
@@ -110,7 +114,7 @@ program define jwdid_simple, rclass
 end
 
 program define jwdid_group, rclass
-		syntax, [* post estore(str) esave(str) replace  other(varname) asis]
+		syntax, [* post estore(str) esave(str) replace  other(varname) asis PLOT PLOT1(string asis)]
 		tempvar aux
 		qui:bysort `e(gvar)' `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
 		
@@ -168,7 +172,7 @@ program define jwdid_group, rclass
 end
 
 program define jwdid_calendar, rclass
-	syntax, [* post estore(str) esave(str) replace  other(varname)]
+	syntax, [* post estore(str) esave(str) replace  other(varname) PLOT PLOT1(string asis)]
 		capture drop __calendar__
 		tempvar aux
 		qui:bysort `e(gvar)' `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
@@ -225,7 +229,7 @@ program define jwdid_calendar, rclass
 end
 
 program define jwdid_event, rclass
-	syntax, [* post estore(str) esave(str) replace  other(varname)]
+	syntax, [* post estore(str) esave(str) replace  other(varname) PLOT PLOT1(string asis)]
 		capture drop __event__
 		tempvar aux
 		qui:bysort `e(gvar)' `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)

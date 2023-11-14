@@ -31,7 +31,7 @@ end
 
 program method_parser, rclass
 	syntax namelist , [*]
-	return local command `namelist'
+	return local method `namelist'
 	return local options `options'
 end
 
@@ -60,6 +60,7 @@ program jwdid, eclass
 		local method `r(method)'
 		local method_option `r(options)'
 	}
+	
 	marksample  touse
 	markout    `touse' `ivar' `tvar' `gvar'
 	gettoken y x:varlist 

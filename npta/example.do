@@ -13,9 +13,10 @@ bysort ivar:gen tvar = _n
 *gen y =rnormal() 
 
 ** with PTA violation
-gen y =rnormal()  - 0.05*tvar * (gvar!=0)
+ 
+gen y =rnormal() - 0.1*tvar + 0.01*tvar^2 + 0.1*tvar * (gvar!=0)
 
-replace teff = teff * (tvar-gvar+1) * (gvar!=0) * (tvar>=gvar)  
+replace teff = teff * (tvar-gvar+1) * (gvar!=0) * (tvar>=gvar) - 0.2*teff * (tvar-gvar+1)^2 * (gvar!=0) * (tvar>=gvar) + rnormal()*0
 gen yd = y + teff
 
 gen event = (tvar-gvar) if gvar!=0
@@ -24,7 +25,7 @@ mean teff if event!=-1, over(event2)
 matrix bt=e(b)
 
 ** Estimating effect
-net install csdid2, from("https://friosavila.github.io/stpackages")
+*net install csdid2, from("https://friosavila.github.io/stpackages") replace
 csdid2 yd, ivar(ivar) gvar(gvar) tvar(tvar)
 estat event, noavg
 
@@ -49,7 +50,7 @@ predict v_pre
 qreg v ev if ev>=0
 predict v_post
 
-gen post=(v_post-v_pre )*(ev>0)
+gen post=(v-v_pre )*(ev>0)
 
 
 ** estimated effect (via simulations)
@@ -58,6 +59,7 @@ label var v "Estimated effect"
 
 
 graph box post v bt, over(ev) name(f2, replace)  
+
 
 
 
