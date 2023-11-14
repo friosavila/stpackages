@@ -12,7 +12,7 @@
 {p 8 17 2}
 {cmdab:estat}
 [aggregation]
-[{cmd:,} {it:aggregation}]
+[{cmd:,} {it:options}]
 
 {synoptset 20 tabbed}{...}
 {synopthdr}
@@ -25,18 +25,16 @@
 this option only provides the post-treatment ATT aggregations.{p_end}
 {synoptline}
 
-Because {cmd:jwdid} uses {help margins} to estimate the ATT, you can use many margins options, including "post" to store the output for further reporting, or predict()
-to produce results for other outcomes (other than default).
+{pstd}Because {cmd:jwdid} uses {help margins} to estimate the ATT, you can use many margins options, including "post" to store the output for further reporting, or predict()
+to produce results for other outcomes (other than default).{p_end}
 
-However, I added extra options to faciliate storing, as well as alternative effects.
-
-[{cmd:,} {it:options}]
+{pstd}However, I added extra options to faciliate storing, as well as alternative effects.{p_end}
 
 {synoptset 20 tabbed}{...}
 {synopthdr}
 {synoptline}
-{syntab:Main}
-{synopt:{opt post[(plotting options)]}} You can request plotting the results after producing them. THis follows a syntax similar to margins, plot[()]
+Options
+{synopt:{opt plot}[(plotting options)]} You can request plotting the results after producing them. THis follows a syntax similar to margins, plot[()]
 Everything in parenthesis are two-way option plots that can be added to the figure construction.{p_end}
 {synopt:{opt esave(name)}}Saves the output into a ster file{p_end}
 {synopt:{opt estore(name)}}Saves the output in memory under name{p_end}
