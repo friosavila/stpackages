@@ -24,6 +24,7 @@
 be created using the matrix name as prefix. Otherwise, it uses {it:name} as the variable variable prefix. {p_end}
 {p2coldent : {opt matname}} if specified, the new variables are named using the matrix coleq and colname information. 
 It can be combined with name. {p_end}
+{p2coldent : {opt row}} if specified, two more variables are created with the equation name and colum name {p_end}
 
 {synoptline}
  
