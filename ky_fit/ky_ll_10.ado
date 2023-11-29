@@ -1,10 +1,11 @@
+** Potential: Allow for a different error in S2
 ** MLE for Scenario with all cases. mismatch and measureement errors  
 ** Assumes no error in t
 /*
  s_i
  s1=e_i
  s2=e_i+rho_s(e_i-mu_e)+n_i
- s3=e_i+rho_s(e_i-mu_e)+n_i+w_i
+ s3=e_i+w_i
  
  r_i
  r1=e_i

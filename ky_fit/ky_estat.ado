@@ -275,7 +275,7 @@ end
 
 *capture program drop ky_est_2
 program define ky_est_2, rclass
-	syntax , [RELiability pr_t pr_j pr_sr pr_all]
+syntax , [RELiability pr_t pr_j pr_sr pr_all]
 		//////////////////////////////////////////
 	/// set weights and sample
 	if "`e(wtype)'" != "" {
@@ -386,7 +386,7 @@ program define ky_est_2, rclass
 		matrix rowname `mmsum' = e_i n_i w_i 
 		matrix list  `mmsum', forma(%6.4f) nohead
 		
-qui:tabstat `vr' `cv_er' `kappa_r' `kappa2_r' `vs' `cv_es' `kappa_s' `kappa2_s' if `touse' `wgtexp' ,save
+	qui:tabstat `vr' `cv_er' `kappa_r' `kappa2_r' `vs' `cv_es' `kappa_s' `kappa2_s' if `touse' `wgtexp' ,save
 		tempvar _mnres
 		matrix `_mnres'=r(StatTotal)
 		matrix `_mnres'[1,3]=`_mnres'[1,2]/`_mnres'[1,1]
@@ -819,7 +819,7 @@ syntax , [RELiability pr_t pr_j pr_sr pr_all]
 		matrix rowname `mmsum' = e_i n_i w_i t_i 
 		matrix list  `mmsum', forma(%6.4f) nohead
 
-qui:tabstat `vr' `cv_er' `kappa_r' `kappa2_r' `vs' `cv_es' `kappa_s' `kappa2_s' if `touse' `wgtexp' ,save
+	qui:tabstat `vr' `cv_er' `kappa_r' `kappa2_r' `vs' `cv_es' `kappa_s' `kappa2_s' if `touse' `wgtexp' ,save
 		tempvar _mnres
 		matrix `_mnres'=r(StatTotal)
 		matrix `_mnres'[1,3]=`_mnres'[1,2]/`_mnres'[1,1]
@@ -1591,7 +1591,7 @@ syntax , [RELiability pr_t pr_j pr_sr pr_all]
 		matrix rowname `mmsum' = e_i n_i w_i t_i 
 		matrix list  `mmsum', forma(%6.4f) nohead
 
-qui:tabstat `vr' `cv_er' `kappa_r' `kappa2_r' `vs' `cv_es' `kappa_s' `kappa2_s' if `touse' `wgtexp' ,save
+	qui:tabstat `vr' `cv_er' `kappa_r' `kappa2_r' `vs' `cv_es' `kappa_s' `kappa2_s' if `touse' `wgtexp' ,save
 		tempvar _mnres
 		matrix `_mnres'=r(StatTotal)
 		matrix `_mnres'[1,3]=`_mnres'[1,2]/`_mnres'[1,1]
@@ -2648,7 +2648,7 @@ program define mse_bias_var, rclass
 	return matrix mse_bias_var = `ttbl'
 end
 
-capture program drop ky_xirel
+*capture program drop ky_xirel
 program ky_xirel, rclass
 	syntax, [xirel reps(int 50) seed(str) surv_only ]
 	
