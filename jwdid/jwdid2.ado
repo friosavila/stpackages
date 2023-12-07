@@ -50,7 +50,7 @@ end
 	}
 end
 
-program jwdid, eclass
+program jwdid2, eclass
 	** Error with 14 or earlier
 	version 15
 	** Replay
@@ -70,9 +70,10 @@ program jwdid, eclass
 								  [Tvar(varname) time(varname) fevar(varlist)] /// fevar for other Fixed effects Valid for reghdfe and pmlhdfe
 								  [Gvar(varname) trtvar(varname) trgvar(varname)] ///
 								  [never group method(string asis) nocorr  ] ///
-								  [exogvar(varlist) ]  /// Variables not to be interacted with Gvar
-								  [GRAVITY GRAVITY1(str asis)] // place holder for gravity
-
+								  [xnovar(str asis) ]  /// Variables not to be interacted with Gvar Tvar Treatment
+                                  [xtvar(str asis) ]  /// Variables not to be interacted with Gvar Tvar Treatment
+                                  [xgvar(str asis) ]  // Variables not to be interacted with Gvar Tvar Treatment
+						
 	// For Gravity
 	// trendvar(varlist) trendt trendg trendij 
 	if "`method'"!="" {
@@ -181,11 +182,11 @@ program jwdid, eclass
 					if (`i'-`gap')!=`j' {
 					
 					local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar' 							  
-					local xvar2 `xvar2' i`i'.`gvar'#i`j'.`tvar' 
+					local xvar2 `xvar2'          i`i'.`gvar'#i`j'.`tvar' 
 					
 					if "`x'"!="" {
 						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
-						local xvar3 `xvar3' i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
+						local xvar3 `xvar3'          i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
 						}
 					}
 				}
@@ -195,8 +196,8 @@ program jwdid, eclass
 					local xvar2 `xvar2' i`i'.`gvar'#i`j'.`tvar' 
 					
 					if "`x'"!="" {
-						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
-						local xvar3 `xvar3' i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
+						local xvar  `xvar'  c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
+						local xvar3 `xvar3'          i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
 					}
 
 				}
@@ -206,11 +207,12 @@ program jwdid, eclass
 	** for xs
 	
 	foreach i of local glist {
-		local ogxvar `ogxvar' i`i'.`gvar'#c.(`x')
+		local ogxvar `ogxvar' i`i'.`gvar'#c.(`x' `xgvar')
 	}
 	
 	foreach j of local tlist {
-		local otxvar `otxvar' i`j'.`tvar'#c.(`x')
+        local cj = `cj'+1
+        if `cj'>1 local otxvar `otxvar' i`j'.`tvar'#c.(`x' `xtvar')
 	}
  	*display in w "t:`otxvar'"
 	*display in w "g:`xvar'"
@@ -222,7 +224,7 @@ program jwdid, eclass
 	if "`method'"=="" {
 		if "`group'"=="" {
 			
-			reghdfe `y' `xvar'   `otxvar'	`exogvar' ///
+			reghdfe `y' `xvar'   `otxvar'	`xnovar' ///
 				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') cluster(`cvar') keepsingletons	
 		}	
 		else {
@@ -236,12 +238,12 @@ program jwdid, eclass
 					local xcorr  `r(vlist)'
 				}
 			}	
-			reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr' `exogvar' ///
+			reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr' `xnovar' ///
 			if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') cluster(`cvar') keepsingletons noempty
 		}
 	}
 	else if "`method'"=="ppmlhdfe" {
-		ppmlhdfe `y' `xvar'   `otxvar'	`exogvar' ///
+		ppmlhdfe `y' `xvar'   `otxvar'	`xnovar' ///
 				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') cluster(`cvar') keepsingletons ///
 				d `method_option'		
 	}	
@@ -255,7 +257,7 @@ program jwdid, eclass
 					local xcorr  `r(vlist)'				
 			} 
 		}
-		`method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `exogvar'   i.`gvar' i.`tvar' ///
+		`method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `xnovar'   i.`gvar' i.`tvar' ///
 		if `touse' [`weight'`exp'], cluster(`cvar') `method_option'
 	}
 	
@@ -264,14 +266,14 @@ program jwdid, eclass
 	ereturn local cmdopt `method_option'
 
 	ereturn local cmdline jwdid `0'
-	if "`method'"!="" & method!="ppmlhdfe" {
-		ereturn local scmd `method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr'   `exogvar'  i.`gvar' i.`tvar' if `touse' [`weight'`exp'], cluster(`cvar') 
+	if "`method'"!="" & "`method'"!="ppmlhdfe" {
+		ereturn local scmd `method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr'   `xnovar'  i.`gvar' i.`tvar' if `touse' [`weight'`exp'], cluster(`cvar') 
 	}
 	else if "`method'"=="ppmlhdfe" {
-		ereturn local scmd ppmlhdfe  `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr'  `exogvar' 	if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') cluster(`cvar') keepsingletons noempty
+		ereturn local scmd ppmlhdfe  `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr'  `xnovar' 	if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') cluster(`cvar') keepsingletons noempty
 	}
 	else {
-		ereturn local scmd reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr'  `exogvar' 	if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') cluster(`cvar') keepsingletons noempty
+		ereturn local scmd reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr'  `xnovar' 	if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') cluster(`cvar') keepsingletons noempty
 	}
 	ereturn local estat_cmd jwdid_estat
 	if "`never'"!="" ereturn local type  never
