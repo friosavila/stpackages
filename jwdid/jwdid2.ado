@@ -219,13 +219,17 @@ program jwdid2, eclass
 	** Cluster level
 	if "`cluster'"=="" & "`ivar'"=="" local cvar 
 	if "`cluster'"=="" & "`ivar'"!="" local cvar `ivar'
-	if "`cluster'"!="" local cvar `cluster'
 	
 	if "`method'"=="" {
 		if "`group'"=="" {
 			
+<<<<<<< Updated upstream
 			reghdfe `y' `xvar'   `otxvar'	`xnovar' ///
 				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') cluster(`cvar') keepsingletons	
+=======
+			reghdfe `y' `xvar'   `otxvar'	`exogvar' ///
+				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons	
+>>>>>>> Stashed changes
 		}	
 		else {
 			if "`ivar'"!="" {
@@ -238,6 +242,7 @@ program jwdid2, eclass
 					local xcorr  `r(vlist)'
 				}
 			}	
+<<<<<<< Updated upstream
 			reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr' `xnovar' ///
 			if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') cluster(`cvar') keepsingletons noempty
 		}
@@ -245,6 +250,15 @@ program jwdid2, eclass
 	else if "`method'"=="ppmlhdfe" {
 		ppmlhdfe `y' `xvar'   `otxvar'	`xnovar' ///
 				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') cluster(`cvar') keepsingletons ///
+=======
+			reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr' `exogvar' ///
+			if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') `tocluster' keepsingletons noempty
+		}
+	}
+	else if "`method'"=="ppmlhdfe" {
+		ppmlhdfe `y' `xvar'   `otxvar'	`exogvar' ///
+				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons ///
+>>>>>>> Stashed changes
 				d `method_option'		
 	}	
 	else {
@@ -257,8 +271,13 @@ program jwdid2, eclass
 					local xcorr  `r(vlist)'				
 			} 
 		}
+<<<<<<< Updated upstream
 		`method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `xnovar'   i.`gvar' i.`tvar' ///
 		if `touse' [`weight'`exp'], cluster(`cvar') `method_option'
+=======
+		`method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `exogvar'   i.`gvar' i.`tvar' ///
+		if `touse' [`weight'`exp'], `tocluster' `method_option'
+>>>>>>> Stashed changes
 	}
 	
 	ereturn local cmd jwdid
@@ -266,6 +285,7 @@ program jwdid2, eclass
 	ereturn local cmdopt `method_option'
 
 	ereturn local cmdline jwdid `0'
+<<<<<<< Updated upstream
 	if "`method'"!="" & "`method'"!="ppmlhdfe" {
 		ereturn local scmd `method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr'   `xnovar'  i.`gvar' i.`tvar' if `touse' [`weight'`exp'], cluster(`cvar') 
 	}
@@ -274,6 +294,16 @@ program jwdid2, eclass
 	}
 	else {
 		ereturn local scmd reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr'  `xnovar' 	if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') cluster(`cvar') keepsingletons noempty
+=======
+	if "`method'"!="" & `method'!="ppmlhdfe" {
+		ereturn local scmd `method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr'   `exogvar'  i.`gvar' i.`tvar' if `touse' [`weight'`exp'], `tocluster' 
+	}
+	else if "`method'"=="ppmlhdfe" {
+		ereturn local scmd ppmlhdfe  `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr'  `exogvar' 	if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') `tocluster' keepsingletons noempty
+	}
+	else {
+		ereturn local scmd reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr'  `exogvar' 	if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') `tocluster' keepsingletons noempty
+>>>>>>> Stashed changes
 	}
 	ereturn local estat_cmd jwdid_estat
 	if "`never'"!="" ereturn local type  never
