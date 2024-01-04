@@ -1,0 +1,49 @@
+d 'KY_FIT': module to fit mixture models of the Kapteyn-Ypma type to linked survey and administrative data
+d
+d  ky_fit is a set of routines focused on estimating finite mixture
+d models of the Kapteyn-Ypma type to analyze linked survey and
+d administrative data on labour earnings (or similar variables),
+d taking account of various types of measurement error in each data
+d source. Different combinations of error-ridden and/or error-free
+d observations characterize latent classes. This command can be
+d used to fit a general class of finite mixture models. It also
+d provides post-estimation commands for assessment of reliability,
+d marginal effects, data simulation, and prediction of hybrid
+d earnings variables that combine information from both data
+d sources. 
+d
+d KW: finite mixture model
+d KW: Kapteyn
+d KW: Ypma
+d KW: maximum likelihood
+d KW: linked data
+d
+d Requires: Stata version 15
+d
+d Distribution-Date: 20230104
+d
+d Author: Fernando Rios-Avila, Levy Economics Institute of Bard College
+d Support: email friosavi@levy.org
+d
+d Author: Stephen P. Jenkins, London School of Economics and Political Science
+d Support: email S.Jenkins@lse.ac.uk
+d
+f ky_fit\ky_fit.ado
+f ky_fit\ky_fit.sthlp
+f ky_fit\ky_estat.ado
+f ky_fit\ky_estat.sthlp
+f ky_fit\ky_ll_1.ado
+f ky_fit\ky_ll_2.ado
+f ky_fit\ky_ll_3.ado
+f ky_fit\ky_ll_4.ado
+f ky_fit\ky_ll_5.ado
+f ky_fit\ky_ll_6.ado
+f ky_fit\ky_ll_7.ado
+f ky_fit\ky_ll_8.ado
+f ky_fit\ky_ll_9.ado
+f ky_fit\ky_sim.ado
+f ky_fit\ky_sim.sthlp
+f ky_fit\ky_p.ado
+f ky_fit\ky_star.ado
+f ky_fit\ky_example.do
+f ky_fit\ky_example.log
