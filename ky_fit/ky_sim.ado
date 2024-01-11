@@ -596,7 +596,7 @@ syntax [if],  nobs(int)		 /// sample size
 	gen byte   pi_si=runiform()<=`pi_s' `if'
 	gen byte   pi_wi=runiform()<=`pi_w' `if'
 	gen byte   pi_vi=runiform()<=`pi_v' `if'
-		
+	gen byte   pi_ri=1
 	gen double r_var=e_var                                        if pi_vi==1
 	   replace r_var=e_var+(`rho_r')*(e_var-`mean_e')+v_var       if pi_vi==0
 	*   replace r_var=t_var                                 	      if pi_ri==0 

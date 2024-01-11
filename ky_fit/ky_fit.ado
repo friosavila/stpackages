@@ -64,7 +64,7 @@ syntax varlist(min=2 max=3 numeric) [if] [in] [aw iw fw pw], 	[model(int 1)   //
 					`arho_s' `arho_r' `arho_w' `lpi_r' `lpi_s' `lpi_w' `lpi_v' 
 				
 	* Confirm Method. If not provided method=1 (int 1)
-	capture numlist "`model'", min(1) max(1)  range(>=1 <=8)
+	capture numlist "`model'", min(1) max(1)  range(>=1 <=9)
 	if _rc!=0 {
 		display in red "Method selected not available. Please choose between 1 to 7"
 		exit 999
@@ -719,7 +719,7 @@ syntax varlist(min=2 max=3 numeric) [if] [in] [aw iw fw pw], 	[model(int 1)   //
 					`technique' init(mu_e:_cons=`r_mean' ///
 					mu_n:_cons=`rs_mean' ln_sig_n:_cons=`lsn' ) ///
 					`robust' cluster(`cluster') `trace'  maximize `constraint' ///
-					 `baselevels' `allbaselevels' `difficult' `search' repeat(`repeat') `iterate'
+					`baselevels' `allbaselevels' `difficult' `search' repeat(`repeat') `iterate'
 		  tempname initb
 		  matrix `initb'=e(b)
 		  tempname bmu_t
@@ -743,17 +743,15 @@ syntax varlist(min=2 max=3 numeric) [if] [in] [aw iw fw pw], 	[model(int 1)   //
 								`technique' init(`initb', skip) ///
 								`robust' cluster(`cluster') `trace'  maximize `constraint' ///
 								`baselevels' `allbaselevels' `difficult' `search' repeat(`repeat') `iterate' `options'
-								
-		  matrix `initb'=e(b) 
-		  tempname no_cont_b
+ 		  matrix `initb'=e(b) 
+		  tempname no_cont_b no_missm_b
 		  matrix `no_missm_b'=e(b)
 		  
           tempname p6
 		  matrix `p6'=9,0,-9
 		  matrix colname `p6'=_cons
 		  matrix coleq   `p6'=lpi_v mu_v ln_sig_v
-		  
-		  display as input "Estimating Extended KY model - without missmatching"
+ 		  display as input "Estimating Extended KY model - without missmatching"
 		  ml model lf ky_ll_9 (mu_e:`rr' `ss' `ll' = `mu_e' ) ///
 							  (mu_n:=`mu_n')     ///
 							  (mu_w:=`mu_w') 	///
@@ -770,8 +768,7 @@ syntax varlist(min=2 max=3 numeric) [if] [in] [aw iw fw pw], 	[model(int 1)   //
 		}				
     }
 ********************************************************************************	
-	
-	********************************
+ 	********************************
 	if `model'==1 	   local mtd="Basic model"
 	else if `model'==2 local mtd="No mismatching in admin data"
 	else if `model'==3 local mtd="No contamination in survey data"
