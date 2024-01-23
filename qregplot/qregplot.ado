@@ -16,6 +16,7 @@
 
 
 ** This little piece of code "prevents"  loosing all!
+** This little piece of code "prevents"  loosing all!
 program define qregplot, rclass
 	syntax [varlist( fv default=none)], [*]
 	local crnst  `c(rngstate)'
@@ -114,7 +115,9 @@ program define grqreg_x, rclass
 	
 	if inlist("`e(cmd)'","qreg","bsqreg","mmqreg","qrprocess") | ///
 	   inlist("`e(cmd)'","qreg2","xtqreg","ivqreg2" ) {
-	    local xvars `=subinstr(`"`e(cmdline)'"',"`e(cmd)'","",1)'
+        local cmdl `e(cmdline)'
+        gettoken cmd xvars:cmdl
+	    *local xvars `"`=subinstr("`e(cmdline)'","`e(cmd)'","",1)'"'
 	 	qui:qreg_stripper `xvars'
 		** estimate all variables
 		local cmd  `e(cmd)'
@@ -128,7 +131,10 @@ program define grqreg_x, rclass
 	}
 	** Modify so it can also capture instruments...
 	if inlist("`e(cmd)'","smqreg") {
-	    local xvars `=subinstr(`"`e(cmdline)'"',"`e(cmd)'","",1)'
+        
+        local cmdl `e(cmdline)'
+        gettoken cmd xvars:cmdl
+	    *local xvars `"`=subinstr("`e(cmdline)'","`e(cmd)'","",1)'"'
 	 	qui:qreg_stripper `xvars'
 		** estimate all variables
 		local cmd  `e(cmd)'
@@ -156,7 +162,9 @@ program define grqreg_x, rclass
 	}
 	if inlist("`e(cmd)'","sqreg") { 
 		tempname aux2
-	    local xvars `=subinstr(`"`e(cmdline)'"',"`e(cmd)'","",1)'
+		local cmdl `e(cmdline)'
+        gettoken cmd xvars:cmdl
+	    *local xvars `"`=subinstr("`e(cmdline)'","`e(cmd)'","",1)'"'
 		qui:ereturn display
 		matrix `aux2'=r(table)
 	    qui:sqreg_stripper `xvars'
@@ -172,8 +180,9 @@ program define grqreg_x, rclass
 		}	
 	}
 	if inlist("`e(cmd)'","rifhdreg","bsrifhdreg") {
-		
-	    local xvars `=subinstr(`"`e(cmdline)'"',"`e(cmd)'","",1)'
+		local cmdl `e(cmdline)'
+        gettoken cmd xvars:cmdl
+	    *local xvars `"`=subinstr("`e(cmdline)'","`e(cmd)'","",1)'"'
 	    qui:rifhdreg_stripper `xvars'
 		local cmd  `e(cmd)'
 		local xvar `r(xvar)'
@@ -271,7 +280,7 @@ program define grqreg_x, rclass
 	if inlist("`cmd'","smqreg") {
 		local bw0 = `e(bw)'		
 		tempname binit
- 		foreach q of local qlist {
+		foreach q of local qlist {
 			local cnt = `cnt'+1
 			if `cnt'==1 qui:qreg `yvar' `xvar' `ifin' `wgt',  q(`q') 
 			matrix `binit' = e(b)
@@ -281,7 +290,6 @@ program define grqreg_x, rclass
 			
 			qui:ereturn display
 			matrix `aux'=r(table)
-			*matrix list `aux'
 			matrix coleq `aux'=""
 			matrix `qq'=nullmat(`qq') \ `q' 
 			matrix `bs'=nullmat(`bs') \ `aux'["b" ,"`qtc':"]
@@ -293,7 +301,7 @@ program define grqreg_x, rclass
 				matrix `ulo'=nullmat(`ulo') \ `olsaux'["ul",":"]
 			}
 		}
- 	}
+	}
 	
 	if inlist("`cmd'","sivqr") {
 		tempname binit
