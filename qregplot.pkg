@@ -1,0 +1,23 @@
+d 'QREGPLOT': module for plotting coefficients of a Quantile Regression
+d
+d     qregplot graphs the coefficients of a quantile regression
+d produced by various programs that produce quantile coefficients
+d including, qreg, bsqreg, sqreg, mmqreg and rifhdreg (for
+d unconditional quantiles). qregplot works in a similar way as
+d grqreg, but provides added options to give the user more control
+d on the creation of the requested figures, also allowing for the
+d use of factor notation. 
+d
+d KW: graphics
+d KW: quantile regression
+d
+d Requires: Stata version 11
+d
+d Distribution-Date: 20230311
+d
+d Author: Fernando Rios-Avila, Levy Economics Institute of Bard College
+d Support: email friosavi@@levy.org
+d
+f qregplot/qregplot.ado
+f qregplot/qregplot.sthlp
+

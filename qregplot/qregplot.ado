@@ -1,4 +1,5 @@
-*! version 1.23  (June 2023) Bug with IFs and String variable
+*! version 1.24  (Jan 2024) No longer gets an error if provices non-existing variables
+* version 1.23  (June 2023) Bug with IFs and String variable
 * version 1.22  (March 2023) Small changes to SIVQR weights, Ifs and ins
 * version 1.21  (Feb 2023) Adds smqreg and sivqr
 * version 1.2  (Dec 2022) Options for Other Range plots
@@ -15,7 +16,7 @@
 * and allowing the command to be used after other commands including mmqreg, qrprocess and rifhdreg (for uqreg)
 
 
-** This little piece of code "prevents"  loosing all!
+ 
 ** This little piece of code "prevents"  loosing all!
 program define qregplot, rclass
 	syntax [varlist( fv default=none)], [*]
@@ -81,6 +82,7 @@ program define grqreg_x, rclass
 				ms_fvstrip `varlist', expand dropomit
 				local vlist `r(varlist)'
 				is_vlist_in_xlist, vlist(`vlist') xlist(`e(xlist)')
+				return local vlist `r(nvlist)'
 			}
 			qrgraph ,  `cons'  `e(ols)' raopt(`raopt') lnopt(`lnopt') grcopt(`grcopt')  twopt(`twopt') ///
 							matrixlist(e(qq) e(bs) e(ll) e(ul)) matrixols(e(bso) e(llo) e(ulo)) ///
@@ -205,6 +207,7 @@ program define grqreg_x, rclass
 		ms_fvstrip `varlist', expand dropomit
 		local vlist `r(varlist)'
 		is_vlist_in_xlist, vlist(`vlist') xlist(`xlist')
+		local vlist `r(nvlist)'
 	}
 	
 	** check if bsqreg
@@ -405,8 +408,9 @@ program define mynlist,rclass
         return local numlist `numlist'
 end
 
-program define is_vlist_in_xlist
+program define is_vlist_in_xlist, rclass
 syntax , vlist(str) xlist(str)
+local nvlist
 	foreach i of local vlist {
 	    local flag=0
 	    foreach j of local xlist {
@@ -415,10 +419,13 @@ syntax , vlist(str) xlist(str)
 			}
 		}
 		if `flag' == 0 {
-		    display in red "Error, variable `i' not found in varlist"
-			error 1
+		    display in red "Error, variable `i' not found in varlist"			
+		}
+		else {
+			local nvlist `nvlist' `i'
 		}
 	}
+	return local nvlist `nvlist'
 end 
 
 program define qreg_stripper, rclass
@@ -647,7 +654,7 @@ if "`rplot'"=="" local rplot rarea
 	   local vlist `vlist' _cons
 	}
 	************************************
-	 
+	************************************ 
     local gcnt: word count `vlist'
  	tempname sols sbs
 	
