@@ -1,4 +1,5 @@
-*! v2.36 09-13-2021 (FRA) Version 14
+*! v2.37 02-08-2024 (FRA) Fixes Bug with reliab model 9
+* v2.36 09-13-2021 (FRA) Version 14
 * v2.35 09-13-2021 (FRA) Add model 9
 * v2.32 05-11-2021 (FRA) Change Matrix reference from colname to col number. Stata 15 does not recognize the former.
 * v2.31 05-03-2021 (FRA) added surv_only to ky_xirel
@@ -1817,7 +1818,7 @@ syntax , [RELiability pr_t pr_j pr_sr pr_all]
 			local var_r1 (               `_vare'                                           +((1-`pi_v'*`pi_r')*`_muv' +(1-`pi_r')*(`_mut'-`_mue'-`_muv'))^2)
 			local var_r2 (`_varex' + (1+ `_rho_r' )^2*`_sig2_e'+`_varv'        +2*`_covev' +(( -`pi_v'*`pi_r')*`_muv' +(1-`pi_r')*(`_mut'-`_mue'-`_muv'))^2)
 			local var_r3 (`_vart'                                                          +(( -`pi_v'*`pi_r')*`_muv'    -`pi_r' *(`_mut'-`_mue'-`_muv'))^2)
-			
+            
 			tempvar vs cv_es vr cv_er
 			gen double `vs'=`pi_s'*`var_s1'+(1-`pi_w')*(1-`pi_s')*`var_s2'+`pi_w' *(1-`pi_s')*`var_s3'
  			gen double `cv_es'=`_vare'+ ///
@@ -2010,7 +2011,7 @@ syntax , [RELiability pr_t pr_j pr_sr pr_all]
 	   	matrix `bpi'=r(b)
 		matrix `Vpi'=r(V)	 
 		
-		display as result _n "Model structure:"
+		display as result _n "Model structure: 9"
 		display as result "Survey with RTM error and contamination and" _n "Admin data with RTM error and Mismatch" _n
 		display as text "Pr of correctly reporting data  pi_s: "  as result %7.4f `bpi'[1,1]
 		display as text "Pr of contamination             pi_w: "  as result %7.4f `bpi'[1,2]
@@ -2089,20 +2090,25 @@ syntax , [RELiability pr_t pr_j pr_sr pr_all]
 			local var_s2 (`_varex' + (1+ `_rho_s' )^2*`_sig2_e'+`_varn'		   +2*`_coven'     		            +(  -`pi_s' *`_mun'    +`pi_w'*(1-`pi_s') *`_muw')^2)
 			local var_s3 (`_varex' + (1+ `_rho_s' )^2*`_sig2_e'+`_varn'+`_varw'+2*`_coven'+2*`_covew'+2*`_covnw'+(  -`pi_s' *`_mun'+(-1+`pi_w'*(1-`pi_s'))*`_muw')^2)
 
-			local var_r1 (               `_vare'                                           +((1-`pi_r')*(`_mue'-`_mut')+(0-`pi_r'*(1-`pi_v'))*`_muv')^2)
-			local var_r2 (`_varex' + (1+ `_rho_r' )^2*`_sig2_e'+`_varv'        +2*`_covev' +((1-`pi_r')*(`_mue'-`_mut')+(1-`pi_r'*(1-`pi_v'))*`_muv')^2)
+			local var_r1 (               `_vare'                                           +(0+( -(1-`pi_v'))*`_muv')^2)
+			local var_r2 (`_varex' + (1+ `_rho_r' )^2*`_sig2_e'+`_varv'        +2*`_covev' +(0+(1-(1-`pi_v'))*`_muv')^2)
+// 8
+ 
 			
+
 			tempvar vs cv_es vr cv_er
 			gen double `vs'=`pi_s'*`var_s1'+(1-`pi_w')*(1-`pi_s')*`var_s2'+`pi_w' *(1-`pi_s')*`var_s3'
 			gen double `cv_es'=`_vare'+ ///
 							   (1-`pi_s')*`_rho_s'*`_sig2_e'+ ///
 							   (1-`pi_s')*`_coven'+ ///
 							   (1-`pi_s')*`pi_w'*`_covew'
-			
+
+           
 			gen double `vr'=`pi_v'*`var_r1'+(1-`pi_v')*`var_r2'
 			gen double `cv_er'=`_vare'+ ///
 							   (1-`pi_v')*`_rho_r'*`_sig2_e'+ ///
-							   (1-`pi_v')*`_covev'+ ///
+							   (1-`pi_v')*`_covev'
+            
 							   
 			tempvar kappa_s kappa_r
 			gen double `kappa_r'=`cv_er'/`vr'
