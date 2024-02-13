@@ -1,4 +1,5 @@
-*!v1.41 Allows for multiple Options
+*!v1.42 Fixes Bug with Continuous Trt
+* v1.41 Allows for multiple Options
 *       Also FV and TS     
 * v1.4  Allows for TRT to be continuous, and adds example
 * v1.36 Adds TrtVar or Gvar
@@ -121,7 +122,7 @@ program jwdid, eclass
 	else {
 		qui:capture drop __tr__
 		qui:gen      __tr__=`trtvar' if `touse'
-		qui:replace  __tr__=1        if `touse' & "`never'"!="" & `trtvar'==0
+		qui:replace  __tr__=1        if `touse' & "`never'"!="" & `trtvar'==0 & `gvar'!=0
 	}
 	** But effect is done for effectively treated so
 	qui:capture drop __etr__

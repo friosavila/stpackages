@@ -1,4 +1,5 @@
-*! v1.42 FRA. flexible PLOT
+*! v1.5 FRA. Fix Bug with Continuous treatment
+* v1.42 FRA. flexible PLOT
 * v1.41 FRA. Changes | fpr &
 * v1.4 FRA. Allows for treatment to be continuous. With ASIS
 * v1.37 FRA. Adds Over for Simple aggregations: Will allow for other aggregations at will
@@ -229,7 +230,7 @@ program define jwdid_calendar, rclass
 end
 
 program define jwdid_event, rclass
-	syntax, [* post estore(str) esave(str) replace  other(varname) PLOT PLOT1(string asis)]
+	syntax, [post estore(str) esave(str) replace  other(varname) PLOT PLOT1(string asis) asis * ]
 		capture drop __event__
 		tempvar aux
 		qui:bysort `e(gvar)' `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
@@ -270,12 +271,12 @@ program define jwdid_event, rclass
 			label values __event__ __event__
 
 			if "`asis'"=="" {
-				qui:margins , subpop(if __tr__==1 `otherif') at(__tr__=(0 1)) ///
+				qui:margins , subpop(if __tr__!=0 `otherif') at(__tr__=(0 1)) ///
 					  over(__event__) noestimcheck contrast(atcontrast(r)) ///
 					  `options'  post
 			}
 			else {
-				qui:margins  ,  subpop(if __tr__==1 `otherif') at(__tr__=0) at((asobserved) __tr__) ///
+				qui:margins  ,  subpop(if __tr__!=0 `otherif') at(__tr__=0) at((asobserved) __tr__) ///
 						over(__event__) noestimcheck contrast(atcontrast(r)) ///
 					  `options'  post
 			}
