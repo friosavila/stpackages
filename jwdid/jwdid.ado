@@ -1,4 +1,6 @@
-*!v1.42 Fixes Bug with Continuous Trt
+*!v1.5  Multiple Methods plus extra
+* some options not yet documented
+* v1.42 Fixes Bug with Continuous Trt
 * v1.41 Allows for multiple Options
 *       Also FV and TS     
 * v1.4  Allows for TRT to be continuous, and adds example
@@ -13,7 +15,11 @@
 * v1.2 FRA 8/17/2022 Adds Correction unbalanced panel
 * v1.1 FRA 8/5/2022 Redef not yet treated. 
 * v1   FRA 8/5/2022 Has almost everything we need
-
+****
+* Add to estat event, an option for Any ATTGT
+* This means, a way to do simple, for post and pre..algo como el cevent. But based on Everything
+* This version aims to incorporate features for Gravity
+ 
 program jwdid_example
 	preserve
 	frause mpdta, clear
@@ -32,14 +38,28 @@ end
 
 program method_parser, rclass
 	syntax namelist , [*]
+	local method1:word 1 of `namelist'
 	return local method `namelist'
+	return local method1 `method1'
 	return local options `options'
 end
 
+ program check_install, rclass
+	syntax [namelist]
+	foreach i in reghdfe hdfe `namelist' {
+		capture which `i'
+		if _rc!=0 {
+			display in red as error "You need to install `i' from SSC"
+			error 198
+		}
+	}
+end
+
 program jwdid, eclass
+	** Error with 14 or earlier
 	version 15
 	** Replay
-	syntax [ anything(everything)], [example *]
+	syntax [ anything(everything)] [in] [pw iw aw], [example *]
 	if replay() {
 		if "`example'" !="" {
 			jwdid_example
@@ -51,17 +71,26 @@ program jwdid, eclass
 		exit
 	}
 	
-	syntax varlist( fv ts) [if] [in] [pw], [Ivar(varname) cluster(varname) ] ///
-								  [Tvar(varname) time(varname)] ///
+	syntax varlist( fv ts) [if] [in] [pw iw aw], [Ivar(varname) cluster(varlist) ] ///
+								  [Tvar(varname) time(varname) fevar(varlist)] /// fevar for other Fixed effects Valid for reghdfe and pmlhdfe
 								  [Gvar(varname) trtvar(varname) trgvar(varname)] ///
-								  [never group method(string asis) nocorr  ]
-	
+								  [never group method(string asis) corr  ] ///
+								  [xnovar(str asis) ]  /// Variables not to be interacted with Gvar Tvar Treatment
+                                  [xtvar(str asis) ]  /// Variables not to be interacted with Gvar Tvar Treatment
+                                  [xgvar(str asis) ]  // Variables not to be interacted with Gvar Tvar Treatment
+						
+	// For Gravity
+	// trendvar(varlist) trendt trendg trendij 
 	if "`method'"!="" {
 		method_parser `method'
 		local method `r(method)'
+		local method1 `r(method1)'
 		local method_option `r(options)'
 	}
-	
+
+	// Check installation
+	check_install `method'
+
 	marksample  touse
 	markout    `touse' `ivar' `tvar' `gvar'
 	gettoken y x:varlist 
@@ -159,11 +188,11 @@ program jwdid, eclass
 					if (`i'-`gap')!=`j' {
 					
 					local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar' 							  
-					local xvar2 `xvar2' i`i'.`gvar'#i`j'.`tvar' 
+					local xvar2 `xvar2'          i`i'.`gvar'#i`j'.`tvar' 
 					
 					if "`x'"!="" {
 						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
-						local xvar3 `xvar3' i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
+						local xvar3 `xvar3'          i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
 						}
 					}
 				}
@@ -173,8 +202,8 @@ program jwdid, eclass
 					local xvar2 `xvar2' i`i'.`gvar'#i`j'.`tvar' 
 					
 					if "`x'"!="" {
-						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
-						local xvar3 `xvar3' i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
+						local xvar  `xvar'  c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
+						local xvar3 `xvar3'          i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
 					}
 
 				}
@@ -184,52 +213,61 @@ program jwdid, eclass
 	** for xs
 	
 	foreach i of local glist {
-		local ogxvar `ogxvar' i`i'.`gvar'#c.(`x')
+		local ogxvar `ogxvar' i`i'.`gvar'#c.(`x' `xgvar')
 	}
 	
 	foreach j of local tlist {
-		local otxvar `otxvar' i`j'.`tvar'#c.(`x')
+        local cj = `cj'+1
+        if `cj'>1 local otxvar `otxvar' i`j'.`tvar'#c.(`x' `xtvar')
 	}
  	*display in w "t:`otxvar'"
 	*display in w "g:`xvar'"
 	** Cluster level
 	if "`cluster'"=="" & "`ivar'"=="" local cvar 
 	if "`cluster'"=="" & "`ivar'"!="" local cvar `ivar'
-	if "`cluster'"!="" local cvar `cluster'
+	if "`cluster'"!=""                local cvar `cluster'
+	
+	if "`method1'"=="fracreg" local tocluster vce(cluster `cvar')
+	else local tocluster cluster(`cvar')
 	
 	if "`method'"=="" {
 		if "`group'"=="" {
 			
-			reghdfe `y' `xvar'   `otxvar'	///
-				if `touse' [`weight'`exp'], abs(`ivar' `tvar') cluster(`cvar') keepsingletons	
+			reghdfe `y' `xvar'   `otxvar'	`exogvar' ///
+				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons	
 		}	
 		else {
 			if "`ivar'"!="" {
 				qui:xtset `ivar' `tvar'
 				mata:is_balanced("`ivar' `tvar'","`touse'")
 		 
-				if `ibal'==0 & "`corr'"=="" {
+				if `ibal'==0 & "`corr'"!="" {
 					** Correction 
 					qui:myhdmean `xvar2' `xvar3' `otxvar' i.`tvar' if `touse'	[`wgt'`exp'] , prefix(_z_) keepsingletons abs(`ivar')
 					local xcorr  `r(vlist)'
 				}
 			}	
-			reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr' ///
-			if `touse' [`weight'`exp'], abs(`gvar'  `tvar') cluster(`cvar') keepsingletons noempty
+			reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr' `exogvar' ///
+			if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') `tocluster' keepsingletons noempty
 		}
 	}
+	else if "`method'"=="ppmlhdfe" {
+		ppmlhdfe `y' `xvar'   `otxvar'	`exogvar' ///
+				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons ///
+				d `method_option'		
+	}	
 	else {
 		if "`ivar'"!="" {
 			qui:xtset `ivar' `tvar'
 			mata:is_balanced("`ivar' `tvar'","`touse'")	
-			if `ibal'==0 & "`corr'"==""  {
+			if `ibal'==0 & "`corr'"!=""  {
 					** Correction 
 					qui:myhdmean `xvar2'  i.`tvar' if `touse'	[`wgt'`exp'] , prefix(_z_) keepsingletons abs(`ivar')
 					local xcorr  `r(vlist)'				
 			} 
 		}
-		`method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr'    i.`gvar' i.`tvar' ///
-		if `touse' [`weight'`exp'], cluster(`cvar') `method_option'
+		`method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `exogvar'   i.`gvar' i.`tvar' ///
+		if `touse' [`weight'`exp'], `tocluster' `method_option'
 	}
 	
 	ereturn local cmd jwdid
@@ -237,15 +275,19 @@ program jwdid, eclass
 	ereturn local cmdopt `method_option'
 
 	ereturn local cmdline jwdid `0'
-	if "`method'"!="" {
-		ereturn local scmd `method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr'   i.`gvar' i.`tvar' if `touse' [`weight'`exp'], cluster(`cvar') 
+	if "`method'"!="" & "`method'"!="ppmlhdfe" {
+		ereturn local scmd `method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr'   `exogvar'  i.`gvar' i.`tvar' if `touse' [`weight'`exp'], `tocluster' 
+	}
+	else if "`method'"=="ppmlhdfe" {
+		ereturn local scmd ppmlhdfe  `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr'  `exogvar' 	if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') `tocluster' keepsingletons noempty
 	}
 	else {
-		ereturn local scmd reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr' 	if `touse' [`weight'`exp'], abs(`gvar'  `tvar') cluster(`cvar') keepsingletons noempty
+		ereturn local scmd reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr'  `exogvar' 	if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') `tocluster' keepsingletons noempty
 	}
 	ereturn local estat_cmd jwdid_estat
 	if "`never'"!="" ereturn local type  never
 	else 			 ereturn local type  notyet
+
 	ereturn local ivar `ivar'
 	ereturn local tvar `tvar'
 	ereturn local gvar `gvar'
