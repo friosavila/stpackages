@@ -333,12 +333,17 @@ real matrix csdid::sample_select(real matrix gvtv) {
 	tv1 = gvtv[4]
 	if (notyet==0) 	gsel = (gvar:==0        :| gvar:==gv)
 	else {
-		                          gsel = (gvar:==0 :| gvar:>max((gv,tv1)) :| gvar:==gv)
-		if ((asinr==1) & (tv<gv)) gsel = (gvar:==0 :| gvar:>tv1           :| gvar:==gv)
+         gsel = (gvar:==0 :| gvar:>max((gv,tv1)) :| gvar:==gv)
+		if ((asinr==1)*(tv<gv)) {
+	 	    if (shortx==0) gsel = (gvar:==0 :| gvar:>tv0           :| gvar:==gv)
+			else           gsel = (gvar:==0 :| gvar:>tv1           :| gvar:==gv) 
+		}
 	}
+	 
 		/// time Selection
 	if (rolljw==0)      tsel = (tvar:==tv0 :| tvar:==tv1)		
-	else if (rolljw==1) tsel = (tvar:<=tv0 :| tvar:==tv1)		
+	else if (rolljw==1) tsel = (tvar:<=tv0 :| tvar:==tv1)	
+	 
 	return(tsel:*gsel)
 }
 
