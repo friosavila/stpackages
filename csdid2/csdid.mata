@@ -334,7 +334,7 @@ real matrix csdid::sample_select(real matrix gvtv) {
 	if (notyet==0) 	gsel = (gvar:==0        :| gvar:==gv)
 	else {
          gsel = (gvar:==0 :| gvar:>max((gv,tv1)) :| gvar:==gv)
-		if ((asinr==1)*(tv<gv)) {
+		if ((asinr==1) & (tv<gv)) {
 	 	    if (shortx==0) gsel = (gvar:==0 :| gvar:>tv0           :| gvar:==gv)
 			else           gsel = (gvar:==0 :| gvar:>tv1           :| gvar:==gv) 
 		}
@@ -376,9 +376,13 @@ real matrix csdid::nsample_select() {
  
 		if (notyet==0) 	gsel = (ogtvar[,1]:==0    :| ogtvar[,1]:==gv)
 		else {
-										gsel = (ogtvar[,1]:==0 :| ogtvar[,1]:>max((gv,tv)) :| ogtvar[,1]:==gv)			
-			if ((asinr==1) & (tv<gv)) 	gsel = (ogtvar[,1]:==0 :| ogtvar[,1]:>tv           :| ogtvar[,1]:==gv)
-				
+				gsel = (ogtvar[,1]:==0 :| ogtvar[,1]:>max((gv,tv)) :| ogtvar[,1]:==gv)
+			// Slighly different treatment for AS in R results. 	
+			if ((asinr==1) & (tv<gv)) {
+				   if (shortx==0) gsel = (ogvar:==0 :| ogvar:>tv0           :| ogvar:==gv)
+			   else               gsel = (ogvar:==0 :| ogvar:>tv1           :| ogvar:==gv)
+			}	
+				  
 		}
 		/// time Selection
 		if (tv>=gv) {
