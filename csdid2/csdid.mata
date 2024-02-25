@@ -377,7 +377,9 @@ real matrix csdid::nsample_select() {
 		if (notyet==0) 	gsel = (ogtvar[,1]:==0    :| ogtvar[,1]:==gv)
 		else {
 				gsel = (ogtvar[,1]:==0 :| ogtvar[,1]:>max((gv,tv)) :| ogtvar[,1]:==gv)
+			// :)
 			// Slighly different treatment for AS in R results. 	
+			
 			if ((asinr==1) & (tv<gv)) {
 				   if (shortx==0) gsel = (ogvar:==0 :| ogvar:>tv0           :| ogvar:==gv)
 			   else               gsel = (ogvar:==0 :| ogvar:>tv1           :| ogvar:==gv)
