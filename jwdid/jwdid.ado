@@ -1,4 +1,5 @@
-*!v1.5  Multiple Methods plus extra
+*!v1.51 Addressed Bug when there is no never treated (but using never)
+* v1.5  Multiple Methods plus extra
 * some options not yet documented
 * v1.42 Fixes Bug with Continuous Trt
 * v1.41 Allows for multiple Options
@@ -136,29 +137,36 @@ program jwdid, eclass
 	
 	** If no never treated
 	qui:count if `gvar'==0 & `touse'==1 
+	local nnever=0
+	local gvarmax= .
 	if `r(N)'==0 {
 		qui:sum `gvar' if `touse'==1 , meanonly
-		qui:replace `touse'=0 if `touse'==1 & `tvar'>=`r(max)' 
+		local gvarmax = r(max)
+		qui:replace `touse'=0 if `touse'==1 & `tvar'>=`gvarmax' 
+		local nnever=1
 	}
 	** Never makes estimation like SUN ABRaham
 	** or CSDID with REG
 	if "`trtvar'"=="" {
 		qui:capture drop __tr__
 		qui:gen byte __tr__=0 if `touse'
-		qui:replace  __tr__=1 if `tvar'>=`gvar' & `gvar'>0  & `touse'
-		qui:replace  __tr__=1 if `touse' & "`never'"!=""
+		display in w "`gvarmax'"
+		qui:replace  __tr__=1 if `tvar'>=`gvar' & `gvar'>0  & `touse' 
+		qui:replace  __tr__=1 if `touse' & "`never'"!=""  
+		qui:replace  __tr__=0 if `touse' & `gvar'>=`gvarmax'		
 	}	
 	else {
 		qui:capture drop __tr__
 		qui:gen      __tr__=`trtvar' if `touse'
 		qui:replace  __tr__=1        if `touse' & "`never'"!="" & `trtvar'==0 & `gvar'!=0
+		qui:replace  __tr__=0        if `touse' & `gvar'>=`gvarmax'		
 	}
 	** But effect is done for effectively treated so
 	qui:capture drop __etr__
 	qui:gen byte __etr__=0 if `touse'
 	qui:replace  __etr__=1 if `touse' & `tvar'>=`gvar' & `gvar'>0
 	
-	qui:levels `gvar' if `touse' & `gvar'>0, local(glist)
+	qui:levels `gvar' if `touse' & `gvar'>0 & `gvar'<`gvarmax', local(glist)
 	sum `tvar' if `touse' , meanonly
 	qui:levels `tvar' if `touse' & `tvar'>=r(min), local(tlist)
 	
