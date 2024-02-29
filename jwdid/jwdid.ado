@@ -146,6 +146,7 @@ program jwdid, eclass
 		qui:replace `touse'=0 if `touse'==1 & `tvar'>=`gvarmax' 
 		local nnever=1
 	}
+	
 	** Never makes estimation like SUN ABRaham
 	** or CSDID with REG
 	if "`trtvar'"=="" {
@@ -222,7 +223,7 @@ program jwdid, eclass
 	** for xs
 	
 	foreach i of local glist {
-		local ogxvar `ogxvar' i`i'.`gvar'#c.(`x' `xgvar')
+		local ogxvar `ogxvar'           i`i'.`gvar'#c.(`x' `xgvar')
 	}
 	
 	foreach j of local tlist {
@@ -242,8 +243,9 @@ program jwdid, eclass
 	if "`method'"=="" {
 		if "`group'"=="" {
 			
-			reghdfe `y' `xvar'   `otxvar'	`exogvar' ///
-				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons	
+			reghdfe `y' `xvar'   `otxvar' 	`exogvar' ///
+				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons
+			local scmd `e(cmdline)'		
 		}	
 		else {
 			if "`ivar'"!="" {
@@ -258,12 +260,14 @@ program jwdid, eclass
 			}	
 			reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr' `exogvar' ///
 			if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') `tocluster' keepsingletons noempty
+			local scmd `e(cmdline)'
 		}
 	}
 	else if "`method'"=="ppmlhdfe" {
 		ppmlhdfe `y' `xvar'   `otxvar'	`exogvar' ///
 				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons ///
-				d `method_option'		
+				d `method_option'
+		local scmd `e(cmdline)'				
 	}	
 	else {
 		if "`ivar'"!="" {
@@ -277,6 +281,7 @@ program jwdid, eclass
 		}
 		`method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `exogvar'   i.`gvar' i.`tvar' ///
 		if `touse' [`weight'`exp'], `tocluster' `method_option'
+		local scmd `e(cmdline)'
 	}
 	
 	ereturn local cmd jwdid
@@ -284,15 +289,7 @@ program jwdid, eclass
 	ereturn local cmdopt `method_option'
 
 	ereturn local cmdline jwdid `0'
-	if "`method'"!="" & "`method'"!="ppmlhdfe" {
-		ereturn local scmd `method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr'   `exogvar'  i.`gvar' i.`tvar' if `touse' [`weight'`exp'], `tocluster' 
-	}
-	else if "`method'"=="ppmlhdfe" {
-		ereturn local scmd ppmlhdfe  `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr'  `exogvar' 	if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') `tocluster' keepsingletons noempty
-	}
-	else {
-		ereturn local scmd reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr'  `exogvar' 	if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') `tocluster' keepsingletons noempty
-	}
+	ereturn local scmd `scmd'
 	ereturn local estat_cmd jwdid_estat
 	if "`never'"!="" ereturn local type  never
 	else 			 ereturn local type  notyet
