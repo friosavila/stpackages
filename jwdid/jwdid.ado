@@ -76,9 +76,9 @@ program jwdid, eclass
 								  [Tvar(varname) time(varname) fevar(varlist)] /// fevar for other Fixed effects Valid for reghdfe and pmlhdfe
 								  [Gvar(varname) trtvar(varname) trgvar(varname)] ///
 								  [never group method(string asis) corr  ] ///
-								  [xnovar(str asis) ]  /// Variables not to be interacted with Gvar Tvar Treatment
-                                  [xtvar(str asis) ]  /// Variables not to be interacted with Gvar Tvar Treatment
-                                  [xgvar(str asis) ]  // Variables not to be interacted with Gvar Tvar Treatment
+								  [exogvar(str asis) ]  /// Variables not to be interacted with Gvar Tvar Treatment
+                                  [xtvar(str asis) ]  /// Variables interacted with  Tvar 
+                                  [xgvar(str asis) ]  // Variables interacted with Gvar 
 						
 	// For Gravity
 	// trendvar(varlist) trendt trendg trendij 
@@ -95,7 +95,8 @@ program jwdid, eclass
 	marksample  touse
 	markout    `touse' `ivar' `tvar' `gvar'
 	gettoken y x:varlist 
-	
+	// y dep variable
+	// x indep in Jwdid y xs
 	if "`tvar'`time'"=="" {
 		display in red "option time/tvar() required"
 		error 198
