@@ -20,7 +20,9 @@
 * Add to estat event, an option for Any ATTGT
 * This means, a way to do simple, for post and pre..algo como el cevent. But based on Everything
 * This version aims to incorporate features for Gravity
- 
+
+*** Incorporar Intensidad con dos tratamientos para Gravity. bi ffects
+
 program jwdid_example
 	preserve
 	frause mpdta, clear
