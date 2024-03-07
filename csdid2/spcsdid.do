@@ -1,5 +1,4 @@
 mata
-    mata clear
     class spcsdid {
         real matrix index
         real matrix attgt
