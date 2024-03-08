@@ -889,7 +889,7 @@ version 14
 		else if "`pi_w'" != "" {
 		    syntax newvarname [if] [in] [, * ]
 			predictnl `typlist' `varlist'  =(invlogit(xb(lpi_w)))  if `touse' 
-			label var `varlist' "A priori Pi_r"
+			label var `varlist' "A priori Pi_w"
 		}
 		****************
 	    else if "`mean_e'"!="" {
@@ -1358,7 +1358,7 @@ version 14
 		else if "`pi_w'" != "" {
 		    syntax newvarname [if] [in] [, * ]
 			predictnl `typlist' `varlist'  =(invlogit(xb(lpi_w)))  if `touse' 
-			label var `varlist' "A priori Pi_r"
+			label var `varlist' "A priori Pi_w"
 		}
 		else if "`pi_v'" != "" {
 		    syntax newvarname [if] [in] [, * ]
@@ -2449,7 +2449,7 @@ version 14
 		else if "`pi_w'" != "" {
 		    syntax newvarname [if] [in] [, * ]
 			predictnl `typlist' `varlist'  =(invlogit(xb(lpi_w)))  if `touse' 
-			label var `varlist' "A priori Pi_r"
+			label var `varlist' "A priori Pi_w"
 		}
 		****************
 	    else if "`mean_e'"!="" {
@@ -2932,7 +2932,7 @@ version 14
 		else if "`pi_w'" != "" {
 		    syntax newvarname [if] [in] [, * ]
 			predictnl `typlist' `varlist'  =(invlogit(xb(lpi_w)))  if `touse' 
-			label var `varlist' "A priori Pi_r"
+			label var `varlist' "A priori Pi_w"
 		}
 		else if "`pi_v'" != "" {
 		    syntax newvarname [if] [in] [, * ]
