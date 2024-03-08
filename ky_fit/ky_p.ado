@@ -1,4 +1,5 @@
-*! v2.26 9/13/2021.  (FRA) Change to V14. 
+*! v2.3 3/08/2024.  (FRA) Changes on Names for Predicted values Rho_R
+* v2.26 9/13/2021.  (FRA) Change to V14. 
 * v2.25 9/13/2021.  (FRA) Adding Model 9
 * v2.23 3/09/2021.  (FRA) Correcting Bug for PIP
 * v2.22 9/21/2020.  (FRA) Corrected names when requesting sig_s(i) or sig_r(i). and adds sig_r(i) and sig_s(i) for models 1 and 2
@@ -1420,7 +1421,7 @@ version 14
 		else if "`rho_r'" != "" {
 		    syntax newvarname [if] [in] [, * ]
 			predictnl `typlist' `varlist'=tanh(xb(arho_r)) if `touse'
-			label var `varlist' "Rho r: RTM Survey data"
+			label var `varlist' "Rho r: RTM Admin data"
 		}
 		else if "`rho_s'" != "" {
 		    syntax newvarname [if] [in] [, * ]
@@ -2007,7 +2008,7 @@ version 14
 		else if "`rho_r'" != "" {
 		    syntax newvarname [if] [in] [, * ]
 			predictnl `typlist' `varlist'=tanh(xb(arho_r)) if `touse'
-			label var `varlist' "Rho r: RTM Survey data"
+			label var `varlist' "Rho r: RTM Admin data"
 		}
 		else if "`rho_s'" != "" {
 		    syntax newvarname [if] [in] [, * ]
@@ -2994,7 +2995,7 @@ version 14
 		else if "`rho_r'" != "" {
 		    syntax newvarname [if] [in] [, * ]
 			predictnl `typlist' `varlist'=tanh(xb(arho_r)) if `touse'
-			label var `varlist' "Rho r: RTM Survey data"
+			label var `varlist' "Rho r: RTM Admin data"
 		}
 		else if "`rho_s'" != "" {
 		    syntax newvarname [if] [in] [, * ]
@@ -3591,7 +3592,7 @@ version 14
 		else if "`rho_r'" != "" {
 		    syntax newvarname [if] [in] [, * ]
 			predictnl `typlist' `varlist'=tanh(xb(arho_r)) if `touse'
-			label var `varlist' "Rho r: RTM Survey data"
+			label var `varlist' "Rho r: RTM Admin data"
 		}
 		else if "`rho_s'" != "" {
 		    syntax newvarname [if] [in] [, * ]
@@ -3999,6 +4000,5 @@ version 14
 				replace `_high'  =`_pip_`i'' if `_pip_`i''>`_high' & `_l'==0
 			}
 		}
-	}
-    
+	}    
 end
