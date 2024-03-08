@@ -234,7 +234,11 @@ void csdid::csdid_setup(){
 		// if panel, first sort
 		type_data = 1
 		oid  = 1::rows(yvar)
-		ord = order((ivar,tvar),(1,2))
+
+		if (length(cvar)>0) ord = order((cvar,ivar,tvar,),(1,2,3,4))
+		else                ord = order((ivar,tvar),(1,2,3))
+		// If panel order by cluster, then individual, then time
+		//ord = order((ivar,tvar),(1,2))
 		if (ord!=oid) {
 			yvar=yvar[ord,]
 			if (length(xvar)>0) xvar=xvar[ord,]
@@ -242,8 +246,7 @@ void csdid::csdid_setup(){
 			gvar=gvar[ord,]
 			if (length(wvar)>0) wvar=wvar[ord,]
  			ivar=ivar[ord,]
-			if (length(cvar)>0) cvar=cvar[ord,]
-			 
+			if (length(cvar)>0) cvar=cvar[ord,]			 
 		}
 		// then recode
 		makeid()
@@ -522,8 +525,8 @@ void csdid::csdid(){
 		if (length(cvar)>0) cvar= aux[,4]
 	}
  
-	/// Very last step. Sort important variables by Cvar?
-	if (length(cvar)>0) {
+	/// Very last step. Sort important variables by Cvar?: everything is sorted by this
+	/*if (length(cvar)>0) {
 		ord = order( (cvar,oid), (1,2) )
 		oid  = oid[ord,]
 		cvar = cvar[ord,]
@@ -531,7 +534,8 @@ void csdid::csdid(){
 		wvar = wvar[ord,]
 		frif = frif[ord,]
 		frwt = frwt[ord,]
-	}	
+	}*/
+
 	aux = J(0,0,.)
 }
 
@@ -648,12 +652,12 @@ void csdid::spcsdid(){
 	}
  
 	/// Very last step. Sort important variables by Cvar?
-	if (length(cvar)>0) {
+	/*if (length(cvar)>0) {
 		sortcvar = order( (cvar,oid), (1,2) )
 		//oid  = oid[ord,];cvar = cvar[ord,]
 		//gvar = gvar[ord,];wvar = wvar[ord,]
 		//frif = frif[ord,];frwt = frwt[ord,]
-	}	
+	}*/	
 	aux = J(0,0,.)
 }
 

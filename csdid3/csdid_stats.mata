@@ -212,17 +212,25 @@ void csdid_estat::fixrif(real matrix erif){
 }
 // erif should have only the important ERIFs
 // This Saves
-void csdid_estat::erif_attgt(){
-	real matrix spind, tosel
-	tosel = select_data(csdid)'
-	spind = select(csdid.spindex,tosel)
-	real scalar i 
-	erif = J(rows(csdid.oid),length(spind),.)
-	for(i=1;i<=length(spind);i++){
-		erif[,i]=csdid.spcsdid[i].attgt[csdid.spcsdid[i].index,]
+void csdid_estat::erif_attgt(class csdid scalar csdid){
+	
+	if (csdid.sparse == 1) {
+		// IF Sparse, then Reconstruct eRIF
+		real matrix spind, tosel
+		tosel = select_data(csdid)'
+		spind = select(csdid.spindex,tosel)
+		real scalar i 
+		erif = J(rows(csdid.oid),length(spind),.)
+		for(i=1;i<=length(spind);i++){
+			erif[,i]=csdid.spcsdid[i].attgt[csdid.spcsdid[i].index,]
+		}
+		// 
+		fixrif(erif)
 	}
-	// 
-	fixrif(erif)
+	else {
+		// If not. Just get the data
+		erif = select(csdid.frif,select_data(csdid)')				
+	}	
 }
 
 void csdid_estat::atts_wboot(class csdid scalar csdid){ 
@@ -230,7 +238,7 @@ void csdid_estat::atts_wboot(class csdid scalar csdid){
 	 if (test_type==1) {
 		// ATTGT
 		error=0
-		erif_attgt()		 
+		erif_attgt(csdid)		 
 		onames=attgt_names(csdid)'	 
 		mboot_any(csdid)	
 		make_table()
