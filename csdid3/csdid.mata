@@ -1,5 +1,4 @@
-*! v2 SParse RIF
-
+*! v2 SParse RIF. For reduced memory useage
 *! v1 Allows for anticipation
 
 mata:
@@ -37,14 +36,29 @@ mata:
 		st_sstore((1::rows(tbl)) ,tnv[1],ntbl)	
 		st_store((1::rows(tbl)) ,tnv[2..4],tbl)	
 	}
-	
-	class spcsdid {
+    // Class for Sparse Matrix CSDID
+    class spcsdid {
+        // Stores where Data is located
         real matrix index
+        void        attgt()
+        // Stores the RIF
         real matrix attgt
-		real matrix wattgt		
-		real scalar mn_attgt
-        real scalar gvar
-        real scalar tvar
+        // Stores Weights - Mean if needed
+   		real matrix wattgt		   
+        // Stores Mean attgt and mean weight
+        real scalar mn_attgt, mn_wattgt
+
+    }
+    // Loads Data into spcsdid
+    // Needs Sample size..
+    void spcsdid::attgt(real scalar row_rif, real matrix rif,| real matrix wgt){
+        mn_attgt = mean(rif)
+        attgt    = (rif:-mn_attgt)*(row_rif:/rows(rif))
+        if (args()>2) {
+            wattgt     = wgt:-mn_wattgt
+            _editmissing(wattgt,0)
+            mn_wattgt  = sum(wgt)/row_rif            
+        }        
     }
 end
  
@@ -77,14 +91,17 @@ class csdid {
 	real scalar antici
 	/// Special Option for JW Rolling Regressopm
 	real scalar rolljw
-	
+	real scalar nobs
 	// output for selection	
 	real matrix fgtvar
 	real matrix ogtvar, sortcvar
 	real matrix eventvar, sevent
 	// Did it converged?
-	real matrix convar, csindex, spindex
-	class spcsdid matrix spcsdid
+	real matrix convar, 
+    // Index for locating data in spcsdid
+    real matrix csindex, spindex
+    // This will be a pseudo Sparse Matrix
+	class spcsdid matrix sprcsdid
 
 	// useful functions
 	real matrix sample_select()
@@ -142,7 +159,7 @@ else {
 " ObiWan Kenobi-CSDID is our only hope"
 }
 }
- 
+// no longer used 
 void csdid::fixrif(){
 	real matrix mn_rif, rif2
 	real scalar cnmiss
@@ -447,10 +464,6 @@ void csdid::csdid(){
 	real scalar gv, tv, dots, i
 	// To make it faster
 	real matrix index1
-	// If type=1 -> panel. Need N=Panel data
-	// if type!=1 -> RC, Need Rows(oid)
-	// both wastefull
-	// Both this could be done as Sparse Matrix
 	
 	frwt=frif=J( ((type_data==1) ? max(oid) : rows(oid))	, 
 	             rows(fgtvar),.)	
@@ -525,8 +538,8 @@ void csdid::csdid(){
 		if (length(cvar)>0) cvar= aux[,4]
 	}
  
-	/// Very last step. Sort important variables by Cvar?: everything is sorted by this
-	/*if (length(cvar)>0) {
+	/// Very last step. Sort important variables by Cvar?
+	if (length(cvar)>0) {
 		ord = order( (cvar,oid), (1,2) )
 		oid  = oid[ord,]
 		cvar = cvar[ord,]
@@ -534,11 +547,11 @@ void csdid::csdid(){
 		wvar = wvar[ord,]
 		frif = frif[ord,]
 		frwt = frwt[ord,]
-	}*/
-
+	}	
 	aux = J(0,0,.)
 }
 
+end            
 
 void csdid::spcsdid(){
  	//frif=oid,gvar,wvar
@@ -551,14 +564,20 @@ void csdid::spcsdid(){
 	// if type!=1 -> RC, Need Rows(oid)
 	// both wastefull
 	// Both this could be done as Sparse Matrix
-	 spcsdid = spcsdid(( 
-					(type_data==1) ? max(oid) : rows(oid) 
-					))
+
+    nobs     = rows(oid)
+    real scalar fgtcases
+    fgtcases = rows(fgtvar)
+	csindex  = range(1,nobs        ,1)
+	spindex  = range(1,ncases      ,1)
+    
+    sprcsdid = spcsdid( fgtcases )
+
 					
 	// csindex: Index for Data used for Sparse		
-	csindex = range(1,rows(oid),1)
 	// spindex to know which element we use.
-	spindex	= range(1,rows(fgtvar),1)	
+    // Basically, I  may need to create a bunch of empty cells. But they use no space (very little) so this should work
+		
 	//	class spcsdid {
     //    real matrix index
     //    real matrix attgt
@@ -576,10 +595,9 @@ void csdid::spcsdid(){
 		
 		//smsel = sample_select(fgtvar[i,])
 		smsel =select(csindex, sample_select(fgtvar[i,]))
- 
-		spcsdid[i].gvar=gv = fgtvar[i,1] 
-		spcsdid[i].tvar=tv = fgtvar[i,4]
-		
+        // Not needed. its in csdid fgtvar
+		// spcsdid[i].gvar=gv = fgtvar[i,1] 
+		// spcsdid[i].tvar=tv = fgtvar[i,4]
 		
 		///minn = min(fgtvar[i,6..9])
 		drdid.yvar=yvar[smsel,]
@@ -603,17 +621,37 @@ void csdid::spcsdid(){
 		/// Stores RIFS		
 		if ((drdid.conv==1) &   sum(abs(drdid.rif))>0 )  {			
 			convar[i,]=1
-			if (shortx==0) {
-				spcsdid[i].attgt = drdid.rif:*sign(eventvar[i]+.01)
-				spcsdid[i].index = drdid.oid
-				//frif[drdid.oid,i]=drdid.rif:*sign(eventvar[i]+.01)
-			}
-			else   {
-				spcsdid[i].attgt = drdid.rif
-				spcsdid[i].index = drdid.oid
-				//frif[drdid.oid,i]=drdid.rif 
-			}
-			spcsdid[i].wattgt =drdid.wtrt
+            // Longer version
+            // 1 if short then change signs
+            // yse function attgt to store Weights and ATTs
+            if (shortx==0) {
+                if (cols(wvar)>0) {
+                    spcsdid[i].attgt(nobs, 
+                             drdid.rif:*sign(eventvar[i]+.01),
+                             drdid.wtrt   )
+                }         
+                else {
+                    spcsdid[i].attgt(nobs, 
+                             drdid.rif:*sign(eventvar[i]+.01) )
+                }
+                //frif[drdid.oid,i]=drdid.rif:*sign(eventvar[i]+.01)
+            }
+			else           {
+                if (cols(wvar)>0) {
+                    spcsdid[i].attgt(nobs, 
+                             drdid.rif,
+                             drdid.wtrt   )
+                }         
+                else {
+                    spcsdid[i].attgt(nobs, 
+                             drdid.rif)
+                }               
+                
+            }
+            // always save Index
+            spcsdid[i].index=drdid.oid 
+            
+			 
 		}
 		dots = dots-convar[i,]
 		stata(sprintf("_dots %f %f",i,dots))
@@ -623,20 +661,14 @@ void csdid::spcsdid(){
 	//fixrif()		
 	//_editmissing(frwt,0)
 	/// Extra clean up
-	//frwt   = select(frwt , convar')
-	//frif   = select(frif , convar')
 	//need an spindex to know where data is.
-	
+	spindex  = select(spindex , convar)
 	eventvar = select(eventvar, convar)
 	fgtvar   = select(fgtvar , convar)
-	spindex = select(spindex, convar)
-	// notsure why i do this
-	convar = select(convar , convar)
-	
-	
+	convar   = select(convar , convar)
 	
 	/// cleaning all else
-	 ord=tvar=xvar=yvar=J(0,0,.)
+	ord=tvar=xvar=yvar=J(0,0,.)
 	/// One Risk. Missing data after drdid or else.
 	// if panel
 	if (type_data==1) {
@@ -651,13 +683,7 @@ void csdid::spcsdid(){
 		if (length(cvar)>0) cvar= aux[,4]
 	}
  
-	/// Very last step. Sort important variables by Cvar?
-	/*if (length(cvar)>0) {
-		sortcvar = order( (cvar,oid), (1,2) )
-		//oid  = oid[ord,];cvar = cvar[ord,]
-		//gvar = gvar[ord,];wvar = wvar[ord,]
-		//frif = frif[ord,];frwt = frwt[ord,]
-	}*/	
+	
 	aux = J(0,0,.)
 }
 

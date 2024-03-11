@@ -11,6 +11,10 @@ class select_range {
 }
 //	mata drop estat
 //	mata drop csdid_estat()
+class caggte {
+        real matrix aggte
+        real scalar mn_aggte
+}
 	
 class csdid_estat {
 	// functions to create tables
@@ -26,6 +30,7 @@ class csdid_estat {
 	void cevent_att()
 	void event_att()
 	void pretrend()
+    void pretrend2()
 	// makes WB and the table for WB
 	void mboot_any()
 	void make_table()
@@ -34,6 +39,8 @@ class csdid_estat {
 	string matrix attgt_names()
 	
 	real matrix aggte()
+    class caggte scalar spaggte()
+    class caggte scalar spvaggte
 	real matrix rtokens()
 	real matrix select_data()
 	real matrix wmult()
@@ -52,6 +59,9 @@ class csdid_estat {
 	real scalar nclust, nobs, ggroups, ccalendar, eevent, error
 	// to transfer Range Info.
 	class select_range scalar range
+    
+
+
 }
 
 // Creates ASYM VCV
@@ -62,6 +72,7 @@ void csdid_estat::init() {
 	max_mem = 1
 	test_type = 1
 }
+
 void  csdid_estat::bvcv_asym(real matrix rif) {	
 		bb  = mean(rif)
 		nobs= rows(rif)		
@@ -95,26 +106,98 @@ void csdid_estat::bvcv_clus(real matrix rif,
 real matrix csdid_estat::aggte(real matrix rif,| real matrix wgt ) {
 							   	
 	real matrix mn_all, mn_rif, mn_wgt
-	if (args()==1) {
-		wgt = J(1,cols(rif),1)
-	}
-	// Avg Effect
-	mn_rif = mean(rif)
-	mn_wgt = mean(wgt)
-	mn_all = sum(mn_rif:*mn_wgt):/sum(mn_wgt)
-	// gets agg rif
-	real matrix wgtw, attw
-	wgtw = (mn_wgt ) :/sum(mn_wgt)
-	attw = (mn_rif ) :/sum(mn_wgt)
-	// r1 r2 r3
-	real matrix r1 , r2 , r3
-	r1   = (wgtw:*(rif :-mn_rif))
-	r2   = (attw:*(wgt :-mn_wgt ))
-	r3   = (wgt :- mn_wgt) :* (mn_all :/ sum(mn_wgt) )
-	// Aggregates into 1
-	return(rowsum(r1):+rowsum(r2):-rowsum(r3):+mn_all)
+	if (args()==2) {
+		//wgt = J(1,cols(rif),1)	
+        // Avg Effect
+        mn_rif = mean(rif)
+        mn_wgt = mean(wgt)
+        mn_all = sum(mn_rif:*mn_wgt):/sum(mn_wgt)
+        // gets agg rif
+        real matrix wgtw, attw
+        wgtw = (mn_wgt ) :/sum(mn_wgt)
+        attw = (mn_rif ) :/sum(mn_wgt)
+        // r1 r2 r3
+        real matrix r1 , r2 , r3
+        r1   = (wgtw:*(rif :-mn_rif))
+        r2   = (attw:*(wgt :-mn_wgt ))
+        r3   = (wgt :- mn_wgt) :* (mn_all :/ sum(mn_wgt) )
+        // Aggregates into 1
+        return(rowsum(r1):+rowsum(r2):-rowsum(r3):+mn_all)    
+    }
+    else {
+        mn_rif = mean(rif)
+        mn_all = mean(mn_rif')
+        // gets agg rif
+        real matrix wgtw, attw
+        attw = (mn_rif ) :/cols(mn_rif)
+        // r1 r2 r3
+        real matrix r1 , r2 , r3
+        r1   = ((rif :-mn_rif):/cols(mn_rif))
+        r2   = (mn_rif:*(wgt :-mn_wgt ):/cols(mn_rif))
+        //r3   = (wgt :- mn_wgt) :* (mn_all :/ sum(mn_wgt) )
+        // Aggregates into 1
+        return(rowsum(r1):+rowsum(r2):+mn_all)  
+    }
 }
 
+// 
+
+real matrix csdid_estat::spaggte(class csdid matrix csdid   , 
+                                         real        matrix toselect ) {
+                                             
+ 	// csdid contains the Index for spsdid
+    // spsdid contains the RIFs
+    
+	real scalar mn_all, mn_wgt, mn_rif , ntoselect
+    // How many Cols will be needed. Ideally less than FULL sample
+        
+    ntoselect = cols(toselect)
+    
+    mn_wgt = mn_rif = J(1,ntoselect,0)
+    // over all toselect.
+    for(i=1;i<=ntoselect;i++) {
+        mn_wgt[,i] = csdid.spcsdid[i].mn_wattgt
+        mn_rif[,i] = csdid.spcsdid[i].mn_attgt
+    }   
+    
+	mn_all=mean(mn_rif',mn_wgt')
+    // Stays as is
+ 	real matrix wgtw, attw
+	wgtw = (mn_wgt ) :/sum(mn_wgt)
+	attw = (mn_rif ) :/sum(mn_wgt)
+    real matrix rr1
+    
+    rr1=J(csdid.nobs,1,0)
+    //rr2=rr3 = J(10,1,0)
+    for(i=1;i<=ntoselect;i++) {
+         rr1[csdid.spcsdid[i].index] = rr1[csdid.spcsdid[i].index]:+ wgtw[i]:*(csdid.spcsdid[i].attgt    )
+        arr2                         = J(csdid.nobs , 1 , - csdid.spcsdid[i].mn_wattgt); 
+        arr2[csdid.spcsdid[i].index] =  (csdid.spcsdid[i].wattgt )
+        rr1 = rr1 :+ arr2*(attw[i]:-(mn_all:/ sum(mn_wgt)))
+    }
+    //*
+	// Aggregates into 1
+    **class spaggte scalar aux_aggte
+    //aux_aggte.aggte = rr1
+    //aux_aggte.mn_aggte = mn_all
+	return(rr1:+mn_all)
+}
+// Only for Weights (if needed)
+real matrix csdid_estat::spwaggte(class csdid matrix csdid   , 
+                                    real        matrix toselect ) {
+ 	real scalar ntoselect   
+    ntoselect = cols(toselect)                                       
+    real scalar i, mnrout
+    real matrix rout
+    rout = J(csdid.nobs,1,0)
+    mnrout =0
+    for(i=1;i<=ntoselect;i++){
+        mnrout = mnrout+ csdid.spcsdid[i].mn_wattgt/ntoselect     
+        rout[csdid.spcsdid[i].index] = rout[csdid.spcsdid[i].index] :+ (csdid.spcsdid[i].wattgt )/ntoselect     
+    }    
+    return(rout:+mnrout)
+ }
+                                    
     
 // Will use Separate function for WB bc it process data differently 
 void csdid_estat::atts_asym(class csdid scalar csdid){	
@@ -325,10 +408,11 @@ void csdid_estat::group_att(class csdid scalar csdid ){
 	real matrix aux_wgt, aux
 	toselect0 =select_data(csdid)'
 	//:*csdid.convar'
+    
 	error=0
 	if (sum(toselect0)>0) {
 		ggroups = rows(csdid.sgvar)
-		nobs	= rows(csdid.frif)
+		nobs	= csdid.nobs
 
 		onames=J(ggroups+1,1,"")
 		onames[1,]="GAverage"
@@ -344,18 +428,26 @@ void csdid_estat::group_att(class csdid scalar csdid ){
 				// if any selected -> Estimate
 				// Anticip only affects how things look
 				onames[iic+1,] = sprintf("g%f", csdid.sgvar[i]:+csdid.antici)
-				aux_wgt      = select(csdid.frwt,toselect)			
-				aux   [,iic]   = aggte(select(csdid.frif,toselect),aux_wgt )
-				sumwgt[,iic]   = rowsum(aux_wgt):/cols(aux_wgt)
+                if (csdid.sparse==1) {
+                    aux   [,iic]   = spaggte(csdid,toselect)                    
+                    if (length(csdid.wvar)>0) sumwgt[,iic]   = spwaggte(csdid,toselect)
+                    // else equal weight
+                }
+                else {
+                    aux_wgt      = select(csdid.frwt,toselect)			
+                    aux   [,iic]   = aggte(select(csdid.frif,toselect),aux_wgt )                
+                    sumwgt[,iic]   = rowsum(aux_wgt):/cols(aux_wgt)
+                }
 				//sumwgt[,iic]   = aggte(aux_wgt)
 			}		
 		}
 		// Drop Zeroes
-		sumwgt = sumwgt[,1..iic]
+        sumwgt = sumwgt[,1..iic]
 		aux    =    aux[,1..iic]
 		onames = onames[1..iic+1,]
 		//sumwgt = colsum(sumwgt)
-		erif= aggte(aux,sumwgt ), aux
+        if (length(csdid.wvar)>0) erif= aggte(aux,sumwgt ), aux
+        else                      erif= aggte(aux        ), aux
 		// If request no AVG
 
 		if (noavg==1) {
@@ -372,7 +464,8 @@ void csdid_estat::group_att(class csdid scalar csdid ){
 ////////////////////////////////////////////////////////////////////////////////
 /// Calendaar Aggregations
 ////////////////////////////////////////////////////////////////////////////////
- 
+/// !!to do calendar
+
 void csdid_estat::calendar_att(class csdid scalar csdid ){
 	// Counter i
 	// kgroups (max)
@@ -385,7 +478,7 @@ void csdid_estat::calendar_att(class csdid scalar csdid ){
  	error=0
 	if (sum(toselect0)>0) {
 		ccalendar = rows(csdid.stvar)
-		nobs	  = rows(csdid.frif)
+		nobs	  = csdid.nobs
 		
 		onames=J(ccalendar+1,1,"")
 		onames[1,]="TAverage"
@@ -401,8 +494,18 @@ void csdid_estat::calendar_att(class csdid scalar csdid ){
 				iic++
 				// if any selected -> Estimate
 				onames[iic+1,]  = sprintf("t%f", csdid.stvar[i])
-				aux_wgt      = select(csdid.frwt,toselect)			
-				aux   [,iic]   = aggte(select(csdid.frif,toselect),aux_wgt )
+                if (csdid.sparse==1) {
+                    aux   [,iic]   = spaggte(csdid,toselect)                    
+                    // if (length(csdid.wvar)>0) sumwgt[,iic]   = spwaggte(csdid,toselect)
+                    // else equal weight
+                }
+                else {
+                    aux_wgt      = select(csdid.frwt,toselect)			
+                    aux   [,iic]   = aggte(select(csdid.frif,toselect),aux_wgt )                
+                    //sumwgt[,iic]   = rowsum(aux_wgt):/cols(aux_wgt)
+                }
+                
+				
 				//sumwgt[i,]   = rowsum(aux_wgt):/cols(aux_wgt)
 			}		
 		}
@@ -431,10 +534,50 @@ void csdid_estat::pretrend(class csdid scalar csdid ){
 	//:*csdid.convar'
 	toselect=toselect0:*(csdid.eventvar :< 0)'
 	error=0
-	if (sum(toselect)>0) {
-		if (length(csdid.cvar)==0) bvcv_asym(select(csdid.frif,toselect))
-		else                       bvcv_clus(select(csdid.frif,toselect),csdid.cvar)
-		
+	if (sum(toselect)>0) {        
+        if (csdid.sparse == 1) {
+            // gets all RIFs 
+            erif_attgt()
+            if (length(csdid.cvar)==0) bvcv_asym(erif)
+            else                       bvcv_clus(erif,csdid.cvar)
+        }
+        else 
+            if (length(csdid.cvar)==0) bvcv_asym(select(csdid.frif,toselect))
+            else                       bvcv_clus(select(csdid.frif,toselect),csdid.cvar)
+        }    
+		real scalar chi2
+		chi2=bb*invsym(vv)*bb'
+		df = cols(bb)
+		// Drops V matrix
+		vv=0
+		st_numscalar("chi2_",chi2)
+		st_numscalar("df_",df)
+		st_numscalar("pchi2_",chi2tail(df,chi2))
+	}
+	else {
+		error = 1
+	}
+} 
+// PTA On aggregated Data
+void csdid_estat::pretrend2(class csdid scalar csdid ){
+	// should be always drop v?
+	real scalar df
+	real matrix toselect,toselect0
+	toselect0=select_data(csdid)'
+	//:*csdid.convar'
+	toselect=toselect0:*(csdid.eventvar :< 0)'
+	error=0
+	if (sum(toselect)>0) {        
+        if (csdid.sparse == 1) {
+            // gets all RIFs 
+            erif_attgt()
+            if (length(csdid.cvar)==0) bvcv_asym(erif)
+            else                       bvcv_clus(erif,csdid.cvar)
+        }
+        else 
+            if (length(csdid.cvar)==0) bvcv_asym(select(csdid.frif,toselect))
+            else                       bvcv_clus(select(csdid.frif,toselect),csdid.cvar)
+        }    
 		real scalar chi2
 		chi2=bb*invsym(vv)*bb'
 		df = cols(bb)
@@ -458,8 +601,13 @@ void csdid_estat::simple_att(class csdid scalar csdid ){
 	toselect  = toselect0:*(csdid.eventvar:>=0)'
 	error = 0 
 	if (sum(toselect)>0) {	
-		onames = "SimpleATT"
-		erif  = aggte(select(csdid.frif,toselect),select(csdid.frwt,toselect) )	
+		onames = "SimpleATT"       
+        if (sum(toselect)>0) {	
+            erif  = spaggte(csdid,toselect)	
+        }
+        else {
+            erif  = aggte(select(csdid.frif,toselect),select(csdid.frwt,toselect) )	
+        }        		
 	}
 	else {
 		error = 1
