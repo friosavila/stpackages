@@ -88,13 +88,15 @@ void csdid_estat::bvcv_clus(real matrix rif,
 	nobs= rows(rif)	
 	// sort	//ord  = order(cvar,1)	//rif = rif[ord,]	//cvar= cvar[ord,]
 	// Standard Errors
-	cvar = csdid.cvar[csdid.sortcvar,]
-	rif  = rif[csdid.sortcvar,]
+	// cvar = csdid.cvar
+	//[csdid.sortcvar,]
+	//rif  = rif
+	//[csdid.sortcvar,]
 	
 	// Consider Cleaning data based on Rows. How? Would it be more Time consuming?
 	// need to do this at an earlier stage.
 	// Smaller sample may have faster Run.
-	info  = panelsetup(cvar,1)
+	info  = panelsetup(csdid.cvar,1)
 	nclust= rows(info)	
 	real matrix sumrif
 	sumrif= panelsum(rif:-bb,info)
@@ -105,12 +107,14 @@ void csdid_estat::bvcv_clus(real matrix rif,
 
 real matrix csdid_estat::aggte(real matrix rif,| real matrix wgt ) {
 							   	
-	real matrix mn_all, mn_rif, mn_wgt
+	real matrix mn_all, mn_rif, mn_wgt, bwgt
 	if (args()==2) {
 		//wgt = J(1,cols(rif),1)	
         // Avg Effect
+		bwgt = wgt:*(rif:!=.)
+		fixrif(rif)
         mn_rif = mean(rif)
-        mn_wgt = mean(wgt)
+        mn_wgt = mean(bwgt)
         mn_all = sum(mn_rif:*mn_wgt):/sum(mn_wgt)
         // gets agg rif
         real matrix wgtw, attw
@@ -119,12 +123,13 @@ real matrix csdid_estat::aggte(real matrix rif,| real matrix wgt ) {
         // r1 r2 r3
         real matrix r1 , r2 , r3
         r1   = (wgtw:*(rif :-mn_rif))
-        r2   = (attw:*(wgt :-mn_wgt ))
-        r3   = (wgt :- mn_wgt) :* (mn_all :/ sum(mn_wgt) )
+        r2   = (attw:*(bwgt :-mn_wgt ))
+        r3   = (bwgt :- mn_wgt) :* (mn_all :/ sum(mn_wgt) )
         // Aggregates into 1
         return(rowsum(r1):+rowsum(r2):-rowsum(r3):+mn_all)    
     }
     else {
+		fixrif(rif)
         mn_rif = mean(rif)
         mn_all = mean(mn_rif')
         // gets agg rif
@@ -133,17 +138,16 @@ real matrix csdid_estat::aggte(real matrix rif,| real matrix wgt ) {
         // r1 r2 r3
         real matrix r1 , r2 , r3
         r1   = ((rif :-mn_rif):/cols(mn_rif))
-        r2   = (mn_rif:*(wgt :-mn_wgt ):/cols(mn_rif))
         //r3   = (wgt :- mn_wgt) :* (mn_all :/ sum(mn_wgt) )
         // Aggregates into 1
-        return(rowsum(r1):+rowsum(r2):+mn_all)  
+        return(rowsum(r1):+mn_all)  
     }
 }
 
 // 
 
 real matrix csdid_estat::spaggte(class csdid matrix csdid   , 
-                                         real        matrix toselect ) {
+                                        real matrix toselect ) {
                                              
  	// csdid contains the Index for spsdid
     // spsdid contains the RIFs
@@ -152,35 +156,52 @@ real matrix csdid_estat::spaggte(class csdid matrix csdid   ,
     // How many Cols will be needed. Ideally less than FULL sample
         
     ntoselect = cols(toselect)
-    
     mn_wgt = mn_rif = J(1,ntoselect,0)
-    // over all toselect.
-    for(i=1;i<=ntoselect;i++) {
-        mn_wgt[,i] = csdid.spcsdid[i].mn_wattgt
-        mn_rif[,i] = csdid.spcsdid[i].mn_attgt
-    }   
-    
-	mn_all=mean(mn_rif',mn_wgt')
-    // Stays as is
- 	real matrix wgtw, attw
-	wgtw = (mn_wgt ) :/sum(mn_wgt)
-	attw = (mn_rif ) :/sum(mn_wgt)
-    real matrix rr1
-    
-    rr1=J(csdid.nobs,1,0)
-    //rr2=rr3 = J(10,1,0)
-    for(i=1;i<=ntoselect;i++) {
-         rr1[csdid.spcsdid[i].index] = rr1[csdid.spcsdid[i].index]:+ wgtw[i]:*(csdid.spcsdid[i].attgt    )
-        arr2                         = J(csdid.nobs , 1 , - csdid.spcsdid[i].mn_wattgt); 
-        arr2[csdid.spcsdid[i].index] =  (csdid.spcsdid[i].wattgt )
-        rr1 = rr1 :+ arr2*(attw[i]:-(mn_all:/ sum(mn_wgt)))
-    }
-    //*
-	// Aggregates into 1
-    **class spaggte scalar aux_aggte
-    //aux_aggte.aggte = rr1
-    //aux_aggte.mn_aggte = mn_all
-	return(rr1:+mn_all)
+	if (length(csdid.wvar)>0) {
+		// over all toselect.
+		for(i=1;i<=ntoselect;i++) {
+			mn_wgt[,i] = csdid.spcsdid[i].mn_wattgt
+			mn_rif[,i] = csdid.spcsdid[i].mn_attgt
+		}   
+		
+		mn_all=mean(mn_rif',mn_wgt')
+		// Stays as is
+		real matrix wgtw, attw
+		wgtw = (mn_wgt ) :/sum(mn_wgt)
+		attw = (mn_rif ) :/sum(mn_wgt)
+		real matrix rr1
+		
+		rr1=J(csdid.nobs,1,0)
+		//rr2=rr3 = J(10,1,0)
+		for(i=1;i<=ntoselect;i++) {
+			 rr1[csdid.spcsdid[i].index] = rr1[csdid.spcsdid[i].index]:+ wgtw[i]:*(csdid.spcsdid[i].attgt    )
+			arr2                         = J(csdid.nobs , 1 , - csdid.spcsdid[i].mn_wattgt); 
+			arr2[csdid.spcsdid[i].index] =  (csdid.spcsdid[i].wattgt )
+			rr1 = rr1 :+ arr2*(attw[i]:-(mn_all:/ sum(mn_wgt)))
+		}
+		return(rr1:+mn_all)
+	}
+	else {
+		
+		for(i=1;i<=ntoselect;i++) {
+		//	mn_wgt[,i] = csdid.spcsdid[i].mn_wattgt
+			mn_rif[,i] = csdid.spcsdid[i].mn_attgt
+		}   
+		
+		mn_all=mean(mn_rif')
+		// Stays as is
+		real matrix wgtw, attw
+		attw = (mn_rif ) :/cols(mn_rif)
+		real matrix rr1
+		
+		rr1=J(csdid.nobs,1,0)
+		//rr2=rr3 = J(10,1,0)
+		for(i=1;i<=ntoselect;i++) {
+			 rr1[csdid.spcsdid[i].index] = rr1[csdid.spcsdid[i].index]:+ (1:/cols(mn_rif)):*(csdid.spcsdid[i].attgt    ) 
+		}
+		return(rr1:+mn_all)
+	}
+	
 }
 // Only for Weights (if needed)
 real matrix csdid_estat::spwaggte(class csdid matrix csdid   , 
@@ -205,7 +226,7 @@ void csdid_estat::atts_asym(class csdid scalar csdid){
 	error = 0
 	if (test_type==1) {
 		// ATTGT		
-		erif_attgt()
+		erif_attgt(csdid)
 		//=select(csdid.frif,select_data(csdid)')		
 		if (length(csdid.cvar)==0) {
 			bvcv_asym(erif)
@@ -284,14 +305,14 @@ void csdid_estat::make_table(){
 	
 }
 // This fixes ERIF
-void csdid_estat::fixrif(real matrix erif){
+void csdid_estat::fixrif(real matrix arif){
 	real matrix mn_rif, rif2
 	real scalar cnmiss
-	cnmiss = colnonmissing(erif)
-	mn_rif= colsum(erif):/cnmiss
- 	erif  = erif:-mn_rif
-	erif   = editmissing(erif,0)
-	erif   = mn_rif:+erif:*(rows(erif):/cnmiss)
+	cnmiss = colnonmissing(arif)
+	mn_rif= colsum(arif):/cnmiss
+ 	arif  = arif:-mn_rif
+	_editmissing(arif,0)
+	arif   = mn_rif:+arif:*(rows(arif):/cnmiss)
 }
 // erif should have only the important ERIFs
 // This Saves
@@ -537,7 +558,7 @@ void csdid_estat::pretrend(class csdid scalar csdid ){
 	if (sum(toselect)>0) {        
         if (csdid.sparse == 1) {
             // gets all RIFs 
-            erif_attgt()
+            erif_attgt(csdid)
             if (length(csdid.cvar)==0) bvcv_asym(erif)
             else                       bvcv_clus(erif,csdid.cvar)
         }
@@ -570,7 +591,7 @@ void csdid_estat::pretrend2(class csdid scalar csdid ){
 	if (sum(toselect)>0) {        
         if (csdid.sparse == 1) {
             // gets all RIFs 
-            erif_attgt()
+            erif_attgt(csdid)
             if (length(csdid.cvar)==0) bvcv_asym(erif)
             else                       bvcv_clus(erif,csdid.cvar)
         }

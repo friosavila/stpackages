@@ -271,7 +271,7 @@ void csdid::csdid_setup(){
 		foid = uniqrows(oid)
 	}
 	
-	if (length(wvar)==0) wvar=J(rows(yvar),1,1)
+	//if (length(wvar)==0) wvar=J(rows(yvar),1,1)
 }	
 // Justs Puts all into Running Data
 void csdid::makeid(){
@@ -465,7 +465,7 @@ void csdid::csdid(){
 	// To make it faster
 	real matrix index1
 	
-	frwt=frif=J( ((type_data==1) ? max(oid) : rows(oid))	, 
+	frif=J( ((type_data==1) ? max(oid) : rows(oid))	, 
 	             rows(fgtvar),.)	
 	index1 = range(1,rows(oid),1)
 			 
@@ -504,7 +504,7 @@ void csdid::csdid(){
 			convar[i,]=1
 			if (shortx==0) frif[drdid.oid,i]=drdid.rif:*sign(eventvar[i]+.01)
 			else           frif[drdid.oid,i]=drdid.rif 
-			frwt[drdid.oid,i]=drdid.wtrt
+			//frwt[drdid.oid,i]=drdid.wtrt
 		}
 		dots = dots-convar[i,]
 		stata(sprintf("_dots %f %f",i,dots))
@@ -512,9 +512,9 @@ void csdid::csdid(){
 	 
 	/// fixes missing in rifs
 	fixrif()		
-	_editmissing(frwt,0)
+	//_editmissing(frwt,0)
 	/// Extra clean up
-	frwt   = select(frwt , convar')
+	//frwt   = select(frwt , convar')
 	frif   = select(frif , convar')
 	eventvar = select(eventvar, convar)
 	fgtvar   = select(fgtvar , convar)
@@ -529,8 +529,8 @@ void csdid::csdid(){
 	if (type_data==1) {
 		real matrix aux 
 
-		if (length(cvar)>0) aux = oid, gvar, wvar, cvar
-			else 			aux = oid, gvar, wvar
+	if (length(cvar)>0) aux = oid, gvar, wvar, cvar
+			else 		aux = oid, gvar, wvar
 		aux=uniqrows(aux)
 		oid = aux[,1]
 		gvar= aux[,2]
@@ -539,15 +539,15 @@ void csdid::csdid(){
 	}
  
 	/// Very last step. Sort important variables by Cvar?
-	if (length(cvar)>0) {
-		ord = order( (cvar,oid), (1,2) )
-		oid  = oid[ord,]
-		cvar = cvar[ord,]
-		gvar = gvar[ord,]
-		wvar = wvar[ord,]
-		frif = frif[ord,]
-		frwt = frwt[ord,]
-	}	
+	//if (length(cvar)>0) {
+	//	ord = order( (cvar,oid), (1,2) )
+	//	oid  = oid[ord,]
+	//	cvar = cvar[ord,]
+	//	gvar = gvar[ord,]
+	//	wvar = wvar[ord,]
+	//	frif = frif[ord,]
+	//	frwt = frwt[ord,]
+	//}	
 	aux = J(0,0,.)
 }
 
