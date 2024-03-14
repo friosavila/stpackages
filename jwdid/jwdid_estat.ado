@@ -1,5 +1,6 @@
-*! v1.5 FRA. Fix Bug with Continuous treatment
-*!           adds PTA test   
+*! v1.51 FRA. adds Window to event
+* v1.5 FRA. Fix Bug with Continuous treatment
+*           adds PTA test   
 * v1.42 FRA. flexible PLOT
 * v1.41 FRA. Changes | fpr &
 * v1.4 FRA. Allows for treatment to be continuous. With ASIS
@@ -56,16 +57,30 @@ program define jwdid_estat, sortpreserve
 		}
 		adde local cmd jwdid
 end
-
+**capture program drop jwdid_window
+program jwdid_window, rclass
+    syntax , window(numlist min=2 max=2)
+    numlist "`window'", min(2) max(2) sort integer   
+    local window `r(numlist)'
+    local n1: word 1 of `window'
+    local n2: word 2 of `window'
+    numlist "`n1'/`n2'", int
+    return local window `r(numlist)'
+end
 program define jwdid_simple, rclass
-		syntax, [* post estore(str) esave(str) replace over(varname) asis PLOT PLOT1(string asis)]
+		syntax, [* post estore(str) esave(str) replace over(varname) ///
+                    asis PLOT PLOT1(string asis) ///
+                    window(numlist min=2 max=2)]
 		//tempvar aux
 		//qui:bysort `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
 		capture:est store `lastreg'	
 		tempname lastreg
 		capture:qui:est store `lastreg'   
 		tempvar etr
+        // window
+        
 		if "`over'"!="" qui: gen `etr'=`over' if !inlist(`over',0,.) & __etr__==1
+        
 		else local etr 
 		if "`asis'"=="" {
 			qui:margins  ,  subpop(if __etr__==1) at(__tr__=(0 1)) ///
@@ -231,39 +246,49 @@ program define jwdid_calendar, rclass
 end
 
 program define jwdid_event, rclass
-	syntax, [post estore(str) esave(str) replace  other(varname) PLOT PLOT1(string asis) asis * pretrend ]
+	syntax, [post estore(str) esave(str) replace  other(varname) PLOT PLOT1(string asis) asis * pretrend ///
+                    window(passthru)]
 		capture drop __event__
 		tempvar aux
 		qui:bysort `e(gvar)' `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
 		qui:sum `e(tvar)' if e(sample), meanonly
 		qui:gen __event__ = `e(tvar)'-`e(gvar)' if `e(gvar)'!=0 & e(sample) 
 		
+        ** If window
+        tempvar sel 
+        gen byte `sel'=1          
+        if "`window'"!="" {
+            qui:replace  `sel'=0
+            jwdid_window, `window'
+            local lwind `r(window)'
+            foreach i of local lwind {
+                qui:replace `sel'=1 if __event__==`i'
+            }            
+        }
+        
 		capture:est store `lastreg'	
 		tempname lastreg
 		capture:qui:est store `lastreg'  
 		if "`other'"!="" {
-			*replace __group__=. if inlist(`other',0,.)
-			local otherif "& !inlist(`other',0,.)"
+			replace `sel'=0 if inlist(`other',0,.)"
 		}
 		*qui:replace __event__ =__event__ - 1 if  __event__ <0
 		if "`e(type)'"=="notyet" {
-
 				if "`asis'"=="" {
-					qui:margins , subpop(if __etr__==1 `otherif') at(__tr__=(0 1)) ///
+					qui:margins , subpop(if `sel' & __etr__==1 ) at(__tr__=(0 1)) ///
 						  over(__event__) noestimcheck contrast(atcontrast(r)) ///
 						  `options'  post
 				}
 				else {
-					qui:margins  ,  subpop(if __etr__==1 `otherif') at(__tr__=0) at((asobserved) __tr__) ///
+					qui:margins  ,  subpop(if `sel' & __etr__==1 ) at(__tr__=0) at((asobserved) __tr__) ///
 							over(__event__) noestimcheck contrast(atcontrast(r)) ///
 						  `options'  post
 				}
- 
 		}
 		else if "`e(type)'"=="never" {
             local nvr = "on"
 			capture drop __event2__
-			qui:sum __event__, meanonly
+			qui:sum __event__ , meanonly
 			local rmin = r(min)
 			qui:replace __event__=1+__event__-r(min)
 			qui:levelsof __event__, local(lv)
@@ -273,12 +298,12 @@ program define jwdid_event, rclass
 			label values __event__ __event__
 
 			if "`asis'"=="" {
-				qui:margins , subpop(if __tr__!=0 `otherif') at(__tr__=(0 1)) ///
+				qui:margins , subpop(if `sel' & __tr__!=0 ) at(__tr__=(0 1)) ///
 					  over(__event__) noestimcheck contrast(atcontrast(r)) ///
 					  `options'  post
 			}
 			else {
-				qui:margins  ,  subpop(if __tr__!=0 `otherif') at(__tr__=0) at((asobserved) __tr__) ///
+				qui:margins  ,  subpop(if `sel' & __tr__!=0 ) at(__tr__=0) at((asobserved) __tr__) ///
 						over(__event__) noestimcheck contrast(atcontrast(r)) ///
 					  `options'  post
 			}
@@ -307,7 +332,7 @@ program define jwdid_event, rclass
         *** PTA
         
         if "`pretrend'"!="" & "`nvr'"=="on" {
-            qui:levelsof __event__, local(lv)
+            qui:levelsof __event__ & `sel' , local(lv)
 			foreach i of local lv {
 				if `=-1+`i'+`rmin''<-1 local totest `totest' `i'.__event__ 
 			}

@@ -1,4 +1,5 @@
-*!v1.51 Addressed Bug when there is no never treated (but using never)
+*!v1.52 Minor Bug. No coeff if not existent
+* v1.51 Addressed Bug when there is no never treated (but using never)
 * v1.5  Multiple Methods plus extra
 * some options not yet documented
 * v1.42 Fixes Bug with Continuous Trt
@@ -194,7 +195,7 @@ program jwdid, eclass
 	**
 	foreach i of local glist {
 		foreach j of local tlist {
-			qui:count if `i'==`gvar' & `j'==`tvar'
+			qui:count if `i'==`gvar' & `j'==`tvar' & `touse'
 			if `r(N)'>0 {
 				if "`never'"!="" {
 					if (`i'-`gap')!=`j' {

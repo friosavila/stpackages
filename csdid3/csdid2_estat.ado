@@ -1,3 +1,4 @@
+*! v1.31 Adds Window.
 *! v1.3 Correct with group
 *! v1.2 for anticipation
 *! v1.1 adds option for CSname
@@ -59,6 +60,7 @@ end
 					rgroup(numlist)     ///
 					rcalendar(numlist) /// 
 					revent(numlist)    ///
+                    window(numlist min=2 max=2)    ///
 					REBALance(numlist)    /// <-- restricts groups and event, unless event is used too
 					max_mem(real 1)  ///
 					noavg   ///
@@ -109,6 +111,14 @@ end
 	}
 	if "`revent'"!="" {
 		 numlist "`revent'", int
+		 mata:csdidstat.range.selevent=csdidstat.rtokens("`r(numlist)'"):-`adj'
+	}
+    else if "`window'"!="" {
+		 numlist "`window'", min(2) max(2) sort integer   
+		 local window `r(numlist)'
+         local n1: word 1 of `window'
+         local n2: word 2 of `window'
+         numlist "`n1'/`n2'", int
 		 mata:csdidstat.range.selevent=csdidstat.rtokens("`r(numlist)'"):-`adj'
 	}
 	if "`rebalance'"!="" {		 
