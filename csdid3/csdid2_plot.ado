@@ -1,4 +1,5 @@
-*! v1.03 csdid2_plot Allows for Anticpiation
+*! v1.1 csdid2_plot Better labels for plots
+*  v1.03 csdid2_plot Allows for Anticpiation
 *  v1.02 csdid2_plot Fixes `'
 *  v1.01 csdid2_plot for csdid2 only
  
@@ -65,7 +66,6 @@ program csdid2_plot_wh
 			// Group Calendar
 			tempvar t b ll uu se all auu
 			mata:other_p2("`t' `b' `ll' `uu' `se' `all' `auu'","`tbl'", `=`level'/100')
-			`t' `b' `ll' `uu' `se' `all' `auu'
 			csdid_plot_other `t' `b' `ll' `uu' `all' `auu',   `options' ktype(`ktype')	asy	
 		}
 		else {
@@ -115,9 +115,10 @@ mata:
 		tnv = tokens(newvars)
 		real matrix ss
 		ss= _st_addvar(sprintf("str%f",max(strlen(ntbl))),tnv[1])
-		ss= _st_addvar("double",tnv[2..4])
+		ss= _st_addvar("double",tnv[2..7])
+
 		st_sstore((1::rows(tbl)) ,tnv[1],ntbl)	
-		st_store((1::rows(tbl)) ,tnv[2..4],tbl)	
+		st_store((1::rows(tbl)) ,tnv[2..7],tbl)	
 	}
 end
 
@@ -243,8 +244,8 @@ end
 program csdid_plot_other
 	syntax varlist,  [ktype(int 3) * ///
 	                  xtitle(passthru) ytitle(passthru) ///
-								 legend(passthru)]
-	gettoken t rest:varlist
+						asy		 legend(passthru) format(passthru)]
+    gettoken t rest:varlist
 	gettoken b rest:rest
 	gettoken ll rest:rest 
 	gettoken uu rest:rest 
@@ -264,9 +265,8 @@ program csdid_plot_other
 	
 	mata:st_local("adj",strofreal(csdid.antici))
 
-	tempvar t2
-	
- 	qui:encode `t', gen(`t2')
+	tempvar t2 
+ 	qui:myencode `t', gen(`t2') `format'
 	if "`asy'"=="" {
 		two   (`style'  `ll' `uu' `t2'  , `gf11' )  ///
 			  (scatter  `b'      `t2'   , `gf12' ) , ///
@@ -278,8 +278,9 @@ program csdid_plot_other
 			//gettoken se rest:rest 
 			gettoken all rest:rest 
 			gettoken auu rest:rest
-		two   (`style'  `ll' `uu' `t2'  , `gf11' )  ///
-			  (`style'  `all' `auu' `t2'  , lwidth(3) `gf11' )  ///
+			 
+		two   (`style'  `ll' `uu' `t2'  ,  `gf11' lwidth(1))  ///
+			  (`style'  `all' `auu' `t2'  ,  `gf11'  )  ///
 				(scatter  `b'      `t2'   , `gf12' ) , ///
 				legend(off) `xtitle'  `ytitle'  ///
 				yline(0 , lp(dash) lcolor(black)) `title' ///
@@ -288,4 +289,35 @@ program csdid_plot_other
  
 	
 end
+
+program drop myencode
+program myencode
+	syntax varname, gen(name) [format(string asis)]	
+	if "`=`varlist''"=="GAverage" {
+		local torep "GAverage"
+		*replace `varlist' = `varlist'[2]-(`varlist'[3]-`varlist'[2])
+	}
+	if "`=`varlist''"=="TAverage" {
+		local torep "TAverage"
+		*replace `varlist' = `varlist'[2]-(`varlist'[3]-`varlist'[2])
+	}
+	
+	if "`torep'"!=""  {
+		replace `varlist'=subinstr(`varlist',"g","",1) if _n>1
+		replace `varlist'=subinstr(`varlist',"t","",1) if _n>1
+	}
+	else {
+	    replace `varlist'=subinstr(`varlist',"g","",1)  
+		replace `varlist'=subinstr(`varlist',"t","",1)  
+	}
+	qui:destring `varlist', force gen(`gen') 
+	if "`torep'"!=""  {
+ 		replace `gen' = `gen'[2]-(`gen'[3]-`gen'[2]) in 1
+		tempname aux
+		label define _aux_ `=`gen'[1]' "`torep'", modify
+		label values `gen' _aux_
+	}
+qui format `format' `gen'
+end
+
 
