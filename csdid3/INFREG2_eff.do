@@ -51,7 +51,11 @@ gmm (($y-{b00:$x})*(treat==0 & post ==0)) ///
     (($y-{b11:$x})*(treat==1 & post ==1)) ///
     (({b00:}-{g00})*(treat==1 )) ///
     (({b01:}-{g01})*(treat==1 )) ///
-    (({b10:}-{g10})*(treat==1 )) ///
+    (({b10:}-{g10a})*(treat==1 & post==0)) ///
+	(({b10:}-{g10b})*(treat==1 & post==1)) ///
+    (({b10:}-{g10 })*(treat==1 )) ///	
+    (({b11:}-{g11a})*(treat==1 & post==0)) ///
+	(({b11:}-{g11b})*(treat==1 & post==1)) ///
     (({b11:}-{g11})*(treat==1 )) ///
     (({att}- ( ({b11:}-{b10:}) - ({b01:}-{b00:}) ))*(treat==1)), ///
     instruments(1: $xiv) instruments(2: $xiv) ///
@@ -106,11 +110,17 @@ ifd00  = (n/sum(w1))*(w1:*(x*b00:-mean(x*b00,w1)):- iff00 *colsum(x:*w1)'/n)
 ifd01  = (n/sum(w1))*(w1:*(x*b01:-mean(x*b01,w1)):- iff01 *colsum(x:*w1)'/n)
 // for t10 and t01 things are different because we observe the outcome some times.
 // Kind of like 
-ifd10a  = (n/sum(w10))*(w10:*(x*b10:-mean(x*b10,w1)):- iff10 *colsum(x:*w10)'/n)
-
-ifd10b  = (n/sum(w11))*(w10:*(x*b10:-mean(x*b10,w1)):- iff10 *colsum(x:*w11)'/n)
-
-ifd11  = (n/sum(w1))*(w1:*(x*b11:-mean(x*b11,w1)):- iff11 *colsum(x:*w1)'/n)
+ifd10a  = (n/sum(w10))*(w10:*(y:-mean(y,w10)))
+ifd10b  = (n/sum(w11))*(w11:*(x*b10:-mean(x*b10,w11)):- iff10 *colsum(x:*w11)'/n)
+// How do I combine the  
+ifd10 = mean(w10)/mean(w1):*ifd10a :+ mean(w11)/mean(w1):*ifd10b :+ 
+       mean(y,w10)*((w10:-mean(w10))/mean(w1) :- mean(w10):*(w1:-mean(w1)):/mean(w1)^2) :+ 
+	   mean(x*b10,w11)*((w11:-mean(w11))/mean(w1) :- mean(w11):*(w1:-mean(w1)):/mean(w1)^2)  
+	   
+	   mean(x*b10,w11)*(w11:-mean(w11))/n   
+ 
+ifd11a  = (n/sum(w11))*(w11:*(y:-mean(y,w11)))    
+ifd11b  = (n/sum(w10))*(w10:*(x*b11:-mean(x*b11,w10)):- iff11 *colsum(x:*w10)'/n)
 
 
 end
