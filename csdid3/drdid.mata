@@ -1077,6 +1077,7 @@ void drdid::drdid(){
 		else if (method_type ==2) drimp_rc()
 		else if (method_type ==3) stdipw_rc()
 		else if (method_type ==4) reg_rc()
+		else if (method_type ==5) reg2_rc()
 	} 
 	
 	if (conv==1) minn=rows(rif)*(1+(data_type:==1))
