@@ -490,6 +490,7 @@ void csdid::csdid(){
 		drdid.trt =gvar[smsel,]:==gv
 		//if (cols(wvar)>0) drdid.wvar=select(wvar,smsel)     
 		if (cols(wvar)>0) drdid.wvar=wvar[smsel,]
+        else              drdid.wvar=J(rows(drdid.yvar),1,1)
 		//drdid.id  =select(ivar,smsel)
 		//drdid.oid =select(oid ,smsel) 
 		drdid.id  =ivar[smsel,]
@@ -609,6 +610,7 @@ void csdid::spcsdid(){
 		drdid.trt =gvar[smsel,]:==gv
 		//if (cols(wvar)>0) drdid.wvar=select(wvar,smsel)     
 		if (cols(wvar)>0) drdid.wvar=wvar[smsel,]
+        else              drdid.wvar=J(rows(drdid.yvar),1,1) 
 		//drdid.id  =select(ivar,smsel)
 		//drdid.oid =select(oid ,smsel) 
 		drdid.id  =ivar[smsel,]

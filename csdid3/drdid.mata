@@ -122,7 +122,7 @@ class drdid {
 
 //# Regression models
 void drdid::init(){
-	yvar=xvar=wvar=id=oid=trt=wtrt=tmt=tmt_trt=J(0,0,.)
+	yvar=xvar=wvar=id=oid=trt=tmt=tmt_trt=J(0,0,.)
 	xb=yhat=b=	psv=J(0,0,.)
 	nn=conv=kx=minn=.
 }
@@ -231,7 +231,8 @@ void drdid::msetup_panel(){
 		}
 	}
    
- 	wtrt = wvar = select(wvar,((id[,2]:==2):*(tmt:==0)))
+ 	//wtrt = 
+    wvar = select(wvar,((id[,2]:==2):*(tmt:==0)))
 	wvar = wvar:/mean(wvar)
 	
 	// Original Copy of selected cases
@@ -239,7 +240,7 @@ void drdid::msetup_panel(){
 	oid   = select(oid ,(id[,2]:==2):*(tmt:==0))
 
 	trt  = select(trt,(id[,2]:==2):*(tmt:==0))
-	wtrt = wtrt:*trt
+	//wtrt = wtrt:*trt
 	tmt  = select(tmt,(id[,2]:==2))
 
 	id   = select(id ,(id[,2]:==2))
@@ -309,14 +310,15 @@ void drdid::msetup_panel2(){
 		}
 	}
    
- 	wtrt = wvar = select(wvar,(tmt:==1))
+ 	// wtrt = 
+    wvar = select(wvar,(tmt:==1))
 	wvar = wvar:/mean(wvar)
 	
 	// Original Copy of selected cases
 	 
 	oid   = select(oid ,(tmt:==1))
 	trt  = select(trt,(tmt:==1))
-	wtrt = wtrt:*trt
+	//wtrt = wtrt:*trt
 	id   = select(id ,(tmt:==1))
  	
 	yvar = yvar_post :-yvar_pre
@@ -353,7 +355,7 @@ void drdid::msetup_rc(){
 	}
 	
 	kx   = cols(xvar)
-	wtrt = wvar:*trt
+	//wtrt = wvar:*trt
 	wvar = wvar:/mean(wvar)
 	nn   = rows(yvar)
 	
@@ -861,62 +863,49 @@ void drdid::reg_rc() {
  }
 void drdid::reg2_rc(){
     // main Loading variables
+ 	real matrix w10, w11, w00, w01, w1
+	// Avoid Weights that are Too large
+    // Weights Scale is irrelevant
+	w00 = wvar :* (tmt_trt:==0) 	  
+    w01 = wvar :* (tmt_trt:==1) 	  
+    w10 = wvar :* (tmt_trt:==2)       
+    w11 = wvar :* (tmt_trt:==3)     
+    w1  = wvar :* trt                 
+
 	real matrix y00,   y01,   y10,   y11,
 				ixx00, ixx01, ixx10, ixx11
-				 
- 			
-	ols_ipw_rc(0,y00,ixx00)
-	ols_ipw_rc(1,y01,ixx01)
-	ols_ipw_rc(2,y10,ixx10)
-	ols_ipw_rc(3,y11,ixx11)   				
-	
-	real matrix y0
+                
+	// Need to get ixx for all cases
+    // as well as Predicted
+    ixx00 = invsym(cross(xvar,w00,xvar));y00=xvar*(ixx00*cross(xvar,w00,yvar))
+    ixx01 = invsym(cross(xvar,w01,xvar));y01=xvar*(ixx01*cross(xvar,w01,yvar))
+    ixx10 = invsym(cross(xvar,w10,xvar));y10=xvar*(ixx10*cross(xvar,w10,yvar))
+    ixx11 = invsym(cross(xvar,w11,xvar));y11=xvar*(ixx11*cross(xvar,w11,yvar))
 
-	y0   = y00:*(1:-tmt) :+ y01:*tmt
-	
-	real matrix w10, w11, w00, w01, w1
-	
-	w00 = wvar :* (tmt_trt:==0) 	  ; w00 = w00:/mean(w00 )
-    w01 = wvar :* (tmt_trt:==1) 	  ; w01 = w01:/mean(w01 )
-    w10 = wvar :* (tmt_trt:==2)       ; w10 = w10:/mean(w10 )
-    w11 = wvar :* (tmt_trt:==3)       ; w11 = w11:/mean(w11 )
-    w1  = wvar :* trt                 ; w1  = w1 :/mean(w1 )
-	
-	real matrix att_treat_pre, att_treat_post, att_cont_pre, att_cont_post, att_trt_post, att_trtt1_post,
-				att_trt_pre, att_trtt0_pre
-	real matrix eta_treat_pre, eta_treat_post, eta_cont_pre, eta_cont_post, eta_trt_post, eta_trtt1_post,
-				eta_trt_pre, eta_trtt0_pre				
-	real matrix y_y0
-	y_y0 = yvar :- y0
-    att_treat_pre  = w10 :* (y_y0)		; eta_treat_pre  = mean(att_treat_pre)
-    att_treat_post = w11 :* (y_y0)		; eta_treat_post = mean(att_treat_post)
-    att_cont_pre   = w00 :* (y_y0)		; eta_cont_pre   = mean(att_cont_pre)
-    att_cont_post  = w01 :* (y_y0)		; eta_cont_post  = mean(att_cont_post)
-    att_trt_post   = w1  :* (y11 :- y01); eta_trt_post   = mean(att_trt_post)
-    att_trtt1_post = w11 :* (y11 :- y01); eta_trtt1_post = mean(att_trtt1_post)
-    att_trt_pre    = w1  :* (y10 :- y00); eta_trt_pre    = mean(att_trt_pre)
-    att_trtt0_pre  = w10 :* (y10 :- y00); eta_trtt0_pre  = mean(att_trtt0_pre)
-
-	real matrix trtr_att
-    trtr_att       = (eta_treat_post :- eta_treat_pre ) :- 
-					 (eta_cont_post  :- eta_cont_pre  ) :+ 
-					 (eta_trt_post   :- eta_trtt1_post) :- 
-					 (eta_trt_pre    :- eta_trtt0_pre )
-	
-	real matrix inf_treat,  inf_cont,  att_inf_func1,  inf_eff, att_inf_func
-	
-	inf_treat      = (att_treat_post :- w11 :* eta_treat_post) :- 
-					 (att_treat_pre  :- w10 :* eta_treat_pre)
-    inf_cont       = (att_cont_post  :- w01 :* eta_cont_post)  :- 
-					 (att_cont_pre   :- w00 :* eta_cont_pre)
-	att_inf_func1  = inf_treat :- inf_cont
-	
-    inf_eff        =  ((att_trt_post   :- w1  :* eta_trt_post) :- 
-					   (att_trtt1_post :- w11 :* eta_trtt1_post)) :- 
-					  ((att_trt_pre    :- w1  :* eta_trt_pre) :- 
-					   (att_trtt0_pre  :- w10 :* eta_trtt0_pre))
-	
-    rif = trtr_att :+ att_inf_func1 :+ inf_eff		
+    real matrix iff00, iff01, iff10 , iff11
+    iff00 = (nn  * ixx00*(xvar:*(yvar:-y00):*w00)')'
+    iff01 = (nn  * ixx01*(xvar:*(yvar:-y01):*w01)')'
+    iff10 = (nn  * ixx10*(xvar:*(yvar:-y10):*w10)')'
+    iff11 = (nn  * ixx11*(xvar:*(yvar:-y11):*w11)')'
+	// IFs for all cases  
+    real scalar nw1
+    nw1 = nn/sum(w1)
+    
+    real matrix ifd00, ifd01, ifd10 , ifd11
+    real scalar mn_y00, mn_y01,mn_y10,mn_y11, csumx
+    
+    mn_y00=mean(y00,w1);mn_y01=mean(y01,w1)
+    mn_y10=mean(y10,w1);mn_y11=mean(y11,w1)
+    csumx = colsum(x:*w1)'
+    
+    ifd00  = nw1*(w1:*(y00:-mn_y00):+ iff00 *csumx/nn) 
+    ifd01  = nw1*(w1:*(y01:-mn_y01):+ iff01 *csumx/nn)
+    ifd10  = nw1*(w1:*(y10:-mn_y10):+ iff10 *csumx/nn)
+    ifd11  = nw1*(w1:*(y11:-mn_y11):+ iff11 *csumx/nn)
+    
+    real scalar att_gt
+    att_gt = mn_y11-mn_y10 - mn_y01+mn_y00
+    rif = (ifd11-ifd10)-(ifd01-ifd00)		
 } 
    
 void drdid::reg3_rc() {
