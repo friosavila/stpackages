@@ -289,7 +289,7 @@ program csdid_plot_other
 	
 end
 
-program drop myencode
+*program drop myencode
 program myencode
 	syntax varname, gen(name) [format(string asis)]	
 	if "`=`varlist''"=="GAverage" {
