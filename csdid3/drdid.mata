@@ -98,8 +98,10 @@ class drdid {
 	
 	void  		reg_rc()
 	void  		reg2_rc()
-	void  		reg3_rc()
+	 
 	void  		drimp_rc()
+	void  		drimp2_rc()
+	
 	void  		stdipw_rc()
 	void 		dripw_rc()
 	
@@ -216,7 +218,7 @@ void drdid::msetup_panel(){
  
 	// if Method is not OLS then check
  
-	if (method_type <4) {
+	if (method_type != 4) {
 			 if (kx ==0)  {
 			 	method_type=4 
  
@@ -295,7 +297,7 @@ void drdid::msetup_panel2(){
  
 	// if Method is not OLS then check
  
-	if (method_type <4) {
+	if (method_type !=4) {
 			 if (kx ==0)  {
 			 	method_type=4 
  
@@ -746,9 +748,8 @@ void drdid::drimp_rc(){
 	real matrix psc, ipw
 	ipt()
 	if (conv==1) {
-		psc=logistic(xb)
-		ipw=psc:/(1:-psc)
-		/// tmt trt
+		ipw=exp(xb)
+		 /// tmt trt
 		real matrix y00,   y01,   y10,   y11,
 					ixx00, ixx01, ixx10, ixx11,
 					w00  , w01,   w10,   w11, w1
@@ -808,6 +809,60 @@ void drdid::drimp_rc(){
 	}	
 }
 
+void drdid::drimp2_rc(){
+    // main Loading variables
+	real matrix psc, ipw
+	ipt()
+	if (conv==1) {
+		ipw=exp(xb)
+		 /// tmt trt
+	
+	real matrix w10, w11, w00, w01, w1
+	// Avoid Weights that are Too large
+    // Weights Scale is irrelevant
+	w00 = wvar :* (tmt_trt:==0) :*ipw	  
+    w01 = wvar :* (tmt_trt:==1) :*ipw	  
+    w10 = wvar :* (tmt_trt:==2)       
+    w11 = wvar :* (tmt_trt:==3)     
+    w1  = wvar :* trt                 
+
+	real matrix y00,   y01,   y10,   y11,
+				ixx00, ixx01, ixx10, ixx11
+                
+	// Need to get ixx for all cases
+    // as well as Predicted
+    ixx00 = invsym(cross(xvar,w00,xvar));y00=xvar*(ixx00*cross(xvar,w00,yvar))
+    ixx01 = invsym(cross(xvar,w01,xvar));y01=xvar*(ixx01*cross(xvar,w01,yvar))
+    ixx10 = invsym(cross(xvar,w10,xvar));y10=xvar*(ixx10*cross(xvar,w10,yvar))
+    ixx11 = invsym(cross(xvar,w11,xvar));y11=xvar*(ixx11*cross(xvar,w11,yvar))
+
+    real matrix iff00, iff01, iff10 , iff11
+    iff00 = (nn  * ixx00*(xvar:*(yvar:-y00):*w00)')'
+    iff01 = (nn  * ixx01*(xvar:*(yvar:-y01):*w01)')'
+    iff10 = (nn  * ixx10*(xvar:*(yvar:-y10):*w10)')'
+    iff11 = (nn  * ixx11*(xvar:*(yvar:-y11):*w11)')'
+	// IFs for all cases  
+    real scalar nw1
+    nw1 = nn/sum(w1)
+    
+    real matrix ifd00, ifd01, ifd10 , ifd11
+    real scalar mn_y00, mn_y01,mn_y10,mn_y11, csumx
+    
+    mn_y00=mean(y00,w1);mn_y01=mean(y01,w1)
+    mn_y10=mean(y10,w1);mn_y11=mean(y11,w1)
+    csumx = colsum(x:*w1)'
+    
+    ifd00  = nw1*(w1:*(y00:-mn_y00):+ iff00 *csumx/nn) 
+    ifd01  = nw1*(w1:*(y01:-mn_y01):+ iff01 *csumx/nn)
+    ifd10  = nw1*(w1:*(y10:-mn_y10):+ iff10 *csumx/nn)
+    ifd11  = nw1*(w1:*(y11:-mn_y11):+ iff11 *csumx/nn)
+    
+    real scalar att_gt
+    att_gt = mn_y11-mn_y10 - mn_y01+mn_y00
+    rif = (ifd11-ifd10)-(ifd01-ifd00)		
+	
+	}	
+}
 
 
 void drdid::reg_rc() {
@@ -823,8 +878,8 @@ void drdid::reg_rc() {
 	 
 	real matrix w10, w11, w1	
 	w10 			= wvar :* trt :* (1 :- tmt);w10	= w10:/mean(w10 )
-    w11 			= wvar :* trt :* tmt		  ;w11	= w11:/mean(w11 )
-    w1 				= wvar :* trt			  ;w1	= w1 :/mean(w1  )
+    w11 			= wvar :* trt :* tmt	   ;w11	= w11:/mean(w11 )
+    w1 				= wvar :* trt			   ;w1	= w1 :/mean(w1  )
 	
 	real matrix att_treat_pre, att_treat_post, att_cont,
 				eta_treat_pre, eta_treat_post, eta_cont, reg_att
@@ -861,6 +916,7 @@ void drdid::reg_rc() {
 	rif 	= reg_att :+ (inf_treat :- inf_control)
 	
  }
+ 
 void drdid::reg2_rc(){
     // main Loading variables
  	real matrix w10, w11, w00, w01, w1
@@ -907,60 +963,7 @@ void drdid::reg2_rc(){
     att_gt = mn_y11-mn_y10 - mn_y01+mn_y00
     rif = (ifd11-ifd10)-(ifd01-ifd00)		
 } 
-   
-void drdid::reg3_rc() {
-    // main Loading variables
-	
-	real matrix y00,   y01,   y10,   y11,
-				ixx00, ixx01, ixx10, ixx11,
-				w00  , w01,   w10,   w11, w0,w1
-				
-	ols_ipt_rc(0,wvar,y00,ixx00)
-	ols_ipt_rc(1,wvar,y01,ixx01)
-	ols_ipt_rc(2,wvar,y10,ixx10)
-	ols_ipt_rc(3,wvar,y11,ixx11)
-	
-	// add constant
-	xvar=xvar,J(nn,1,1)
-	
-	w00 			= wvar :* (tmt_trt:==0);w00	= w00:/mean(w00)
-    w01 			= wvar :* (tmt_trt:==1);w01	= w01:/mean(w01)
-	w10 			= wvar :* (tmt_trt:==2);w10	= w10:/mean(w10)
-    w11 			= wvar :* (tmt_trt:==3);w11	= w11:/mean(w11)
-    
-	
-	real matrix att_treat_pre, att_treat_post, att_cont,
-				eta_treat_pre, eta_treat_post, eta_cont, reg_att
-    att_treat_pre 	= w10 :* yvar		; eta_treat_pre 	= mean(att_treat_pre)		
-    att_treat_post 	= w11 :* yvar		; eta_treat_post 	= mean(att_treat_post)
-    att_cont 		= w1 :* (y01 :- y00); eta_cont 			= mean(att_cont)
-        
-    reg_att 		= (eta_treat_post :- eta_treat_pre) :- eta_cont
-	
-	real matrix w_ols_pre, wols_eX_pre, lin_rep_ols_pre
-	
-    w_ols_pre 		= wvar :* (1 :- trt) :* (1 :- tmt)
-    wols_eX_pre 	= w_ols_pre :* (yvar :- y00) :* xvar
-    lin_rep_ols_pre = wols_eX_pre * ixx00 * nn
-	
-	real matrix w_ols_post, wols_eX_post, lin_rep_ols_post
-    w_ols_post 		= wvar :* (1 :- trt) :* tmt
-    wols_eX_post 	= w_ols_post :* (yvar :- y01) :* xvar
-    lin_rep_ols_post= wols_eX_post * ixx01 :* nn
-    
-	real matrix inf_treat, inf_cont_1, inf_cont_2_post, inf_cont_2_pre, inf_control
-
-    inf_treat 		= (att_treat_post :- w11 :* eta_treat_post) :- 
-					  (att_treat_pre  :- w10 :* eta_treat_pre)
-    inf_cont_1 		= (att_cont :- w0 :* eta_cont)
-    //M1 				= mean(w0 :* xvar)
-    inf_cont_2_post = lin_rep_ols_post * mean(w0 :* xvar)'
-    inf_cont_2_pre 	= lin_rep_ols_pre  * mean(w0 :* xvar)'
-    inf_control 	= (inf_cont_1 :+ inf_cont_2_post :- inf_cont_2_pre)
-    	
-	rif 	= reg_att :+ (inf_treat :- inf_control)
-	
- }   
+     
    
 void drdid::stdipw_rc(){
     // main Loading variables
@@ -1067,6 +1070,7 @@ void drdid::drdid(){
 		else if (method_type ==3) stdipw_rc()
 		else if (method_type ==4) reg_rc()
 		else if (method_type ==5) reg2_rc()
+		else if (method_type ==5) drimp2_rc()
 	} 
 	
 	if (conv==1) minn=rows(rif)*(1+(data_type:==1))

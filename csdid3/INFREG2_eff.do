@@ -60,7 +60,7 @@ gmm (($y-{b00:$x})*(treat==0 & post ==0)) ///
     (({att}- ( ({b11:}-{b10:}) - ({b01:}-{b00:}) ))*(treat==1)), ///
     instruments(1: $xiv) instruments(2: $xiv) ///
     instruments(3: $xiv) instruments(4: $xiv) ///
-    winit(identity) onestep quickderivatives  
+    winit(identity) onestep quickderivatives  vce(cluster school)
 
 ------------------------------------------------------------------------------
              | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]

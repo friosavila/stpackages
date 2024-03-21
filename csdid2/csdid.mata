@@ -198,21 +198,21 @@ void csdid::csdid_setup(){
 		if (length(cvar)>0) ord = order((cvar,gvar,tvar,ivar),(1,2,3,4))
 		else                ord = order((gvar,tvar,ivar),(1,2,3))
 		
-		if (ord!=oid) {
+		 
 			yvar=yvar[ord,]
 			if (length(xvar)>0)  xvar=xvar[ord,]
 			tvar=tvar[ord,]
 			gvar=gvar[ord,]
-			
+			 
 			if (length(wvar)>0)  wvar=wvar[ord,]
 			
 			ivar=ivar[ord,]
 			//oid = oid[ord,]
+			length(cvar)
 			if (length(cvar)>0) cvar=cvar[ord,]
 
-		}
 		
-	}
+ 	}
 	else {
 		// if panel, first sort
 		type_data = 1
@@ -430,10 +430,11 @@ void csdid::csdid(){
 	
 	frwt=frif=J( ((type_data==1) ? max(oid) : rows(oid))	, 
 	             rows(fgtvar),.)	
-	index1 = range(1,rows(oid),1)
-			 
+	index1 = 1::rows(oid)
+ 
 	stata("_dots 0") 
 	drdid.rolljw=rolljw
+	  
 	for(i=1;i<=rows(fgtvar);i++) {
 		dots = 1
 		drdid.init()
@@ -456,7 +457,7 @@ void csdid::csdid(){
 		//drdid.id  =select(ivar,smsel)
 		//drdid.oid =select(oid ,smsel) 
 		drdid.id  =ivar[smsel,]
-		drdid.oid =oid[smsel,]
+		drdid.oid =index1[smsel,]
 		drdid.data_type   = type_data
 		drdid.method_type = type_est 
 		drdid.conv=1	
@@ -468,6 +469,7 @@ void csdid::csdid(){
 			if (shortx==0) frif[drdid.oid,i]=drdid.rif:*sign(eventvar[i]+.01)
 			else           frif[drdid.oid,i]=drdid.rif 
 			frwt[drdid.oid,i]=drdid.wtrt
+			 
 		}
 		dots = dots-convar[i,]
 		stata(sprintf("_dots %f %f",i,dots))
@@ -486,7 +488,7 @@ void csdid::csdid(){
 	
 	
 	/// cleaning all else
-	 ord=tvar=xvar=yvar=J(0,0,.)
+	 ord=tvar=yvar=J(0,0,.)
 	/// One Risk. Missing data after drdid or else.
 	// if panel
 	if (type_data==1) {
@@ -502,15 +504,7 @@ void csdid::csdid(){
 	}
  
 	/// Very last step. Sort important variables by Cvar?
-	if (length(cvar)>0) {
-		ord = order( (cvar,oid), (1,2) )
-		oid  = oid[ord,]
-		cvar = cvar[ord,]
-		gvar = gvar[ord,]
-		wvar = wvar[ord,]
-		frif = frif[ord,]
-		frwt = frwt[ord,]
-	}	
+	 	
 	aux = J(0,0,.)
 }
 

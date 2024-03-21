@@ -194,7 +194,7 @@ end
 			local method reg
 		}
 	}
-	else if !inlist("`method'","drimp","dripw","reg","stdipw") {
+	else if !inlist("`method'","drimp","drimp2","dripw","reg","reg2","stdipw") {
 		display in red "Method `method' not allowed"
 		error 1
 	}
@@ -254,7 +254,8 @@ end
 	else if "`method'"=="drimp"  local type_est=2
 	else if "`method'"=="stdipw" local type_est=3
 	else if "`method'"=="reg"    local type_est=4
-	
+	else if "`method'"=="reg2"   local type_est=5
+	else if "`method'"=="drimp2" local type_est=6
 	
 	local ntyet = 0
 	if "`tyet'"!=""  local ntyet = 1
@@ -304,6 +305,10 @@ program define _S_Me_thod, sclass
                 local tmodel "inverse probability tilting"
                 local omodel "weighted least squares"
         }
+		if ("`e(method)'"=="drimp2") {
+                local tmodel "inverse probability tilting"
+                local omodel "weighted least squares: Alt RC"
+        }
         if ("`e(method)'"=="dripw") {
                 local tmodel "inverse probability"
                 local omodel "least squares"
@@ -311,6 +316,10 @@ program define _S_Me_thod, sclass
         if ("`e(method)'"=="reg") {
                 local tmodel "none"
                 local omodel "regression adjustment"
+        }		
+        if ("`e(method)'"=="reg2") {
+                local tmodel "none"
+                local omodel "regression adjustment: 4way"
         }
         if ("`e(method)'"=="stdipw") {
                 local tmodel "stabilized inverse probability"
