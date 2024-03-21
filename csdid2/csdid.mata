@@ -1,6 +1,8 @@
-*! v1 Allows for anticipation
+*! v1.1 Allows for new Estimators. 
+* v1 Allows for anticipation
 
 mata:
+// This ones are to get the names of events and Other Stuff
  	void event_p( string scalar newvars, string scalar tblx){
 	    real   matrix tbl, ntbl2
 		string matrix ntbl
@@ -39,6 +41,8 @@ end
  
 
 mata
+// Mata Class Gets all Relevant info for CSDID.
+// Version 3 will use Sparse matrix
 class csdid {
 	// input data
 	real matrix yvar 
@@ -76,8 +80,7 @@ class csdid {
 	real matrix sample_select()
 	real matrix nvalid()
 	real matrix nsample_select()
-	void 		setup()
-	void 		setup2()
+
 	void 		gtvar()
 	void 	    makeid()
 	void 	    sevent()
@@ -120,11 +123,11 @@ else {
 "       .---.       ;--; /"
 "     .'_:___'. _..'.  __'."
 "     |__ --==|'-''' \'...;"
-"     [  ]  :[|       |---\"
-"     |__| I=[|     .'    '."
-"     / / ____|     :       '._"
-"    |-/.____.'      | :       :"
-"    /___\ /___\      '-'._----'"
+"     [  ]  :[|      |---\"
+"     |__| I=[|    .'    '."
+"     / / ____|    :       '._"
+"    |-/.____.'     | :       :"
+"    /___\ /___\     '-'._----'"
 " ObiWan Kenobi-CSDID is our only hope"
 }
 }
@@ -139,16 +142,7 @@ void csdid::fixrif(){
 	frif   = mn_rif:+frif:*(rows(frif):/cnmiss)
 }
 /// Everything else will be used 
-void csdid::setup2(){
-	//xs  =J(0,0,.)
-	//ivar=J(0,0,.)
-	//ws  =.z
-}
-void csdid::setup(){
-	//xs  =J(0,0,.)
-	//ivar=J(0,0,.)
-	//ws  =.z
-}
+
 // Load ALL data
 /*
 1. get data
@@ -192,13 +186,14 @@ void csdid::csdid_setup(){
 	antici = 0
 	rolljw = 0
 	if (length(ivar)==0) {
+        // Repeated CrosSection
 		type_data = 2
 		oid  = 1::rows(yvar)	
 		ivar = oid 
 		if (length(cvar)>0) ord = order((cvar,gvar,tvar,ivar),(1,2,3,4))
 		else                ord = order((gvar,tvar,ivar),(1,2,3))
-		
-		 
+         // If data was already loaded sorted. No need to Resort   
+		if  (ord!=oid) {
 			yvar=yvar[ord,]
 			if (length(xvar)>0)  xvar=xvar[ord,]
 			tvar=tvar[ord,]
@@ -207,10 +202,9 @@ void csdid::csdid_setup(){
 			if (length(wvar)>0)  wvar=wvar[ord,]
 			
 			ivar=ivar[ord,]
-			//oid = oid[ord,]
-			length(cvar)
-			if (length(cvar)>0) cvar=cvar[ord,]
 
+			if (length(cvar)>0) cvar=cvar[ord,]
+        }
 		
  	}
 	else {
@@ -325,6 +319,9 @@ void csdid::sevent(){
  
 real matrix csdid::sample_select(real matrix gvtv) {
 	// Cohort Never
+    // As in R uses all Nontreated units up to point T.
+    // THat has a problem. Units are used as treatment and control all the time. 
+    // Not the right way in my opinion
 	real matrix tsel, gsel
 	real scalar gv, tv0, tv1,tv
 	gv = gvtv[1]
@@ -340,8 +337,8 @@ real matrix csdid::sample_select(real matrix gvtv) {
 		}
 	}
 	 
-		/// time Selection
-	if (rolljw==0)      tsel = (tvar:==tv0 :| tvar:==tv1)		
+		/// time Selection. Rolljw uses All pre-treatment. May need to do something about it.
+         if (rolljw==0) tsel = (tvar:==tv0 :| tvar:==tv1)		
 	else if (rolljw==1) tsel = (tvar:<=tv0 :| tvar:==tv1)	
 	 
 	return(tsel:*gsel)
@@ -377,9 +374,7 @@ real matrix csdid::nsample_select() {
 		if (notyet==0) 	gsel = (ogtvar[,1]:==0    :| ogtvar[,1]:==gv)
 		else {
 				gsel = (ogtvar[,1]:==0 :| ogtvar[,1]:>max((gv,tv)) :| ogtvar[,1]:==gv)
-			// :)
-			// Slighly different treatment for AS in R results. 	
-			
+			// Check asin R above. This is the same but with N (counting Obs)
 			if ((asinr==1) & (tv<gv)) {
 				   if (shortx==0) gsel = (ogvar:==0 :| ogvar:>tv0           :| ogvar:==gv)
 			   else               gsel = (ogvar:==0 :| ogvar:>tv1           :| ogvar:==gv)
@@ -476,7 +471,10 @@ void csdid::csdid(){
 	} 
 	 
 	/// fixes missing in rifs
+    /// Next version will try to avoid this
 	fixrif()		
+    /// and will avoid having a copyu of weights.
+    /// This weights are simple to use.  Not affected by RW
 	_editmissing(frwt,0)
 	/// Extra clean up
 	frwt   = select(frwt , convar')
@@ -488,9 +486,10 @@ void csdid::csdid(){
 	
 	
 	/// cleaning all else
+    // TRT not needed
 	 ord=tvar=yvar=J(0,0,.)
 	/// One Risk. Missing data after drdid or else.
-	// if panel
+	// if panel. we keep one per
 	if (type_data==1) {
 		real matrix aux 
 

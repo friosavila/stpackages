@@ -1,4 +1,5 @@
-*! v1.03 csdid2_plot Allows for Anticpiation
+*! v1.1 csdid2_plot Better names when Date has formats
+* v1.03 csdid2_plot Allows for Anticpiation
 *  v1.02 csdid2_plot Fixes `'
 *  v1.01 csdid2_plot for csdid2 only
  
@@ -290,7 +291,7 @@ program csdid_plot_other
 end
 
 *program drop myencode
-program myencode
+program define myencode
 	syntax varname, gen(name) [format(string asis)]	
 	if "`=`varlist''"=="GAverage" {
 		local torep "GAverage"
