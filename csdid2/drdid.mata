@@ -839,8 +839,10 @@ void drdid::drimp2_rc(){
     w01 = wvar :* (tmt_trt:==1) :*ipw        
     w10 = wvar :* (tmt_trt:==2)       
     w11 = wvar :* (tmt_trt:==3)     
-    w1  = wvar :* trt                 
-
+    w1  = wvar :* trt                             
+       
+      xvar=xvar,J(nn,1,1)
+       
       real matrix y00,   y01,   y10,   y11,
                         ixx00, ixx01, ixx10, ixx11
                 
@@ -865,7 +867,7 @@ void drdid::drimp2_rc(){
     
     mn_y00=mean(y00,w1);mn_y01=mean(y01,w1)
     mn_y10=mean(y10,w1);mn_y11=mean(y11,w1)
-    csumx = colsum(x:*w1)'
+    csumx = colsum(xvar:*w1)'
     
     ifd00  = nw1*(w1:*(y00:-mn_y00):+ iff00 *csumx/nn) 
     ifd01  = nw1*(w1:*(y01:-mn_y01):+ iff01 *csumx/nn)
@@ -874,7 +876,8 @@ void drdid::drimp2_rc(){
     
     real scalar att_gt
     att_gt = mn_y11-mn_y10 - mn_y01+mn_y00
-    rif = (ifd11-ifd10)-(ifd01-ifd00)            
+      
+    rif = (ifd11-ifd10)-(ifd01-ifd00):+att_gt                
       
       }      
 }
