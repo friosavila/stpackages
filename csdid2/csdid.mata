@@ -452,7 +452,7 @@ void csdid::csdid(){
 		//drdid.id  =select(ivar,smsel)
 		//drdid.oid =select(oid ,smsel) 
 		drdid.id  =ivar[smsel,]
-		drdid.oid =index1[smsel,]
+		drdid.oid =oid[smsel,]
 		drdid.data_type   = type_data
 		drdid.method_type = type_est 
 		drdid.conv=1	
