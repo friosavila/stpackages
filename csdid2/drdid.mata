@@ -126,6 +126,7 @@ class drdid {
 }
 
 //# Regression models
+
 void drdid::init(){
       yvar=xvar=wvar=id=oid=trt=tmt=tmt_trt=J(0,0,.)
       xb=yhat=b=      psv=J(0,0,.)
@@ -385,9 +386,10 @@ real matrix drdid::select4(){
       
       return(s4way)        
 }
-*!!*
+
 // makes IDS for panel
 // This makes it easy to transfer things from one side to the other.
+
 void drdid::makeid(){
       real scalar i,j
       real matrix id2
