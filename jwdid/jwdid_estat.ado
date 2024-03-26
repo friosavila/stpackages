@@ -75,7 +75,7 @@ program orest
 	}
 	else {
 		gen byte `selvar'=0
-		replace  `selvar'=1 if `orestriction'
+		qui:replace  `selvar'=1 if `orestriction'
 	}
 end 
 
