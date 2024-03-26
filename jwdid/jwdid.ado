@@ -76,11 +76,11 @@ program jwdid, eclass
 		exit
 	}
 	
-	syntax varlist( fv ts) [if] [in] [pw iw aw], [ * Ivar(varname)  cluster(varlist) ] ///
+	syntax varlist( fv ts) [if] [in] [pw iw aw],  [  Ivar(varname)  cluster(varlist) ] ///
 								  [Tvar(varname) time(varname)   fevar(varlist fv ts)] /// fevar for other Fixed effects Valid for reghdfe and pmlhdfe
 								  [Gvar(varname) trtvar(varname) trgvar(varname)] ///
 								  [never group method(string asis) corr  ] ///
-								  [hettype(string)]
+								  [hettype(string) * ]    ///
 								  [exogvar(str asis) ]  /// Variables not to be interacted with Gvar Tvar Treatment
                                   [xtvar(str asis) ]  /// Variables interacted with  Tvar 
                                   [xgvar(str asis) ]  // Variables interacted with Gvar 
