@@ -1,4 +1,5 @@
-*!v1.52 Minor Bug. No coeff if not existent
+*!v1.6  FEVAR: Allows Interactions
+* v1.52 Minor Bug. No coeff if not existent
 * v1.51 Addressed Bug when there is no never treated (but using never)
 * v1.5  Multiple Methods plus extra
 * some options not yet documented
@@ -75,13 +76,13 @@ program jwdid, eclass
 		exit
 	}
 	
-	syntax varlist( fv ts) [if] [in] [pw iw aw], [Ivar(varname) cluster(varlist) ] ///
-								  [Tvar(varname) time(varname) fevar(varlist)] /// fevar for other Fixed effects Valid for reghdfe and pmlhdfe
+	syntax varlist( fv ts) [if] [in] [pw iw aw], [Ivar(varname)  cluster(varlist) ] ///
+								  [Tvar(varname) time(varname)   fevar(varlist fv ts)] /// fevar for other Fixed effects Valid for reghdfe and pmlhdfe
 								  [Gvar(varname) trtvar(varname) trgvar(varname)] ///
 								  [never group method(string asis) corr  ] ///
 								  [exogvar(str asis) ]  /// Variables not to be interacted with Gvar Tvar Treatment
                                   [xtvar(str asis) ]  /// Variables interacted with  Tvar 
-                                  [xgvar(str asis) ]  // Variables interacted with Gvar 
+                                  [xgvar(str asis) * ]  // Variables interacted with Gvar 
 						
 	// For Gravity
 	// trendvar(varlist) trendt trendg trendij 
