@@ -1,4 +1,5 @@
-*!v1.6  FEVAR: Allows Interactions
+*!v1.65 Adds restrictions to Heterogeneity of Treatment Effect time / cohort
+* v1.6  FEVAR: Allows Interactions
 * v1.52 Minor Bug. No coeff if not existent
 * v1.51 Addressed Bug when there is no never treated (but using never)
 * v1.5  Multiple Methods plus extra
@@ -96,7 +97,7 @@ program jwdid, eclass
 
 	if "`hettype'"=="" local hettype timecohort
 
-	if !inlist("`hettype'","time","cohort") {
+	if !inlist("`hettype'","time","cohort","timecohort") {
 		display in red "hettype must be time, cohort, or timecohort"
 		error 198
 	}
@@ -187,10 +188,12 @@ program jwdid, eclass
 	** Center Covariates
 	if "`weight'"!="" local wgt aw
 	if "`x'"!="" {
+	// May need to add options for covariate heterogeneity	
 			capture drop _x_*
 			qui:hdfe `y' `x' if `touse'	[`wgt'`exp'], abs(`gvar') 	keepsingletons  gen(_x_)
 			capture drop _x_`y'
 			local xxvar _x_*
+ 	
 	}
 	***
 	mata: st_view(xs1 =.,.,"`gvar'","`touse'")
@@ -203,7 +206,7 @@ program jwdid, eclass
 	*****************************************************
 	*****************************************************
 	// If Hettype Full
-	if "hettype"=="timecohort" {
+	if "`hettype'"=="timecohort" {
 **********************************************************************************************************
 		foreach i of local glist {
 			foreach j of local tlist {
@@ -237,7 +240,7 @@ program jwdid, eclass
 		}
 **********************************************************************************************************
 	}
-	else if "hettype"=="time" {
+	else if "`hettype'"=="time" {
 **********************************************************************************************************
 	qui: capture drop __post__
 	qui: gen byte __post__ = 0 if `touse'
@@ -277,7 +280,7 @@ program jwdid, eclass
 		
 **********************************************************************************************************		
 	}
-	else if "hettype"=="cohort" {
+	else if "`hettype'"=="cohort" {
 **********************************************************************************************************
 	qui: capture drop __post__
 	qui: gen byte __post__ = 0 if `touse'
@@ -286,7 +289,7 @@ program jwdid, eclass
 	qui: label define __post__ 0 "Base" 1 "Pre-Trt" 2 "Post-Trt", modify
 	qui: label values __post__ __post__
 		foreach i of local glist {
-			foreach j of 1 2 {
+			foreach j in 1 2 {
 				qui:count if `i'==`gvar' & `j'==__post__ & `touse'
 				if `r(N)'>0 {
 					if "`never'"!="" {
@@ -300,7 +303,7 @@ program jwdid, eclass
 						}
 						
 					}
-					else if `i'==2 {
+					else if `j'==2 {
 
 						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.__post__ 							  
 						local xvar2 `xvar2'          i`i'.`gvar'#i`j'.__post__ 
@@ -389,6 +392,7 @@ program jwdid, eclass
 
 	ereturn local cmdline jwdid `0'
 	ereturn local scmd `scmd'
+	ereturn local hettype `hettype'
 	ereturn local estat_cmd jwdid_estat
 	if "`never'"!="" ereturn local type  never
 	else 			 ereturn local type  notyet
