@@ -71,7 +71,7 @@ program jwdid, eclass
 			jwdid_example
 		}
 		else {
-			if "e(cmd)"=="jwdid" ereturn display
+			if "`e(cmd)'"=="jwdid" ereturn display
 			else display "Last estimation not found"
 		}
 		exit
@@ -85,7 +85,7 @@ program jwdid, eclass
 								  [exogvar(str asis) ]  /// Variables not to be interacted with Gvar Tvar Treatment
                                   [xtvar(str asis) ]  /// Variables interacted with  Tvar 
                                   [xgvar(str asis) ]  /// Variables interacted with Gvar 
-								  [diff(str asis) ]
+								  [diff(str) ]
 						
 	// For Gravity
 	// trendvar(varlist) trendt trendg trendij 
