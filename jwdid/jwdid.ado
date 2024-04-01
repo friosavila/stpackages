@@ -84,7 +84,8 @@ program jwdid, eclass
 								  [hettype(string) * ]    ///
 								  [exogvar(str asis) ]  /// Variables not to be interacted with Gvar Tvar Treatment
                                   [xtvar(str asis) ]  /// Variables interacted with  Tvar 
-                                  [xgvar(str asis) ]  // Variables interacted with Gvar 
+                                  [xgvar(str asis) ]  /// Variables interacted with Gvar 
+								  [diff(str asis) ]
 						
 	// For Gravity
 	// trendvar(varlist) trendt trendg trendij 
@@ -187,14 +188,17 @@ program jwdid, eclass
 	
 	** Center Covariates
 	if "`weight'"!="" local wgt aw
-	if "`x'"!="" {
-	// May need to add options for covariate heterogeneity	
-			capture drop _x_*
-			qui:hdfe `y' `x' if `touse'	[`wgt'`exp'], abs(`gvar') 	keepsingletons  gen(_x_)
-			capture drop _x_`y'
-			local xxvar _x_*
- 	
+	if "`diff'"=="" {
+		if "`x'"!="" {
+		// May need to add options for covariate heterogeneity	
+				capture drop _x_*
+				qui:hdfe `y' `x' if `touse'	[`wgt'`exp'], abs(`gvar') 	keepsingletons  gen(_x_)
+				capture drop _x_`y'
+				local xxvar _x_*
+		
+		}
 	}
+	else local xxvar `x'
 	***
 	mata: st_view(xs1 =.,.,"`gvar'","`touse'")
 	mata: st_view(xs2 =.,.,"`tvar'","`touse'")
@@ -332,6 +336,8 @@ program jwdid, eclass
         local cj = `cj'+1
         if `cj'>1 local otxvar `otxvar' i`j'.`tvar'#c.(`x' `xtvar')
 	}
+
+	
  	*display in w "t:`otxvar'"
 	*display in w "g:`xvar'"
 	** Cluster level
@@ -375,7 +381,7 @@ program jwdid, eclass
 		if "`ivar'"!="" {
 			qui:xtset `ivar' `tvar'
 			mata:is_balanced("`ivar' `tvar'","`touse'")	
-			if `ibal'==0 & "`corr'"!=""  {
+			if   "`corr'"!=""  {
 					** Correction 
 					qui:myhdmean `xvar2'  i.`tvar' if `touse'	[`wgt'`exp'] , prefix(_z_) keepsingletons abs(`ivar')
 					local xcorr  `r(vlist)'				
