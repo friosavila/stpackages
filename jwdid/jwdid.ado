@@ -1,4 +1,6 @@
-*!v1.52 Minor Bug. No coeff if not existent
+*!v1.65 Adds restrictions to Heterogeneity of Treatment Effect time / cohort
+* v1.6  FEVAR: Allows Interactions
+* v1.52 Minor Bug. No coeff if not existent
 * v1.51 Addressed Bug when there is no never treated (but using never)
 * v1.5  Multiple Methods plus extra
 * some options not yet documented
@@ -69,19 +71,21 @@ program jwdid, eclass
 			jwdid_example
 		}
 		else {
-			if "e(cmd)"=="jwdid" ereturn display
+			if "`e(cmd)'"=="jwdid" ereturn display
 			else display "Last estimation not found"
 		}
 		exit
 	}
 	
-	syntax varlist( fv ts) [if] [in] [pw iw aw], [Ivar(varname) cluster(varlist) ] ///
-								  [Tvar(varname) time(varname) fevar(varlist)] /// fevar for other Fixed effects Valid for reghdfe and pmlhdfe
+	syntax varlist( fv ts) [if] [in] [pw iw aw],  [  Ivar(varname)  cluster(varlist) ] ///
+								  [Tvar(varname) time(varname)   fevar(varlist fv ts)] /// fevar for other Fixed effects Valid for reghdfe and pmlhdfe
 								  [Gvar(varname) trtvar(varname) trgvar(varname)] ///
 								  [never group method(string asis) corr  ] ///
+								  [hettype(string) * ]    ///
 								  [exogvar(str asis) ]  /// Variables not to be interacted with Gvar Tvar Treatment
                                   [xtvar(str asis) ]  /// Variables interacted with  Tvar 
-                                  [xgvar(str asis) ]  // Variables interacted with Gvar 
+                                  [xgvar(str asis) ]  /// Variables interacted with Gvar 
+								  [diff(str) ]
 						
 	// For Gravity
 	// trendvar(varlist) trendt trendg trendij 
@@ -90,6 +94,13 @@ program jwdid, eclass
 		local method `r(method)'
 		local method1 `r(method1)'
 		local method_option `r(options)'
+	}
+
+	if "`hettype'"=="" local hettype timecohort
+
+	if !inlist("`hettype'","time","cohort","timecohort") {
+		display in red "hettype must be time, cohort, or timecohort"
+		error 198
 	}
 
 	// Check installation
@@ -177,12 +188,17 @@ program jwdid, eclass
 	
 	** Center Covariates
 	if "`weight'"!="" local wgt aw
-	if "`x'"!="" {
-			capture drop _x_*
-			qui:hdfe `y' `x' if `touse'	[`wgt'`exp'], abs(`gvar') 	keepsingletons  gen(_x_)
-			capture drop _x_`y'
-			local xxvar _x_*
+	if "`diff'"=="" {
+		if "`x'"!="" {
+		// May need to add options for covariate heterogeneity	
+				capture drop _x_*
+				qui:hdfe `y' `x' if `touse'	[`wgt'`exp'], abs(`gvar') 	keepsingletons  gen(_x_)
+				capture drop _x_`y'
+				local xxvar _x_*
+		
+		}
 	}
+	else local xxvar `x'
 	***
 	mata: st_view(xs1 =.,.,"`gvar'","`touse'")
 	mata: st_view(xs2 =.,.,"`tvar'","`touse'")
@@ -191,38 +207,125 @@ program jwdid, eclass
 	mata: gap=min((xs[2..rows(xs),1]:-xs[1..rows(xs)-1,1]))
 	mata: st_local("gap",strofreal(gap))
 	mata: mata drop xs gap xs1 xs2
-	*** dropping newv
-	**
-	foreach i of local glist {
-		foreach j of local tlist {
-			qui:count if `i'==`gvar' & `j'==`tvar' & `touse'
-			if `r(N)'>0 {
-				if "`never'"!="" {
-					if (`i'-`gap')!=`j' {
-					
-					local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar' 							  
-					local xvar2 `xvar2'          i`i'.`gvar'#i`j'.`tvar' 
-					
-					if "`x'"!="" {
-						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
-						local xvar3 `xvar3'          i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
+	*****************************************************
+	*****************************************************
+	// If Hettype Full
+	if "`hettype'"=="timecohort" {
+**********************************************************************************************************
+		foreach i of local glist {
+			foreach j of local tlist {
+				qui:count if `i'==`gvar' & `j'==`tvar' & `touse'
+				if `r(N)'>0 {
+					if "`never'"!="" {
+						if (`i'-`gap')!=`j' {
+						
+						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar' 							  
+						local xvar2 `xvar2'          i`i'.`gvar'#i`j'.`tvar' 
+						
+						if "`x'"!="" {
+							local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
+							local xvar3 `xvar3'          i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
+							}
 						}
 					}
-				}
-				else if `j'>=`i' {
+					else if `j'>=`i' {
 
-					local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar' 							  
-					local xvar2 `xvar2' i`i'.`gvar'#i`j'.`tvar' 
-					
-					if "`x'"!="" {
-						local xvar  `xvar'  c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
-						local xvar3 `xvar3'          i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
+						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar' 							  
+						local xvar2 `xvar2' i`i'.`gvar'#i`j'.`tvar' 
+						
+						if "`x'"!="" {
+							local xvar  `xvar'  c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
+							local xvar3 `xvar3'          i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
+						}
+
 					}
-
 				}
 			}
 		}
+**********************************************************************************************************
 	}
+	else if "`hettype'"=="time" {
+**********************************************************************************************************
+	qui: capture drop __post__
+	qui: gen byte __post__ = 0 if `touse'
+	qui: replace  __post__ = 1 if `tvar'<(`gvar'-`gap') & `gvar'>0
+	qui: replace  __post__ = 2 if `tvar'>=`gvar'        & `gvar'>0
+	qui: label define __post__ 0 "Base" 1 "Pre-Trt" 2 "Post-Trt", modify
+	qui: label values __post__ __post__
+		foreach i in 1 2 {
+			foreach j of local tlist {
+				qui:count if `i'==__post__ & `j'==`tvar' & `touse'
+				if `r(N)'>0 {
+					if "`never'"!="" {
+											
+						local xvar `xvar'   c.__tr__#i`i'.__post__#i`j'.`tvar' 							  
+						local xvar2 `xvar2'          i`i'.__post__#i`j'.`tvar' 
+						
+						if "`x'"!="" {
+							local xvar `xvar'   c.__tr__#i`i'.__post__#i`j'.`tvar'#c.(`xxvar') 
+							local xvar3 `xvar3'          i`i'.__post__#i`j'.`tvar'#c.(`xxvar')  
+						}
+						
+					}
+					else if `i'==2 {
+
+						local xvar `xvar'   c.__tr__#i`i'.__post__#i`j'.`tvar' 							  
+						local xvar2 `xvar2'          i`i'.__post__#i`j'.`tvar' 
+						
+						if "`x'"!="" {
+							local xvar  `xvar'  c.__tr__#i`i'.__post__#i`j'.`tvar'#c.(`xxvar') 
+							local xvar3 `xvar3'          i`i'.__post__#i`j'.`tvar'#c.(`xxvar')  
+						}
+
+					}
+				}
+			}
+		}
+		
+**********************************************************************************************************		
+	}
+	else if "`hettype'"=="cohort" {
+**********************************************************************************************************
+	qui: capture drop __post__
+	qui: gen byte __post__ = 0 if `touse'
+	qui: replace  __post__ = 1 if `tvar'<(`gvar'-`gap') & `gvar'>0
+	qui: replace  __post__ = 2 if `tvar'>=`gvar'        & `gvar'>0
+	qui: label define __post__ 0 "Base" 1 "Pre-Trt" 2 "Post-Trt", modify
+	qui: label values __post__ __post__
+		foreach i of local glist {
+			foreach j in 1 2 {
+				qui:count if `i'==`gvar' & `j'==__post__ & `touse'
+				if `r(N)'>0 {
+					if "`never'"!="" {
+											
+						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.__post__ 							  
+						local xvar2 `xvar2'          i`i'.`gvar'#i`j'.__post__
+						
+						if "`x'"!="" {
+							local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.__post__#c.(`xxvar') 
+							local xvar3 `xvar3'          i`i'.`gvar'#i`j'.__post__#c.(`xxvar')  
+						}
+						
+					}
+					else if `j'==2 {
+
+						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.__post__ 							  
+						local xvar2 `xvar2'          i`i'.`gvar'#i`j'.__post__ 
+						
+						if "`x'"!="" {
+							local xvar  `xvar'  c.__tr__#i`i'.`gvar'#i`j'.__post__#c.(`xxvar') 
+							local xvar3 `xvar3'          i`i'.`gvar'#i`j'.__post__#c.(`xxvar')  
+						}
+
+					}
+				}
+			}
+		}
+		
+**********************************************************************************************************	
+	}
+	
+
 	** for xs
 	
 	foreach i of local glist {
@@ -233,6 +336,8 @@ program jwdid, eclass
         local cj = `cj'+1
         if `cj'>1 local otxvar `otxvar' i`j'.`tvar'#c.(`x' `xtvar')
 	}
+
+	
  	*display in w "t:`otxvar'"
 	*display in w "g:`xvar'"
 	** Cluster level
@@ -276,7 +381,7 @@ program jwdid, eclass
 		if "`ivar'"!="" {
 			qui:xtset `ivar' `tvar'
 			mata:is_balanced("`ivar' `tvar'","`touse'")	
-			if `ibal'==0 & "`corr'"!=""  {
+			if   "`corr'"!=""  {
 					** Correction 
 					qui:myhdmean `xvar2'  i.`tvar' if `touse'	[`wgt'`exp'] , prefix(_z_) keepsingletons abs(`ivar')
 					local xcorr  `r(vlist)'				
@@ -293,6 +398,7 @@ program jwdid, eclass
 
 	ereturn local cmdline jwdid `0'
 	ereturn local scmd `scmd'
+	ereturn local hettype `hettype'
 	ereturn local estat_cmd jwdid_estat
 	if "`never'"!="" ereturn local type  never
 	else 			 ereturn local type  notyet
