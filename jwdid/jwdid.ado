@@ -1,4 +1,4 @@
-** Need to allow for HET event time and cohort
+*!v1.66 ADS EVENT TO HET
 *!v1.65 Adds restrictions to Heterogeneity of Treatment Effect time / cohort
 * v1.6  FEVAR: Allows Interactions
 * v1.52 Minor Bug. No coeff if not existent
@@ -99,7 +99,7 @@ program jwdid, eclass
 
 	if "`hettype'"=="" local hettype timecohort
 
-	if !inlist("`hettype'","time","cohort","timecohort") {
+	if !inlist("`hettype'","time","cohort","timecohort","event") {
 		display in red "hettype must be time, cohort, or timecohort"
 		error 198
 	}
@@ -325,7 +325,53 @@ program jwdid, eclass
 		
 **********************************************************************************************************	
 	}
+	else if "`hettype'"=="event" {
+**********************************************************************************************************
+	qui: capture drop __evnt__
+	qui: gen byte __evnt__ = (`tvar'-`gvar')*(`gvar'>0) -`gap'*(`gvar'==0) if `touse'
 	
+        qui: sum __evnt__ if `touse', meanonly
+        local cev = 1-`r(min)'
+        qui: replace __evnt__ = __evnt__+(`cev')
+        local gpevent = -`gap'
+    
+    qui:levelsof __evnt__ if `touse', local(elist)
+    if "`never'"=="" qui:levelsof __evnt__ if `touse' & __evnt__>-1, local(elist)
+ 
+	** Create __event__ and label it
+	** use __evnt__ to avoid conflict with other variables
+	foreach i of local elist {
+		local ccev = `i'-`cev'
+		  if (`ccev')< 0  label define __evnt__ `i' "t`ccev'" , modify
+		else if (`i'+`cev')> 0  label define __evnt__ `i' "t+`ccev'", modify
+		else if (`i'+`cev')==0  label define __evnt__ `i' "t+0"     , modify
+	}
+	label values __evnt__ __evnt__
+	foreach i of local elist {
+		local ccev = `i'-`cev'
+		qui:count if `i'==__evnt__ & `touse'
+			if `r(N)'>0 {
+				if "`never'"=="" & (`ccev'>-1) {	
+					local xvar `xvar'   c.__tr__#i`i'.__evnt__
+					local xvar2 `xvar2'          i`i'.__evnt__						
+					if "`x'"!="" {
+						local xvar `xvar'   c.__tr__#i`i'.__evnt__#c.(`xxvar') 
+						local xvar3 `xvar3'          i`i'.__evnt__#c.(`xxvar')  
+					}
+				}
+				if "`never'"!="" & `ccev'!=(-`gap') {	
+					local xvar `xvar'   c.__tr__#i`i'.__evnt__
+					local xvar2 `xvar2'          i`i'.__evnt__						
+					if "`x'"!="" {
+						local xvar `xvar'   c.__tr__#i`i'.__evnt__#c.(`xxvar') 
+						local xvar3 `xvar3'          i`i'.__evnt__#c.(`xxvar')  
+					}
+				}
+			}
+		}
+		
+**********************************************************************************************************	
+	}	
 
 	** for xs
 	
@@ -548,3 +594,11 @@ program _gjwgvar, sortpreserve
 	}
 	label var `varlist' "Group Variable based on `exp'"
 end
+
+*** Problem.
+/*
+What to do if DIF(1) c.x does give you a different result from dif() c.dx
+So far Cohort works well, because DIFF is based on cohort
+We need to figure something similar for the others. Perhaps it would work 
+if DIFF depends on the Constrained variable
+*/
