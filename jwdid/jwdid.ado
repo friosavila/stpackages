@@ -1,3 +1,4 @@
+** Need to allow for HET event time and cohort
 *!v1.65 Adds restrictions to Heterogeneity of Treatment Effect time / cohort
 * v1.6  FEVAR: Allows Interactions
 * v1.52 Minor Bug. No coeff if not existent
