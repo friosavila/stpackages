@@ -170,8 +170,8 @@ Y_{i,t} &amp;= \alpha +  \sum_{g \in G} \sum_{t=t_0}^{g-1} \theta^{pre}_{g,t} D_
 <p>An advanced version of this option is the inclusion of high order fixed effects (and interactions with fixed effects) that are different from the individual and time fixed effects. It is possible to request the inclusion of those types of fixed effects using the option <code>fevar()</code>, which is only valid if one is using the default estimator method <code>reghdfe</code> or <code>ppmlhdfe</code>. In both cases, the additional fixed effects (or interactions) are included in the estimation of the model without further interactions.</p>
 </section>
 </section>
-<section id="post-estimation-aggregated-treatment-effects" class="level2">
-<h2 class="anchored" data-anchor-id="post-estimation-aggregated-treatment-effects">Post estimation: Aggregated treatment effects</h2>
+<section id="sec-agg" class="level2">
+<h2 class="anchored" data-anchor-id="sec-agg">Post estimation: Aggregated treatment effects</h2>
 <p>After the estimation of the model, under the default options, one can use the coefficients <span class="math inline">\(\theta^{post}_{g,t}\)</span> as direct estimates of the group and time specific average tretment effects on the treated. However, one may also be interested in estimating aggregated ATTs for the overall data, across groups or periods, or dynamic effects. Furthermore, when the underlying method is a non-linear model, these coefficients cannot be directly interpreted as the average treatment effect on the outcome, but only on the latent variable.</p>
 <p><code>jwdid</code> comes along with the post estimation command <code>jwdid_estat</code> that can be used for that purpose. Internally, it uses the <code>margins</code> command to identify average treatment effects under the following algorithm:</p>
 <ol type="1">
@@ -180,10 +180,93 @@ Y_{i,t} &amp;= \alpha +  \sum_{g \in G} \sum_{t=t_0}^{g-1} \theta^{pre}_{g,t} D_
 </ol>
 <p>In this case, the predicted Average Treatment Effect on the Treated for observation <span class="math inline">\(i\)</span> is given by:</p>
 <p><span class="math display">\[\widehat{ATT}_i = \hat Y(obs) - \hat Y(0)\]</span></p>
-<p>This is zero for observations that were never treated, and nonzero for the treated observations.</p>
+<p>This is zero for observations that were never treated, and nonzero for the treated-post treatment observations.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
 <p>From here, any aggregated average treatment effects can be calculated as follows:</p>
-<p><span class="math display">\[ATT_r =  \frac{ \sum_i^N\widehat{ATT}_i \times w_i \times R_{i,t}}{ \sum_i^N  w_i \times R_{i,t}}  
+<p><span class="math display">\[AGGTE_r =  \frac{ \sum_i^N\widehat{ATT}_i \times w_{i,t} \times R_{i,t}}{ \sum_i^N  w_{i,t} \times R_{i,t}}  
 \]</span></p>
+<p>where <span class="math inline">\(R_{i,t}\)</span> takes the value of one whenever observation <span class="math inline">\(i\)</span> fullfills the required conditions, and <span class="math inline">\(w_{i,t}\)</span> is the weight of the observation <span class="math inline">\(i\)</span> at time <span class="math inline">\(t\)</span> used in for the estimation model. <a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>. <span class="math inline">\(AGGTE\)</span> is the aggregated average treatment effect on the treated given the conditions <span class="math inline">\(R\)</span>.</p>
+<p>In general, there are three types of aggregations that are implemented in the <code>jwdid_estat/estat</code> command:</p>
+<ol type="1">
+<li><code>estat simple</code>: This option calculates the average treatment effect on the treated for all observations that were treated at some point in time. The condition <span class="math inline">\(R\)</span> is defined as:</li>
+</ol>
+<p><span class="math display">\[\begin{aligned}
+R_{i,t} &amp;= 1 \text{ if } t \geq g \text{ for observation } i \in g \\
+R_{i,t} &amp;= 0 \text{ otherwise}
+\end{aligned}
+\]</span></p>
+<ol start="2" type="1">
+<li><code>estat group</code>: This option calculates the average treatment effect for observations that were treated at time <span class="math inline">\(g\)</span>. The condition <span class="math inline">\(R\)</span> is defined as:</li>
+</ol>
+<p><span class="math display">\[\begin{aligned}
+R_{i,t} &amp;= 1 \text{ if } t \geq g_c \text{ for observation } i \\
+R_{i,t} &amp;= 0 \text{ otherwise}
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(g_c\)</span> is a particular group/cohort of interest. <code>estat group</code> estimates this for all groups <span class="math inline">\(g\)</span> in <span class="math inline">\(G\)</span>.</p>
+<ol start="3" type="1">
+<li><code>estat time</code>: This option calculates the average treatment effect at time <span class="math inline">\(t\)</span> for all observations that were effectively treated at that point. The condition <span class="math inline">\(R\)</span> is defined as:</li>
+</ol>
+<p><span class="math display">\[\begin{aligned}
+R_{i,t} &amp;= 1 \text{ if } t_c \geq g \text{ for observation } i \\
+R_{i,t} &amp;= 0 \text{ otherwise}
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(t_c\)</span> is a particular time of interest. <code>estat time</code> estimates this for all times <span class="math inline">\(t\)</span> in <span class="math inline">\(T\)</span> that has at least one unit that was treated.</p>
+<ol start="4" type="1">
+<li><code>estat event</code>: This option calculates dynamic treatment effects, also known as event studies, using the period before treatment as the reference. When the condition `never’ is used, this approach can be used to estimate pre-treatment ATT’s, which could be used for testing PTA. The condition <span class="math inline">\(R\)</span> is defined as:</li>
+</ol>
+<p><span class="math display">\[\begin{aligned}
+R_{i,t} &amp;= 1 \text{ if } t-g = e_c \text{ \&amp; } e \neq -1 \text{ for observation } i \\
+R_{i,t} &amp;= 0 \text{ otherwise}
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(e_c\)</span> is a particular event of interest. In contrast with the previous aggregations, if option <code>never</code> was used for estimation, one could also add the option <code>pretrend</code> to run a simple PTA test with the following null hypothesis:</p>
+<p><span class="math display">\[H_0: AGGTE_e = 0 \text{ for all } e &lt; -1 \text{ vs }H_1: AGGTE_e \neq 0 \text{ for some } e &lt; -1\]</span></p>
+<p>Failure to reject this hypothesis is evidence in support of parallel trends assumption. Otherwise, one can use <code>test</code> command to test for the significance of specific pre-treatment ATT’s.<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a></p>
+</section>
+<section id="post-estimation-other-options" class="level2">
+<h2 class="anchored" data-anchor-id="post-estimation-other-options">Post estimation: Other options</h2>
+<p>The <code>jwdid_estat</code>/<code>estat</code> command allows for further options that may be of interest for the user. In this section we provide a brief description of those options:</p>
+<section id="weights" class="level3">
+<h3 class="anchored" data-anchor-id="weights">Weights</h3>
+<p>The default option for the estimation of the aggregated ATTs is to use the weights <span class="math inline">\(w_{i,t}\)</span> that were used in the estimation of the model. However, if the user wants to use different weights, it is possible to do using the following syntax:</p>
+<p><code>estat [aggregation] [pw = weight]</code></p>
+</section>
+<section id="standard-errors" class="level3">
+<h3 class="anchored" data-anchor-id="standard-errors">Standard Errors</h3>
+<p><span class="citation" data-cites="wooldridge2022">@wooldridge2022</span> suggests than when one estimates standard errors for the aggregated ATTs, one should use <code>vce(unconditional)</code> option in <code>Stata</code>, to allow for uncertainty in the explanatory variables. <code>jwdid_estat</code>/<code>estat</code> does not use this approach by default, because it requires that the underlying command is able to produce Scores for the estimated model. For example, if the model was estimated using <code>method(regress)</code>, the Scores will be available, and unconditional Standard errors for the aggregated ATTs can be estimated as follows:</p>
+<p><code>estat [aggregation], [vce(unconditional)]</code></p>
+<p>This is not possible if one uses the default methodology <code>reghdfe</code>.</p>
+</section>
+<section id="other-aggregation-restrictions" class="level3">
+<h3 class="anchored" data-anchor-id="other-aggregation-restrictions">Other Aggregation restrictions</h3>
+<p>As described in <a href="#sec-agg" class="quarto-xref">Section&nbsp;2</a>, the default aggregation considers all observations treated observations, impossing restrictions only in terms of time, group or event dimensions. However, one may be interested in imposing further restrictions that could leverage on the use of covariates in the model specification. For example, say that one estimates a DID model with covariates using the following syntax:</p>
+<p><code>jwdid y i.dx, ivar(i) tvar(t) gvar(g) never</code></p>
+<p>As usual, one could request the estimation of the aggregated ATTs for the whole sample as follows:</p>
+<p><code>estat [aggregation]</code></p>
+<p>However, one would also be able to make the same estimation imposing the added restriction that the covariate <code>dx</code> is zero or one, using the option <code>orestriction()</code>:</p>
+<p><code>estat [aggregation], orestriction(dx==0)</code></p>
+<p><code>estat [aggregation], orestriction(dx==1)</code></p>
+<p>The expression inside the parenthesis should be a valid Stata expression that is used when calculating the aggregated ATTs.</p>
+</section>
+<section id="storing-and-saving-results" class="level3">
+<h3 class="anchored" data-anchor-id="storing-and-saving-results">Storing, and saving results</h3>
+<p>After aggregate effects have been estimated, the user may want to store the results for further analysis or reporting. Because <code>estat</code> uses <code>margins</code> in the background, the default option is to store the results in memory as <code>r()</code> elements. Alternatively, <code>jwdid_estat</code>/<code>estat</code> allows the user to store the output of the command using three different options:</p>
+<ol type="1">
+<li><code>estat [aggregation], post</code>: As with margins, option <code>post</code> will “post” the results of the command to be the current estimations in memory <code>e()</code>, which can be saved as usual for further analysis.</li>
+<li><code>estat [aggregation], estore(name)</code>: This option stores the results from the aggregation in memory as <code>name</code>. This is similar to using <code>estimation store name</code> after a regression command. The previously estimated results from <code>jwdid</code> are not overwritten.</li>
+<li><code>estat [aggregation], esave(filename)</code>: This option saves the results from the aggregation in a file <code>filename</code>, as a <code>ster</code> file, which can be used at a later point.</li>
+</ol>
+</section>
+<section id="plotting" class="level3">
+<h3 class="anchored" data-anchor-id="plotting">Plotting</h3>
+<p>After <strong>time</strong>, <strong>group</strong> or <strong>event</strong> aggregations are estimated, it is possible to request plotting those results using <code>estat plot</code>. The basic syntax is to type it after the aggregation command, with only minimal command specific options:</p>
+<ol type="1">
+<li><p><code>estat plot, style(style)</code>: The option <code>style</code> allows the user to select the style of the plot. The default is using a <code>rspike</code> style, but <code>rarea</code>, <code>rcap</code> and <code>rbar</code> are also available. See <code>help twoway</code> for more information on the styles.</p></li>
+<li><p><code>estat plot,  pstyle1(str) color1(str) pstyle2(str) color2(str) lwidth1(str) lwidth2(str) barwidth1(str) barwidth2(str)</code>: The options <code>pstyle#</code>, <code>color#</code>, <code>lwidth#</code> and <code>barwidth#</code> can be used to alter the color and style of the lines in the plot for the pre and post treatment periods. Only <code>event</code> aggregation allows for <code>#2</code> options.</p></li>
+<li><p><code>estat plot, twoway_options</code>: Most other <code>twoway</code> graph option can be used after the <code>estat plot</code> command.</p></li>
+</ol>
+</section>
 </section>
 
 
@@ -192,6 +275,9 @@ Y_{i,t} &amp;= \alpha +  \sum_{g \in G} \sum_{t=t_0}^{g-1} \theta^{pre}_{g,t} D_
 <ol>
 <li id="fn1"><p>Often, one can use group fixed effects instead of individual fixed effects, and would still obtain numerically identical results in the linear model case.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn2"><p> The correction implemented with <code>corr</code> is not useful to recover the coefficients from <code>ppmlhdfe</code> using <code>poisson</code> command <a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>The case of pre-treatment treated observations may be assumed to be zero if the <code>never</code> option is not used. When <code>never</code> is used, pre-treatment ATTs can be used for testing the parallel trends assumption.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>While this is the default option, <code>estat</code> command also allow you to provide other weights for aggregation<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>It should be noticed that this test is different from the test proposed by <span class="citation" data-cites="callaway2021">@callaway2021</span>, which is based on testing <em>all</em> group/time specific ATT’s, instead of the event aggregated ones.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main>
 <!-- /main column -->

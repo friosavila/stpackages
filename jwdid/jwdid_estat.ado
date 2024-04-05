@@ -80,7 +80,7 @@ program orest
 end 
 
 program define jwdid_simple, rclass
-		syntax [pw], [* post estore(str) esave(str) replace over(varname) ///
+		syntax [pw], [* post estore(str) esave(str asis) replace over(varname) ///
                     asis PLOT PLOT1(string asis) OREStriction(passthru) ///
                     window(numlist min=2 max=2)]
 		//tempvar aux
@@ -135,7 +135,7 @@ program define jwdid_simple, rclass
 		ereturn display
 		
 		if "`estore'"!="" est store `estore'
-		if "`esave'"!="" est save `estore', `replace'
+		if `"`esave'"'!="" est save "`esave'", `replace'
 		if "`post'"=="" qui:est restore `lastreg'
 		
 		return matrix table = `table'
@@ -146,7 +146,7 @@ program define jwdid_simple, rclass
 end
 
 program define jwdid_group, rclass
-		syntax [pw], [* post estore(str) esave(str) replace  OREStriction(string asis) asis PLOT PLOT1(string asis)]
+		syntax [pw], [* post estore(str) esave(str asis) replace  OREStriction(string asis) asis PLOT PLOT1(string asis)]
 		tempvar aux
 		qui:bysort `e(gvar)' `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
 		
@@ -192,7 +192,7 @@ program define jwdid_group, rclass
 		ereturn display
 		
 		if "`estore'"!="" est store `estore'
-		if "`esave'"!="" est save `estore', `replace'
+		if `"`esave'"'!="" est save "`esave'", `replace'
 		if "`post'"=="" qui:est restore `lastreg'
 		
 		return matrix table = `table'
@@ -204,7 +204,7 @@ program define jwdid_group, rclass
 end
 
 program define jwdid_calendar, rclass
-	syntax [pw], [* post estore(str) esave(str) replace  OREStriction(string asis) PLOT PLOT1(string asis)]
+	syntax [pw], [* post estore(str) esave(str asis) replace  OREStriction(string asis) PLOT PLOT1(string asis)]
 		capture drop __calendar__
 		tempvar aux
 		qui:bysort `e(gvar)' `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
@@ -250,7 +250,7 @@ program define jwdid_calendar, rclass
 		
 		
 		if "`estore'"!="" est store `estore'
-		if "`esave'"!="" est save `estore', `replace'
+		if `"`esave'"'!="" est save "`esave'", `replace'
 		if "`post'"=="" qui:est restore `lastreg'
 		
 		return matrix table = `table'
@@ -262,7 +262,7 @@ program define jwdid_calendar, rclass
 end
 
 program define jwdid_event, rclass
-	syntax [pw], [post estore(str) esave(str) replace  OREStriction(string asis) PLOT PLOT1(string asis) asis * pretrend ///
+	syntax [pw], [post estore(str) esave(str asis) replace  OREStriction(string asis) PLOT PLOT1(string asis) asis * pretrend ///
                     window(passthru)]
 		capture drop __event__
 		tempvar aux
@@ -358,7 +358,7 @@ program define jwdid_event, rclass
         }
         
 		if "`estore'"!="" est store `estore'
-		if "`esave'"!="" est save `estore', `replace'
+		if `"`esave'"'!="" est save "`esave'", `replace'
 		if "`post'"=="" qui:est restore `lastreg'
 		
 		return matrix table = `table'
