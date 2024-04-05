@@ -70,7 +70,7 @@ It should be noted that when estimating non-linear models with a large number of
 
 For the linear case with balanced data, using _group_ instead of _individual_ fixed effects provides numerically identical results. If panel is unbalanced the results will not be identical. In such cases, the option `corr` will create additional variables that address the difference. In the case of non-linear models, the best solution is to use _group_ fixed effects. However, if one is interested in poisson models, the alterantive to group fixed effects is to use `ppmlhdfe` (@correira2020).^[ The correction implemented with `corr` is not useful to recover the coefficients from `ppmlhdfe` using `poisson` command ] This is the state-of-the-art estimator for poisson models with fixed effects, and it is the recommended estimator for trade analysis.
 
-### Extensions: Covariates
+### Extensions: Covariates {#sec-cov}
 
 As described in @wooldridge, it is possible to include covariates in the model, by simply adding corrections that enable to easily identify the average treatment effect. However, following the literature on DID models, the implicit assumption is that covariates are time-invariant. `jwdid` does not impose any assumption on the covariates, but the user should be aware of the implications. 
 
@@ -78,23 +78,94 @@ In general, when covariates are considered, the model of interest is similar to 
 
 $$\begin{aligned}
 Y_{i,t} &= \alpha +  \sum_{g \in G} \sum_{t=t_0}^{g-1} \theta^{pre}_{g,t} D_{i,g,t}+
-\sum_{g \in G} \sum_{t=g}^{T} \theta^{post}_{g,t} D_{i,g,t} + \sum_{g \in G} \sum_{t=t_0}^{g-1} D_{i,g,t} x_{i}'\beta^{pre}_{g,t} + 
-\sum_{g \in G} \sum_{t=g}^{T} D_{i,g,t} x_{i}'\beta^{post}_{g,t} \\
-&+ x_{i}'\beta + \sum_{t=t_0}^{T} D_{i,t} x_{i}'\beta_t + 
+\sum_{g \in G} \sum_{t=g}^{T} \theta^{post}_{g,t} D_{i,g,t} + \sum_{g \in G} \sum_{t=t_0}^{g-1} D_{i,g,t} \tilde x_{i}'\beta^{pre}_{g,t} + 
+\sum_{g \in G} \sum_{t=g}^{T} D_{i,g,t} \tilde x_{i}'\beta^{post}_{g,t} \\
+&+ x_{i}'\beta + \sum_{t=t_0}^{T} D_{i,t} x_{i}'\beta_t + \sum_{g\in G} D_{i,g} x_{i}'\beta_g
 \xi_i + \xi_t + \varepsilon_{i,t}
 \end{aligned}
 $${#eq-e2}
 
-Where $D_{i,t}$ is a dummy variable that is equal to 1 if period is equal to $t$, and zero otherwise. This specification is used if `reghdfe` or `ppmlhdfe` are used to estimate the model. Otherwise, if group fixed effects are used, the model also includes an interaction between $x's$ and the group fixed effects Dummies.
+Where $D_{i,t}$ is a dummy variable that is equal to 1 if period is equal to $t$, and $D_{i,g}$ is a dummmy variable that is equal to 1 if the group membership is equal to $g$, and zero otherwise. $\tilde x_{i}$ are the within cohort and period demeaned variables. When using `reghdfe` or `ppmlhdfe` the term $\sum_{g\in G} D_{i,g} x_{i}'\beta_g$ is ommitted if all covariates are time constant. 
+
+Using $\tilde x$, default option, is not necessarity for the estimation of treatment effects. However, if one uses that specification, the parameters $\theta^{pre}_{g,t}$ and $\theta^{post}_{g,t}$ still identify the average treatment effect for group $g$ at time $t$. One could also use the untransformed covariates in @eq-e2, and still be able to obtained the same group/time specific treatment effects with the post estimation commands. 
 
 From the user persective, `jwdid` would simply need to be called as follows:
 
-`jwdid y x, ivar(i) tvar(t) gvar(g) never [options]`
+`jwdid y x, ivar(i) tvar(t) gvar(g) never [xasis]`
 
-Where `x` is the covariate of interest. 
+Where `x` are all covariates of interest. If one uses the option `xasis`, the command will use the covariates without demeaning them, which may save some computation time. 
 
-### Extensions: Treatment Heterogeneity
+### Extensions: Treatment Heterogeneity {#sec-het}
 
-As it may be aparent from @eq-e2, the number of estimated parameters can grow quickly with the number groups/cohorts, periods of analysis, and covariates, specially if we constrain the analysis to use only never-treated units as controls. This could lead to a large number of parameters to be estimated, increasing the computational burden of the estimation.
+As it may be aparent from @eq-e2, the number of estimated parameters can grow quickly with the number groups/cohorts, periods of analysis, and covariates. This could lead to increasing computational burden of the estimation. An alternative, which is already implemented via `xthdidregress` and `hdidregress` in Stata 18, is to estimate the model that reduces the heterogeneity of the treatment effects. Specifically, it allows treatment effects to vary across cohorts, across absolute time, or across relative time. 
+ 
+For the case without covariates, the specification of @eq-b2 can be modified to impose the heterogeneity restrictions as follows:
 
-An alternative, which is already implemented via `xthdidregress` and `hdidregress` in Stata 18, is to estimate the model that reduces the heterogeneity of the treatment effects. Specifically, it allows treatment effects to vary across cohorts, across absolute time, or across relative time. 
+Time heterogeneity:
+
+$$Y_{i,t} = \alpha +  \sum_{t=t_0}^T \theta^{pre}_{t} D_{i,t,pre} + \sum_{t=t_0}^T \theta^{post}_{t}  D_{i,t,post}+ \xi_i + \xi_t + \varepsilon_{i,t}
+$${#eq-ht1}
+
+Cohort heterogeneity:
+
+$$Y_{i,t} = \alpha +  \sum_{g\in G} \theta^{pre}_{g}  D_{i,g,pre}+ \sum_{g\in G} \theta^{post}_{g} D_{i,g,post} + \xi_i + \xi_t+\varepsilon_{i,t}
+$${#eq-ht2}
+
+Event (Relative Time) heterogeneity:
+
+$$Y_{i,t} = \alpha +  \sum_{e = E_{min}}^{-2} \theta_{e} D_{i,e}+ \sum_{e = 0}^{E_{max}} \theta_{e} D_{i,e} + \xi_i + \xi_t+\varepsilon_{i,t}
+$${#eq-ht3}
+
+Where $D_{i,t,pre}$ and $D_{i,t,post}$ are dummies that take the value of 1 if observation $i$, which is part of an eventually treated group, is not yet treated or is already treated at time $t$, respectively. $D_{i,g,pre}$ and $D_{i,g,post}$ are dummies that take the value of 1
+if observation $i$ belongs to group $g$ and is not yet treated or is already treated at time $t$, respectively. $D_{i,e}$ is a dummy that takes the value of 1 if observation $i$ is $e$ periods relative to when treatment started. $E_{min}$ and $E_{max}$ are the minimum and maximum event periods, possible. The _pre_ coefficients are only considered when the `never` option is used. 
+
+The `jwdid` command allows the user to specify each one of these restrictions using the `hettype()` option. 
+
+`jwdid y, ivar(i) tvar(t) gvar(g) hettype(option)`
+
+Where `option` can be `time`, `cohort`, or `event`. If no option is selected, the command will estimate the model described by @eq-b2 which is the equivalent to allowing for full Cohort-time heterogeneity.
+
+### Extensions: Other Options
+
+As described in @sec-cov, when covariates are considered in the model, the default option is to interact all covariates (or the demeaned transformations) with the same level of covariate heterogeneity. Some times, however, one may not be interested in estimating the same level of heterogeneity for all covariates. It may be possible, for example, to consider separate sets of covariates that could be interacted only with the time or the group dimensions. 
+
+Specifically, assume there are no variables we wish to consider for the treatment heterogeneity, but instead consider three sets of covariates: $x^{EX}$ or variables we wish to incorporate without further interactions, $x^{T}$ or variables that would be interacted with the Time variables only, and $x^{G}$ or variables that would be interacted with group indicators only. In this case the setup would be:
+
+$$\begin{aligned}
+Y_{i,t} &= \alpha +  \sum_{g \in G} \sum_{t=t_0}^{g-1} \theta^{pre}_{g,t} D_{i,g,t}+
+\sum_{g \in G} \sum_{t=g}^{T} \theta^{post}_{g,t} D_{i,g,t} \\
+&+ x'^{EX}_{i}\beta + \sum_{t=t_0}^{T} D_{i,t} x'^{T}_{i}\beta_t + \sum_{g\in G} D_{i,g} x'^{G}_{i}\beta_g
+\xi_i + \xi_t + \varepsilon_{i,t}
+\end{aligned}
+$${#eq-op1}
+
+This specification can be estimated using the following syntax:
+
+`jwdid y , ivar(i) tvar(t) gvar(g) never exogvar(x_ex) xtvar(x_t) xgvar(x_g)`
+
+If covariates are included after `y`, they would still be treated following the specification of @eq-e2, or following any of the heterogeneity restrictions described in @sec-het.
+
+An advanced version of this option is the inclusion of high order fixed effects (and interactions with fixed effects) that are different from the individual and time fixed effects. It is possible to request the inclusion of those types of fixed effects using the option `fevar()`, which is only valid if one is using the default estimator method `reghdfe` or `ppmlhdfe`. In both cases, the additional fixed effects (or interactions) are included in the estimation of the model without further interactions.
+
+## Post estimation: Aggregated treatment effects
+
+After the estimation of the model, under the default options, one can use the coefficients $\theta^{post}_{g,t}$ as direct estimates of the group and time specific average tretment effects on the treated. However, one may also be interested in estimating aggregated ATTs for the overall data, across groups or periods, or dynamic effects. Furthermore, when the underlying method is a non-linear model, these coefficients cannot be directly interpreted as the average treatment effect on the outcome, but only on the latent variable.
+
+`jwdid` comes along with the post estimation command `jwdid_estat` that can be used for that purpose. Internally, it uses the `margins` command to identify average treatment effects under the following algorithm:
+
+1. Using the model estimates, predict the outcome of interest for all observations given the observed covariates and fixed effects. Call this $\hat Y(obs)$ or predicted outcome under the observed covariates. 
+   The model prediction could be the linear prediction, or the predicted probability in the case of logit models, or the predicted count in the case of poisson models.
+2. Consider the specification @eq_e2, and assume that all $\theta^{post}_{g,t}$ (and $\theta^{pre}_{g,t}$ if `never` is used), as well as all $\beta^{post}$ and $\beta^{pre}$ are zero, and predict the outcome of interest. Call this $\hat Y(0)$ or predicted outcome under the counterfactual scenario of no treatment. 
+
+In this case, the predicted Average Treatment Effect on the Treated for observation $i$ is given by:
+
+$$\widehat{ATT}_i = \hat Y(obs) - \hat Y(0)$$
+
+This is zero for observations that were never treated, and  nonzero  for the treated observations. 
+
+From here, any aggregated average treatment effects can be calculated as follows:
+
+$$ATT_r =  \frac{ \sum_i^N\widehat{ATT}_i \times w_{i,t} \times R_{i,t}}{ \sum_i^N  w_{i,t} \times R_{i,t}}  
+$$
+
+where $R_{i,t}$ takes the value of one whenever observation $i$ is considered part of the  restriction, and $w_{i,t}$ is the weight of the observation $i$ at time $t$.

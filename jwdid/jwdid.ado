@@ -1,5 +1,6 @@
-*!v1.66 ADS EVENT TO HET
-*!v1.65 Adds restrictions to Heterogeneity of Treatment Effect time / cohort
+*!v1.7  Adds Event Hettype. Also allows to use Characteristics as is, or demean.
+* Further Panel Data Corrections
+* v1.65 Adds restrictions to Heterogeneity of Treatment Effect time / cohort
 * v1.6  FEVAR: Allows Interactions
 * v1.52 Minor Bug. No coeff if not existent
 * v1.51 Addressed Bug when there is no never treated (but using never)
@@ -83,10 +84,10 @@ program jwdid, eclass
 								  [Gvar(varname) trtvar(varname) trgvar(varname)] ///
 								  [never group method(string asis) corr  ] ///
 								  [hettype(string) * ]    ///
-								  [exogvar(str asis) ]  /// Variables not to be interacted with Gvar Tvar Treatment
-                                  [xtvar(str asis) ]  /// Variables interacted with  Tvar 
-                                  [xgvar(str asis) ]  /// Variables interacted with Gvar 
-								  [diff(str) ]
+								  [exogvar(varlist fv ts) ]  /// Variables not to be interacted with Gvar Tvar Treatment
+                                  [xtvar(varlist fv ts) ]  /// Variables interacted with  Tvar 
+                                  [xgvar(varlist fv ts) ]  /// Variables interacted with Gvar 
+								  [xasis ]
 						
 	// For Gravity
 	// trendvar(varlist) trendt trendg trendij 
@@ -187,20 +188,9 @@ program jwdid, eclass
 	sum `tvar' if `touse' , meanonly
 	qui:levels `tvar' if `touse' & `tvar'>=r(min), local(tlist)
 	
-	** Center Covariates
+	*** Center Covariates
 	if "`weight'"!="" local wgt aw
-	if "`diff'"=="" {
-		if "`x'"!="" {
-		// May need to add options for covariate heterogeneity	
-				capture drop _x_*
-				qui:hdfe `y' `x' if `touse'	[`wgt'`exp'], abs(`gvar') 	keepsingletons  gen(_x_)
-				capture drop _x_`y'
-				local xxvar _x_*
-		
-		}
-	}
-	else local xxvar `x'
-	***
+	*** Define the gap (across gvar tvar)
 	mata: st_view(xs1 =.,.,"`gvar'","`touse'")
 	mata: st_view(xs2 =.,.,"`tvar'","`touse'")
 	mata: xs = uniqrows((xs1\xs2))
@@ -208,6 +198,50 @@ program jwdid, eclass
 	mata: gap=min((xs[2..rows(xs),1]:-xs[1..rows(xs)-1,1]))
 	mata: st_local("gap",strofreal(gap))
 	mata: mata drop xs gap xs1 xs2
+
+** Define Toabs based on Het Type
+************************************
+	tempvar toabshere
+	if "`hettype'"=="timecohort"  qui:egen `toabshere'=group(`gvar' `tvar') if `touse'
+	if "`hettype'"=="cohort"      {
+		qui: capture drop __post__
+		qui: gen byte __post__ = 0 if `touse'
+		qui: replace  __post__ = 1 if `tvar'<(`gvar'-`gap') & `gvar'>0 &  `touse'
+		qui: replace  __post__ = 2 if `tvar'>=`gvar'        & `gvar'>0 &  `touse'
+		qui: label define __post__ 0 "Base" 1 "Pre-Trt" 2 "Post-Trt", modify
+		qui: label values __post__ __post__		
+		qui:egen `toabshere'=group(`gvar' __post__) if `touse'
+	}
+	if "`hettype'"=="time"        {
+		qui: capture drop __post__
+		qui: gen byte __post__ = 0 if `touse'
+		qui: replace  __post__ = 1 if `tvar'<(`gvar'-`gap') & `gvar'>0 &  `touse'
+		qui: replace  __post__ = 2 if `tvar'>=`gvar'        & `gvar'>0 &  `touse'
+		qui: label define __post__ 0 "Base" 1 "Pre-Trt" 2 "Post-Trt", modify
+		qui: label values __post__ __post__
+		qui:egen `toabshere'=group(`time' __post__ ) if `touse'
+	}
+	if "`hettype'"=="event"        {
+		qui: capture drop __evnt__
+		qui: gen byte __evnt__ = (`tvar'-`gvar')*(`gvar'>0) -`gap'*(`gvar'==0) if `touse'	
+        qui: sum __evnt__ if `touse', meanonly
+        local cev = 1-`r(min)'
+        qui: replace __evnt__ = __evnt__+(`cev')
+		qui:egen `toabshere'=group( __evnt__ ) if `touse'
+	}	 
+************************************
+** Two options: Either we Demean  data, or used actual data
+** Same Results		
+	if "`xasis'"=="" {
+		if "`x'"!="" {
+				capture drop _x_*
+				qui:hdfe `y' `x' if `touse'	[`wgt'`exp'], abs(`toabshere') 	keepsingletons  gen(_x_)
+				capture drop _x_`y'
+				local xxvar _x_*
+		}
+	}
+	else local xxvar `x'
+
 	*****************************************************
 	*****************************************************
 	// If Hettype Full
@@ -247,12 +281,6 @@ program jwdid, eclass
 	}
 	else if "`hettype'"=="time" {
 **********************************************************************************************************
-	qui: capture drop __post__
-	qui: gen byte __post__ = 0 if `touse'
-	qui: replace  __post__ = 1 if `tvar'<(`gvar'-`gap') & `gvar'>0
-	qui: replace  __post__ = 2 if `tvar'>=`gvar'        & `gvar'>0
-	qui: label define __post__ 0 "Base" 1 "Pre-Trt" 2 "Post-Trt", modify
-	qui: label values __post__ __post__
 		foreach i in 1 2 {
 			foreach j of local tlist {
 				qui:count if `i'==__post__ & `j'==`tvar' & `touse'
@@ -287,12 +315,6 @@ program jwdid, eclass
 	}
 	else if "`hettype'"=="cohort" {
 **********************************************************************************************************
-	qui: capture drop __post__
-	qui: gen byte __post__ = 0 if `touse'
-	qui: replace  __post__ = 1 if `tvar'<(`gvar'-`gap') & `gvar'>0
-	qui: replace  __post__ = 2 if `tvar'>=`gvar'        & `gvar'>0
-	qui: label define __post__ 0 "Base" 1 "Pre-Trt" 2 "Post-Trt", modify
-	qui: label values __post__ __post__
 		foreach i of local glist {
 			foreach j in 1 2 {
 				qui:count if `i'==`gvar' & `j'==__post__ & `touse'
@@ -327,16 +349,9 @@ program jwdid, eclass
 	}
 	else if "`hettype'"=="event" {
 **********************************************************************************************************
-	qui: capture drop __evnt__
-	qui: gen byte __evnt__ = (`tvar'-`gvar')*(`gvar'>0) -`gap'*(`gvar'==0) if `touse'
-	
-        qui: sum __evnt__ if `touse', meanonly
-        local cev = 1-`r(min)'
-        qui: replace __evnt__ = __evnt__+(`cev')
-        local gpevent = -`gap'
-    
+    local gpevent = -`gap'
     qui:levelsof __evnt__ if `touse', local(elist)
-    if "`never'"=="" qui:levelsof __evnt__ if `touse' & __evnt__>-1, local(elist)
+    if "`never'"=="" qui:levelsof __evnt__ if `touse' & __evnt__>-`gap', local(elist)
  
 	** Create __event__ and label it
 	** use __evnt__ to avoid conflict with other variables
@@ -373,13 +388,14 @@ program jwdid, eclass
 **********************************************************************************************************	
 	}	
 
-	** for xs
+	** for xs: Interaction with Glist and Tlist
 	
 	foreach i of local glist {
-		local ogxvar `ogxvar'           i`i'.`gvar'#c.(`x' `xgvar')
+		          local ogxvar `ogxvar' i`i'.`gvar'#c.(`x' `xgvar')
 	}
 	
 	foreach j of local tlist {
+		* To avoid Multicolinearity in Simple cases
         local cj = `cj'+1
         if `cj'>1 local otxvar `otxvar' i`j'.`tvar'#c.(`x' `xtvar')
 	}
@@ -397,8 +413,8 @@ program jwdid, eclass
 	
 	if "`method'"=="" {
 		if "`group'"=="" {
-			
-			reghdfe `y' `xvar'   `otxvar' 	`exogvar' ///
+			** ogxvar  will be excluded if they are fixed across time
+			reghdfe `y' `xvar' `ogxvar'  `otxvar' 	`exogvar' ///
 				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons
 			local scmd `e(cmdline)'		
 		}	
@@ -407,19 +423,19 @@ program jwdid, eclass
 				qui:xtset `ivar' `tvar'
 				mata:is_balanced("`ivar' `tvar'","`touse'")
 		 
-				if `ibal'==0 & "`corr'"!="" {
+				if "`corr'"!="" {
 					** Correction 
-					qui:myhdmean `xvar2' `xvar3' `otxvar' i.`tvar' if `touse'	[`wgt'`exp'] , prefix(_z_) keepsingletons abs(`ivar')
+					qui:myhdmean `xvar' `x' `ogxvar'  `otxvar' `exogvar'  i.`tvar' if `touse'	[`wgt'`exp'] , prefix(_z_) keepsingletons abs(`ivar')
 					local xcorr  `r(vlist)'
 				}
 			}	
-			reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'  `xcorr' `exogvar' ///
+			reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'   `exogvar' `xcorr' ///
 			if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') `tocluster' keepsingletons noempty
 			local scmd `e(cmdline)'
 		}
 	}
 	else if "`method'"=="ppmlhdfe" {
-		ppmlhdfe `y' `xvar'   `otxvar'	`exogvar' ///
+		ppmlhdfe `y' `xvar' `ogxvar'  `otxvar'	`exogvar' ///
 				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons ///
 				d `method_option'
 		local scmd `e(cmdline)'				
@@ -430,7 +446,7 @@ program jwdid, eclass
 			mata:is_balanced("`ivar' `tvar'","`touse'")	
 			if   "`corr'"!=""  {
 					** Correction 
-					qui:myhdmean `xvar2'  i.`tvar' if `touse'	[`wgt'`exp'] , prefix(_z_) keepsingletons abs(`ivar')
+					qui:myhdmean `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `exogvar'  i.`tvar' if `touse'	[`wgt'`exp'] , prefix(_z_) keepsingletons abs(`ivar')
 					local xcorr  `r(vlist)'				
 			} 
 		}
