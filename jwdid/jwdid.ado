@@ -1,4 +1,5 @@
-*!v1.71  Better Hettype
+*!v1.75 May allow for Intervalled Event
+*v1.71  Better Hettype
 *v1.7  Adds Event Hettype. Also allows to use Characteristics as is, or demean.
 * Further Panel Data Corrections
 * v1.65 Adds restrictions to Heterogeneity of Treatment Effect time / cohort
@@ -53,7 +54,7 @@ program method_parser, rclass
 	return local options `options'
 end
 
- program check_install, rclass
+program check_install, rclass
 	syntax [namelist]
 	foreach i in reghdfe hdfe `namelist' {
 		capture which `i'
@@ -65,7 +66,7 @@ end
 end
 
 program parse_hettype, rclass
-    syntax anything, [ll(numlist max =1) ul(numlist max=1)]
+    syntax anything, [ll(numlist max =1) ul(numlist max=1) * ]
     
     if ("`ll'"!="") & ("`ul'"!="") {
         if `ll'>=`ul' {
@@ -78,6 +79,16 @@ program parse_hettype, rclass
     return local ll `ll'
     return local ul `ul'
 end
+
+program parse_hettype_evco, rclass
+    syntax anything,  evbase(numlist max=1) erecode(string asis) [* ]
+    tempvar aux
+    ren __evnt__ `aux'
+    recode `aux' `erecode', gen(__evnt__)    
+    return local evbase = `evbase'
+
+end
+
 
 program jwdid, eclass
 	** Error with 14 or earlier
@@ -117,15 +128,15 @@ program jwdid, eclass
 	if "`hettype'"=="" local hettype timecohort
     
     parse_hettype `hettype'
-    local hettype `r(hettype)'
+    local ehettype `r(hettype)'
     local rll     `r(ll)'
     local rul     `r(ul)'
     
-	if !inlist("`hettype'","time","cohort","timecohort","event") {
+	if !inlist("`ehettype'","time","cohort","timecohort","event","eventcohort") {
 		display in red "hettype must be time, cohort, or timecohort"
 		error 198
 	}
-
+    if "`ehettype'"=="eventcohort" local never never
 	// Check installation
 	check_install `method'
 
@@ -223,8 +234,8 @@ program jwdid, eclass
 ** Define Toabs based on Het Type
 ************************************
 	tempvar toabshere
-	if "`hettype'"=="timecohort"  qui:egen `toabshere'=group(`gvar' `tvar') if `touse'
-	if "`hettype'"=="cohort"      {
+	if "`ehettype'"=="timecohort"  qui:egen `toabshere'=group(`gvar' `tvar') if `touse'
+	if "`ehettype'"=="cohort"      {
 		qui: capture drop __post__
 		qui: gen byte __post__ = 0 if `touse'
 		qui: replace  __post__ = 1 if `tvar'<(`gvar'-`gap') & `gvar'>0 &  `touse'
@@ -233,7 +244,7 @@ program jwdid, eclass
 		qui: label values __post__ __post__		
 		qui:egen `toabshere'=group(`gvar' __post__) if `touse'
 	}
-	if "`hettype'"=="time"        {
+	if "`ehettype'"=="time"        {
 		qui: capture drop __post__
 		qui: gen byte __post__ = 0 if `touse'
 		qui: replace  __post__ = 1 if `tvar'<(`gvar'-`gap') & `gvar'>0 &  `touse'
@@ -242,18 +253,34 @@ program jwdid, eclass
 		qui: label values __post__ __post__
 		qui:egen `toabshere'=group(`time' __post__ ) if `touse'
 	}
-	if "`hettype'"=="event"        {
+	if "`ehettype'"=="event"        {
         
 		qui: capture drop __evnt__
 		qui: gen byte __evnt__ = (`tvar'-`gvar')*(`gvar'>0) -`gap'*(`gvar'==0) if `touse'	
-        if "`rul'"!="" replace __evnt__=`rul' if __evnt__>`rul' & __evnt__!=.
-        if "never"!="" & "`rll'"!="" replace __evnt__=`rll' if __evnt__<`rll' & __evnt__!=.
+        if "`rul'"!="" qui: replace __evnt__=`rul' if __evnt__>`rul' & __evnt__!=.
+        if "never"!="" & "`rll'"!="" qui: replace __evnt__=`rll' if __evnt__<`rll' & __evnt__!=.
         qui: sum __evnt__ if `touse', meanonly
         local cev = 1-`r(min)'
         qui: replace __evnt__ = __evnt__+(`cev')
 		qui:egen `toabshere'=group( __evnt__ ) if `touse'
         
-	}	 
+	}
+    if "`ehettype'"=="eventcohort"  {
+        local never never
+    	qui: capture drop __evnt__
+		qui: gen byte __evnt__ = (`tvar'-`gvar')*(`gvar'>0) -`gap'*(`gvar'==0) if `touse'
+        ** Recodes
+        parse_hettype_evco `hettype'
+        local evbase = r(evbase)
+        **base(numlist max=1) erecode(stringasis)
+        sum __evnt__, meanonly
+        if `r(min)'<0 {
+            display as error "All values after Recode should be strictly possitive"
+            error 1
+        }
+        
+        qui:egen `toabshere'=group(`gvar' __evnt__ ) if `touse'
+    }
 ************************************
 ** Two options: Either we Demean  data, or used actual data
 ** Same Results		
@@ -270,7 +297,7 @@ program jwdid, eclass
 	*****************************************************
 	*****************************************************
 	// If Hettype Full
-	if "`hettype'"=="timecohort" {
+	if "`ehettype'"=="timecohort" {
 **********************************************************************************************************
 		foreach i of local glist {
 			foreach j of local tlist {
@@ -304,7 +331,7 @@ program jwdid, eclass
 		}
 **********************************************************************************************************
 	}
-	else if "`hettype'"=="time" {
+	else if "`ehettype'"=="time" {
 **********************************************************************************************************
 		foreach i in 1 2 {
 			foreach j of local tlist {
@@ -338,7 +365,7 @@ program jwdid, eclass
 		
 **********************************************************************************************************		
 	}
-	else if "`hettype'"=="cohort" {
+	else if "`ehettype'"=="cohort" {
 **********************************************************************************************************
 		foreach i of local glist {
 			foreach j in 1 2 {
@@ -372,7 +399,7 @@ program jwdid, eclass
 		
 **********************************************************************************************************	
 	}
-	else if "`hettype'"=="event" {
+	else if "`ehettype'"=="event" {
 **********************************************************************************************************
     local gpevent = -`gap'
     qui:levelsof __evnt__ if `touse', local(elist)
@@ -412,7 +439,33 @@ program jwdid, eclass
 		
 **********************************************************************************************************	
 	}	
+    else if "`ehettype'"=="eventcohort" {
+**********************************************************************************************************
+    
+    
+	qui:levelsof __evnt__, local(elist)
 
+    	foreach i of local glist {
+			foreach j of local elist {
+				qui:count if `i'==`gvar' & `j'==__evnt__ & `touse'
+				if `r(N)'>0 {
+					if `j'!=`evbase' {
+						
+						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.__evnt__ 							  
+						local xvar2 `xvar2'          i`i'.`gvar'#i`j'.__evnt__
+						
+						if "`x'"!="" {
+							local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.__evnt__#c.(`xxvar') 
+							local xvar3 `xvar3'          i`i'.`gvar'#i`j'.__evnt__#c.(`xxvar')  
+							}
+					}
+					
+				}
+			}
+		}
+		
+**********************************************************************************************************	
+	}	
 	** for xs: Interaction with Glist and Tlist
 	
 	foreach i of local glist {
@@ -486,7 +539,7 @@ program jwdid, eclass
 
 	ereturn local cmdline jwdid `0'
 	ereturn local scmd `scmd'
-	ereturn local hettype `hettype'
+	ereturn local hettype `ehettype'
 	ereturn local estat_cmd jwdid_estat
 	if "`never'"!="" ereturn local type  never
 	else 			 ereturn local type  notyet
