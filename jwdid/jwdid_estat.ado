@@ -60,7 +60,7 @@ program define jwdid_estat, sortpreserve
 end
 **capture program drop jwdid_window
 program jwdid_window, rclass
-    syntax , window(numlist min=2 max=2) cwindow(numlist min=2 max=2)
+    syntax , [window(numlist min=2 max=2) cwindow(numlist min=2 max=2)]
     numlist "`window'`cwindow'", min(2) max(2) sort integer   
     local window `r(numlist)'
     local n1: word 1 of `window'
@@ -276,24 +276,25 @@ program define jwdid_event, rclass
         ** If window
         tempvar sel 
         gen byte `sel'=1          
-		if ("`window'"!="")+("`cwindow'"!=""))>1 {
+		if (("`window'"!="")+("`cwindow'"!=""))>1 {
 			display as error "Only window() or cwindow() allowed"
 			error 1
 		}
 		
-        if "`window'`cwindow'"!="" {
-            qui:replace  `sel'=0
+        if "`window'`cwindow'"!="" {            
             jwdid_window, `window' `cwindow'
             local lwind `r(window)'
 			local lwmin `r(rmin)'
 			local lwmax `r(rmax)'
-
-            foreach i of local lwind {
-                qui:replace `sel'=1 if __event__==`i'
-            }
-			if "`cwindow'"!="" {
-				qui:replace  __event__=`lwmin' if __event__<`lwmin' & `sel'==1
-				qui:replace  __event__=`lwmax' if __event__>`lwmax' & `sel'==1
+			if "`window'"!="" {
+                qui:replace  `sel'=0
+				foreach i of local lwind {
+					qui:replace `sel'=1 if __event__==`i'
+				}
+			}	
+			else if "`cwindow'"!="" {
+				qui:replace  __event__=`lwmin' if __event__<`lwmin' 
+				qui:replace  __event__=`lwmax' if __event__>`lwmax' 
 			}
 		}
 			
