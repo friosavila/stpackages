@@ -276,7 +276,7 @@ program define jwdid_event, rclass
         ** If window
         tempvar sel 
         gen byte `sel'=1          
-		if (()"`window'"!="")+("`cwindow'"!=""))>1 {
+		if ("`window'"!="")+("`cwindow'"!=""))>1 {
 			display as error "Only window() or cwindow() allowed"
 			error 1
 		}
