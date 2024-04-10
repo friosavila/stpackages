@@ -60,8 +60,8 @@ program define jwdid_estat, sortpreserve
 end
 **capture program drop jwdid_window
 program jwdid_window, rclass
-    syntax , window(numlist min=2 max=2)
-    numlist "`window'", min(2) max(2) sort integer   
+    syntax , window(numlist min=2 max=2) cwindow(numlist min=2 max=2)
+    numlist "`window'`cwindow'", min(2) max(2) sort integer   
     local window `r(numlist)'
     local n1: word 1 of `window'
     local n2: word 2 of `window'
@@ -283,7 +283,7 @@ program define jwdid_event, rclass
 		
         if "`window'`cwindow'"!="" {
             qui:replace  `sel'=0
-            jwdid_window, `window'`cwindow'
+            jwdid_window, `window' `cwindow'
             local lwind `r(window)'
 			local lwmin `r(rmin)'
 			local lwmax `r(rmax)'
