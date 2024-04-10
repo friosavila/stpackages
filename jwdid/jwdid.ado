@@ -1,4 +1,5 @@
-*!v1.7  Adds Event Hettype. Also allows to use Characteristics as is, or demean.
+*!v1.71  Better Hettype
+*v1.7  Adds Event Hettype. Also allows to use Characteristics as is, or demean.
 * Further Panel Data Corrections
 * v1.65 Adds restrictions to Heterogeneity of Treatment Effect time / cohort
 * v1.6  FEVAR: Allows Interactions
@@ -63,6 +64,21 @@ end
 	}
 end
 
+program parse_hettype, rclass
+    syntax anything, [ll(numlist max =1) ul(numlist max=1)]
+    
+    if ("`ll'"!="") & ("`ul'"!="") {
+        if `ll'>=`ul' {
+            display as err "ll() has to be smaller than ul()"
+            error 911
+        }
+    }
+    
+    return local hettype `anything'
+    return local ll `ll'
+    return local ul `ul'
+end
+
 program jwdid, eclass
 	** Error with 14 or earlier
 	version 15
@@ -83,7 +99,7 @@ program jwdid, eclass
 								  [Tvar(varname) time(varname)   fevar(varlist fv ts)] /// fevar for other Fixed effects Valid for reghdfe and pmlhdfe
 								  [Gvar(varname) trtvar(varname) trgvar(varname)] ///
 								  [never group method(string asis) corr  ] ///
-								  [hettype(string) * ]    ///
+								  [hettype(string asis) * ]    ///
 								  [exogvar(varlist fv ts) ]  /// Variables not to be interacted with Gvar Tvar Treatment
                                   [xtvar(varlist fv ts) ]  /// Variables interacted with  Tvar 
                                   [xgvar(varlist fv ts) ]  /// Variables interacted with Gvar 
@@ -99,7 +115,12 @@ program jwdid, eclass
 	}
 
 	if "`hettype'"=="" local hettype timecohort
-
+    
+    parse_hettype `hettype'
+    local hettype `r(hettype)'
+    local rll     `r(ll)'
+    local rul     `r(ul)'
+    
 	if !inlist("`hettype'","time","cohort","timecohort","event") {
 		display in red "hettype must be time, cohort, or timecohort"
 		error 198
@@ -222,12 +243,16 @@ program jwdid, eclass
 		qui:egen `toabshere'=group(`time' __post__ ) if `touse'
 	}
 	if "`hettype'"=="event"        {
+        
 		qui: capture drop __evnt__
 		qui: gen byte __evnt__ = (`tvar'-`gvar')*(`gvar'>0) -`gap'*(`gvar'==0) if `touse'	
+        if "`rul'"!="" replace __evnt__=`rul' if __evnt__>`rul' & __evnt__!=.
+        if "never"!="" & "`rll'"!="" replace __evnt__=`rll' if __evnt__<`rll' & __evnt__!=.
         qui: sum __evnt__ if `touse', meanonly
         local cev = 1-`r(min)'
         qui: replace __evnt__ = __evnt__+(`cev')
 		qui:egen `toabshere'=group( __evnt__ ) if `touse'
+        
 	}	 
 ************************************
 ** Two options: Either we Demean  data, or used actual data

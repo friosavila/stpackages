@@ -40,7 +40,7 @@ program define jwdid_estat, sortpreserve
 		qui:est sto `last'
 		capture noisily {
 			if inlist("`key'","simple","group","calendar","event","plot") {				
-				jwdid_`key' [`weight'`exp'] `rest'
+				jwdid_`key'  `rest'
 				addr local cmd  estat, 
 				addr local cmd2 jwdid, 
 				if "`key'"!="plot" & ( "`plot'"!="" | `"`plot1'"'!="") {
@@ -67,6 +67,8 @@ program jwdid_window, rclass
     local n2: word 2 of `window'
     numlist "`n1'/`n2'", int
     return local window `r(numlist)'
+	return local rmin   `n1'
+	return local rmax   `n2'
 end
 
 program orest
@@ -264,7 +266,7 @@ end
 
 program define jwdid_event, rclass
 	syntax [pw], [post estore(str) esave(str asis) replace  OREStriction(string asis) PLOT PLOT1(string asis) asis * pretrend ///
-                    window(passthru)]
+                    window(passthru) cwindow(passthru)]
 		capture drop __event__
 		tempvar aux
 		qui:bysort `e(gvar)' `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
@@ -274,14 +276,27 @@ program define jwdid_event, rclass
         ** If window
         tempvar sel 
         gen byte `sel'=1          
-        if "`window'"!="" {
+		if (()"`window'"!="")+("`cwindow'"!=""))>1 {
+			display as error "Only window() or cwindow() allowed"
+			error 1
+		}
+		
+        if "`window'`cwindow'"!="" {
             qui:replace  `sel'=0
-            jwdid_window, `window'
+            jwdid_window, `window'`cwindow'
             local lwind `r(window)'
+			local lwmin `r(rmin)'
+			local lwmax `r(rmax)'
+
             foreach i of local lwind {
                 qui:replace `sel'=1 if __event__==`i'
-            }            
-        }
+            }
+			if "`cwindow'"!="" {
+				qui:replace  __event__=`lwmin' if __event__<`lwmin' & `sel'==1
+				qui:replace  __event__=`lwmax' if __event__>`lwmax' & `sel'==1
+			}
+		}
+			
         
 		capture:est store `lastreg'	
 		tempname lastreg
