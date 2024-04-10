@@ -1,13 +1,19 @@
+---
+title: "jwdid: A Stata command for the estimation of Difference-in-Differences models using ETWFE"
+format: pdf
+keep-tex: true
+bibliography: references.bib
+---
 
 ## Estimation of DID models using ETWFE 
 
-In this section, we describe the Stata command `jwdid` that implements the estimation of DID models using the ETWFE estimator proposed by @Wooldridge2022. One of the main advantages of @Wooldridge2022's estimator is that by being a simple extension of the standard FE estimator, it can be easily modified and implemented to allow for other types of non-linear models. As described in @wooldridge2022, the ETWFE estimator could be used, for example, to model cases where the dependent variable is binary (logit) or count data (poisson). A second advantage of the ETWFE estimator is that the estimation of the baseline model, is transparent as it does not require the use of specialized software, except for the estimation of fixed effects models. This is in contrast with other DID estimators like the ones proposed by @callaway2021, @dechaisemartin2021, or @kirill2022, where the bulk of the model estimation is done in the background, with the user having less control and understanding on what is being estimated.
+In this section, we describe the Stata command `jwdid` that implements the estimation of DID models using the ETWFE estimator proposed by @wooldridge2021. One of the main advantages of @wooldridge2021's estimator is that by being a simple extension of the standard FE estimator, it can be easily modified and implemented to allow for other types of non-linear models. As described in @wooldridge2023, the ETWFE estimator could be used, for example, to model cases where the dependent variable is binary (logit) or count data (poisson). A second advantage of the ETWFE estimator is that the estimation of the baseline model, is transparent as it does not require the use of specialized software, except for the estimation of fixed effects models. This is in contrast with other DID estimators like the ones proposed by @callaway2021, @dechaisemartin2020, or @borusyak2023, where the bulk of the model estimation is done in the background, with the user having less control and understanding on what is being estimated.
 
 Thanks to this transparency in model specification, @yotov2023 propose a large set of recommendations for the analysis of DID models in the context of international trade and Gravity models. On this regard, we present the command `jwdid` as a flexible command in Stata that allows to consider @yotov2003 recommendations for the estimation of DID models, in the framework of trade models. 
 
 ### Base line model
 
-As described in @Wooldrige2021, the baseline model for the estimation of the DID model using the ETWFE estimator is the following:
+As described in @wooldridge2021, the baseline model for the estimation of the DID model using the ETWFE estimator is the following:
 
 $$Y_{i,t} = \alpha + \sum_{g \in G} \sum_{t=g}^{T} \theta_{g,t} D_{i,g,t} + \xi_i + \xi_t + \varepsilon_{i,t}
 $${#eq-b0}
@@ -15,7 +21,7 @@ $${#eq-b0}
 where $Y_{i,t}$ is the dependent variable, $D_{i,g,t}$ is a dummy that takes the value of 1 if the observation is in the treatment group $g$, on period $t$ and 0 otherwise. $G$ is a set that indicates at what time treatment started for all observations, and $T$ is the last period of the analysis. 
 
 $\xi_i$ and $\xi_t$ are sets of fixed effects for the individual and time dimensions, respectively.^[Often, one can use group fixed effects instead of individual fixed effects, and would still obtain numerically identical results in the linear model case.] In this setup, the $\theta_{g,t}$ coefficients represent the average treatment effect that the treatment group $g$ experiences at time $t$ ($ATT(g,t)$). 
-As described in @Wooldridge2021, allowing for a flexible specification of the $\theta_{g,t}$ avoids the problem of bad controls and negative weights that have been identified in the literature as potential problems in the estimation of DID models using traditional TWFE estimators.
+As described in @wooldridge2021, allowing for a flexible specification of the $\theta_{g,t}$ avoids the problem of bad controls and negative weights that have been identified in the literature as potential problems in the estimation of DID models using traditional TWFE estimators.
 
 This command can be directly estimated with `jwdid` using the following syntax:
 
@@ -23,7 +29,7 @@ This command can be directly estimated with `jwdid` using the following syntax:
 
 Where `y` is the dependent variable, `ivar(i)` is used to identify the individual panel data dimension, `tvar(t)` identifies the time dimension, and `gvar(g)` identifies the treatment group. Specifically, for observation $i$, $g$ would take the value of zero if the panel observation is never treated (within the window of the analysis), and would take a value different from zero to indicate the year that treatment started for unit $i$. Following standard assumptions, this specification assumes that the treatment is an absorbing status, meaning that once a unit is treated, it remains treated for the rest of the analysis. 
 
-By default, `jwdid` will estimate the baseline model @eq-b0 using the `reghdfe` command (@correira), assuming clustered standard errors at `i` level. If other level is desired, the user can specify the `cluster(cvar)` option. While the command does not impose the assumption that the data is a panel, the methodology is designed to work with panel data. In case of repeated crossection, one should instead use the following syntax:
+By default, `jwdid` will estimate the baseline model @eq-b0 using the `reghdfe` command [@correira2016], assuming clustered standard errors at `i` level. If other level is desired, the user can specify the `cluster(cvar)` option. While the command does not impose the assumption that the data is a panel, the methodology is designed to work with panel data. In case of repeated crossection, one should instead use the following syntax:
 
 `jwdid y, tvar(t) gvar(g) [cluster(cvar)]`
 
@@ -49,9 +55,9 @@ This is in principle the same as strategy as the one proposed by @sunabraham2021
 
 ### Extensions: Nonlinear models
 
-As described in  @Wooldrdige2022, the standard ETWFE model described in @eq-b0 or @eq-b1 identifies the average treatment effect imposing a linear parallel trends assumption. However, such assumption may not be valid in cases, such as when the dependent variable follows some limited distribution. @CallawayRoth discusses a similar problem, stating that the choice of transformation of the dependent variable is crucial for the identification of the average treatment effect, and only under certain conditions would the ATT be identified for any transformation. 
+As described in  @wooldridge2023, the standard ETWFE model described in @eq-b0 or @eq-b1 identifies the average treatment effect imposing a linear parallel trends assumption. However, such assumption may not be valid in cases, such as when the dependent variable follows some limited distribution. @rothsantana2023 discusses a similar problem, stating that the choice of transformation of the dependent variable is crucial for the identification of the average treatment effect, and only under certain conditions would the ATT be identified for any transformation. 
 
-In this regard, @wooldridge2022 proposes that the linear ETWFE models can be adapted to allow for non-linear models, by simply imposing the linear PTA assumption only on the latent variable of the model, but not the outcome itself.
+In this regard, @wooldridge2023 proposes that the linear ETWFE models can be adapted to allow for non-linear models, by simply imposing the linear PTA assumption only on the latent variable of the model, but not the outcome itself.
 
 Consider the following transformation of the model defined by @eq-b2:
 
@@ -68,22 +74,22 @@ There is no restrictions on the type `method` one can use with the `jwdid` comma
 
 It should be noted that when estimating non-linear models with a large number of fixed effects, one may face an incidental parameters problem. This is not generally a problem for the linear case, because the parameters of interest can be identified without explicitly estimating the fixed effects, using, for example the within transformation. However, with the exception of poisson models, fixed effects are generally estimated raising the possibility of incidental parameters. To reduce the impact of this problem, whenver `method()` is specified `jwdid` will incorporate _group_ fixed effects, instead of _individual_ fixed effects. 
 
-For the linear case with balanced data, using _group_ instead of _individual_ fixed effects provides numerically identical results. If panel is unbalanced the results will not be identical. In such cases, the option `corr` will create additional variables that address the difference. In the case of non-linear models, the best solution is to use _group_ fixed effects. However, if one is interested in poisson models, the alterantive to group fixed effects is to use `ppmlhdfe` (@correira2020).^[ The correction implemented with `corr` is not useful to recover the coefficients from `ppmlhdfe` using `poisson` command ] This is the state-of-the-art estimator for poisson models with fixed effects, and it is the recommended estimator for trade analysis.
+For the linear case with balanced data, using _group_ instead of _individual_ fixed effects provides numerically identical results. If panel is unbalanced the results will not be identical. In such cases, the option `corr` will create additional variables that address the difference. In the case of non-linear models, the best solution is to use _group_ fixed effects. However, if one is interested in poisson models, the alterantive to group fixed effects is to use `ppmlhdfe` (@correia2020).^[ The correction implemented with `corr` is not useful to recover the coefficients from `ppmlhdfe` using `poisson` command ] This is the state-of-the-art estimator for poisson models with fixed effects, and it is the recommended estimator for trade analysis.
 
 ### Extensions: Covariates {#sec-cov}
 
-As described in @wooldridge, it is possible to include covariates in the model, by simply adding corrections that enable to easily identify the average treatment effect. However, following the literature on DID models, the implicit assumption is that covariates are time-invariant. `jwdid` does not impose any assumption on the covariates, but the user should be aware of the implications. 
+As described in @wooldridge2021, it is possible to include covariates in the model, by simply adding corrections that enable to easily identify the average treatment effect. However, following the literature on DID models, the implicit assumption is that covariates are time-invariant. `jwdid` does not impose any assumption on the covariates, but the user should be aware of the implications. 
 
 In general, when covariates are considered, the model of interest is similar to @eq-b2, but adjusted for covariates:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 Y_{i,t} &= \alpha +  \sum_{g \in G} \sum_{t=t_0}^{g-1} \theta^{pre}_{g,t} D_{i,g,t}+
 \sum_{g \in G} \sum_{t=g}^{T} \theta^{post}_{g,t} D_{i,g,t} + \sum_{g \in G} \sum_{t=t_0}^{g-1} D_{i,g,t} \tilde x_{i}'\beta^{pre}_{g,t} + 
 \sum_{g \in G} \sum_{t=g}^{T} D_{i,g,t} \tilde x_{i}'\beta^{post}_{g,t} \\
 &+ x_{i}'\beta + \sum_{t=t_0}^{T} D_{i,t} x_{i}'\beta_t + \sum_{g\in G} D_{i,g} x_{i}'\beta_g
 \xi_i + \xi_t + \varepsilon_{i,t}
-\end{aligned}
-$${#eq-e2}
+\end{aligned}$${#eq-e2}
 
 Where $D_{i,t}$ is a dummy variable that is equal to 1 if period is equal to $t$, and $D_{i,g}$ is a dummmy variable that is equal to 1 if the group membership is equal to $g$, and zero otherwise. $\tilde x_{i}$ are the within cohort and period demeaned variables. When using `reghdfe` or `ppmlhdfe` the term $\sum_{g\in G} D_{i,g} x_{i}'\beta_g$ is ommitted if all covariates are time constant. 
 
@@ -155,7 +161,7 @@ After the estimation of the model, under the default options, one can use the co
 
 1. Using the model estimates, predict the outcome of interest for all observations given the observed covariates and fixed effects. Call this $\hat Y(obs)$ or predicted outcome under the observed covariates. 
    The model prediction could be the linear prediction, or the predicted probability in the case of logit models, or the predicted count in the case of poisson models.
-2. Consider the specification @eq_e2, and assume that all $\theta^{post}_{g,t}$ (and $\theta^{pre}_{g,t}$ if `never` is used), as well as all $\beta^{post}$ and $\beta^{pre}$ are zero, and predict the outcome of interest. Call this $\hat Y(0)$ or predicted outcome under the counterfactual scenario of no treatment. 
+2. Consider the specification @eq-e2, and assume that all $\theta^{post}_{g,t}$ (and $\theta^{pre}_{g,t}$ if `never` is used), as well as all $\beta^{post}$ and $\beta^{pre}$ are zero, and predict the outcome of interest. Call this $\hat Y(0)$ or predicted outcome under the counterfactual scenario of no treatment. 
 
 In this case, the predicted Average Treatment Effect on the Treated for observation $i$ is given by:
 
@@ -226,7 +232,7 @@ The default option for the estimation of the aggregated ATTs is to use the weigh
 
 ### Standard Errors
 
-@wooldridge2022 suggests than when one estimates standard errors for the aggregated ATTs, one should use `vce(unconditional)` option in `Stata`, to allow for uncertainty in the explanatory variables. `jwdid_estat`/`estat` does not use this approach by default, because it requires that the underlying command is able to produce Scores for the estimated model. For example, if the model was estimated using `method(regress)`, the Scores will be available, and unconditional Standard errors for the aggregated ATTs can be estimated as follows:
+@wooldridge2021 suggests than when one estimates standard errors for the aggregated ATTs, one should use `vce(unconditional)` option in `Stata`, to allow for uncertainty in the explanatory variables. `jwdid_estat`/`estat` does not use this approach by default, because it requires that the underlying command is able to produce Scores for the estimated model. For example, if the model was estimated using `method(regress)`, the Scores will be available, and unconditional Standard errors for the aggregated ATTs can be estimated as follows:
 
 `estat [aggregation], [vce(unconditional)]`
 
@@ -267,3 +273,9 @@ After **time**, **group** or **event** aggregations are estimated, it is possibl
 2. `estat plot,  pstyle1(str) color1(str) pstyle2(str) color2(str) lwidth1(str) lwidth2(str) barwidth1(str) barwidth2(str)`: The options `pstyle#`, `color#`, `lwidth#` and `barwidth#` can be used to alter the color and style of the lines in the plot for the pre and post treatment periods. Only `event` aggregation allows for `#2` options.
 
 3. `estat plot, twoway_options`: Most other `twoway` graph option can be used after the `estat plot` command.
+
+# Appendix
+
+:::{.references}
+:::
+
