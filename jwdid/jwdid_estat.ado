@@ -84,7 +84,7 @@ end
 
 program define jwdid_simple, rclass
 		syntax [pw], [* post estore(str) esave(str asis) replace over(varname) ///
-                    asis PLOT PLOT1(string asis) OREStriction(passthru) ///
+                    asis  OREStriction(passthru) ///
                     window(numlist min=2 max=2)]
 		//tempvar aux
 		//qui:bysort `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
@@ -149,7 +149,7 @@ program define jwdid_simple, rclass
 end
 
 program define jwdid_group, rclass
-		syntax [pw], [* post estore(str) esave(str asis) replace  OREStriction(string asis) asis PLOT PLOT1(string asis)]
+		syntax [pw], [* post estore(str) esave(str asis) replace  OREStriction(passthru) asis ]
 		tempvar aux
 		qui:bysort `e(gvar)' `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
 		
@@ -207,7 +207,7 @@ program define jwdid_group, rclass
 end
 
 program define jwdid_calendar, rclass
-	syntax [pw], [* post estore(str) esave(str asis) replace  OREStriction(string asis) PLOT PLOT1(string asis)]
+	syntax [pw], [* post estore(str) esave(str asis) replace  OREStriction(passthru)  ]
 		capture drop __calendar__
 		tempvar aux
 		qui:bysort `e(gvar)' `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
@@ -265,7 +265,7 @@ program define jwdid_calendar, rclass
 end
 
 program define jwdid_event, rclass
-	syntax [pw], [post estore(str) esave(str asis) replace  OREStriction(string asis) PLOT PLOT1(string asis) asis * pretrend ///
+	syntax [pw], [post estore(str) esave(str asis) replace  OREStriction(passthru)   asis * pretrend ///
                     window(passthru) cwindow(passthru)]
 		capture drop __event__
 		tempvar aux
