@@ -89,6 +89,26 @@ program parse_hettype_evco, rclass
 
 end
 
+program is_x_fix, rclass sortpreserve
+	syntax varlist(fv ts) [if], ivar(varname)	
+	ms_fvstrip `varlist' `if', expand dropomit
+	local vvlist `r(varlist)'
+	tempvar maxx minn
+	sort `ivar'
+	foreach i of local vvlist {
+		capture drop `maxx' `minn'
+		by `ivar': egen `maxx'=max(`i')
+		by `ivar': egen `minn'=min(`i')
+		if `maxx'==`minn' {
+			local xvarcons `xvarcons' `i'
+		}
+		else {
+			local xvarvar `xvarvar' `i'
+		}
+	}
+	return local xvarcons `xvarcons'
+	return local xvarvar `xvarvar'
+end
 
 program jwdid, eclass
 	** Error with 14 or earlier
@@ -125,14 +145,16 @@ program jwdid, eclass
 		local method_option `r(options)'
 	}
 
+
+
 	if "`hettype'"=="" local hettype timecohort
-    
+   
     parse_hettype `hettype'
     local ehettype `r(hettype)'
     local rll     `r(ll)'
     local rul     `r(ul)'
     
-	if !inlist("`ehettype'","time","cohort","timecohort","event","eventcohort") {
+	if !inlist("`ehettype'","time","cohort","timecohort","event","eventcohort","twfe") {
 		display in red "hettype must be time, cohort, or timecohort"
 		error 198
 	}
@@ -171,8 +193,17 @@ program jwdid, eclass
 	}
 	// Groups refer to Gvar. Not compatible if not panel
 	if "`ivar'"=="" local group group
-	
-	*easter_egg
+	if "`method'"!="" & "`method'"!="ppmlhdfe" {
+		local group group
+	} 
+	local xvarvar `x'
+ 	if "`ivar'"!="" & "`group'"=="" {
+		is_x_fix `x' if `touse', ivar(`ivar')
+		local xvarcons  `r(xvarcons)'
+		local xvarvar   `r(xvarvar)'
+ 
+	}
+ 	*easter_egg
 	** Count gvar
 	/*qui:count if `gvar'==0 & `touse'==1 
 	if `r(N)'==0 {
@@ -252,6 +283,15 @@ program jwdid, eclass
 		qui: label define __post__ 0 "Base" 1 "Pre-Trt" 2 "Post-Trt", modify
 		qui: label values __post__ __post__
 		qui:egen `toabshere'=group(`time' __post__ ) if `touse'
+	}
+	if "`ehettype'"=="twfe"        {
+		qui: capture drop __post__
+		qui: gen byte __post__ = 0 if `touse'
+		qui: replace  __post__ = 1 if `tvar'<(`gvar'-`gap') & `gvar'>0 &  `touse'
+		qui: replace  __post__ = 2 if `tvar'>=`gvar'        & `gvar'>0 &  `touse'
+		qui: label define __post__ 0 "Base" 1 "Pre-Trt" 2 "Post-Trt", modify
+		qui: label values __post__ __post__
+		qui:egen `toabshere'=group( __post__ ) if `touse'
 	}
 	if "`ehettype'"=="event"        {
         
@@ -441,10 +481,7 @@ program jwdid, eclass
 	}	
     else if "`ehettype'"=="eventcohort" {
 **********************************************************************************************************
-    
-    
 	qui:levelsof __evnt__, local(elist)
-
     	foreach i of local glist {
 			foreach j of local elist {
 				qui:count if `i'==`gvar' & `j'==__evnt__ & `touse'
@@ -466,10 +503,37 @@ program jwdid, eclass
 		
 **********************************************************************************************************	
 	}	
+	else if "`ehettype'"=="twfe" {
+		** TWFE, Thus imposing no heterogeneity. One can still estimate Event effects based on covariate heterogeneity
+		foreach i in 1 2 {
+				if "`never'"!="" {
+										
+					local xvar `xvar'   c.__tr__#i`i'.__post__
+					local xvar2 `xvar2'          i`i'.__post__ 
+					
+					if "`x'"!="" {
+						local xvar `xvar'   c.__tr__#i`i'.__post__#c.(`xxvar') 
+						local xvar3 `xvar3'          i`i'.__post__#c.(`xxvar')  
+					}
+					
+				}
+				else if `i'==2 {
+
+					local xvar `xvar'   c.__tr__#i`i'.__post__
+					local xvar2 `xvar2'          i`i'.__post__
+					
+					if "`x'"!="" {
+						local xvar  `xvar'  c.__tr__#i`i'.__post__#c.(`xxvar') 
+						local xvar3 `xvar3'          i`i'.__post__#c.(`xxvar')  
+					}
+
+				}			
+		}		
+	}
 	** for xs: Interaction with Glist and Tlist
 	
 	foreach i of local glist {
-		          local ogxvar `ogxvar' i`i'.`gvar'#c.(`x' `xgvar')
+		          local ogxvar `ogxvar' i`i'.`gvar'#c.(`xvarvar' `xgvar')
 	}
 	
 	foreach j of local tlist {
