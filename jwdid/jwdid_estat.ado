@@ -28,7 +28,7 @@ end
 
 program define jwdid_estat, sortpreserve   
 	version 14
-    syntax anything [pw], [* PLOT PLOT1(string asis)]
+    syntax anything [pw], [* ]
         if "`e(cmd)'" != "jwdid" {
                 error 301
         }
@@ -43,9 +43,9 @@ program define jwdid_estat, sortpreserve
 				jwdid_`key'  `rest'
 				addr local cmd  estat, 
 				addr local cmd2 jwdid, 
-				if "`key'"!="plot" & ( "`plot'"!="" | `"`plot1'"'!="") {
+				/*if "`key'"=="plot"  {
 					jwdid_plot, `plot1'
-				} 
+				} */
 
 			}
 			else {
