@@ -1,4 +1,5 @@
-*!v1.75 May allow for Intervalled Event
+*!v1.76 Excludes Fixed variables from the interactions with Cohort
+*v1.75 May allow for Intervalled Event
 *v1.71  Better Hettype
 *v1.7  Adds Event Hettype. Also allows to use Characteristics as is, or demean.
 * Further Panel Data Corrections
@@ -89,27 +90,63 @@ program parse_hettype_evco, rclass
 
 end
 
-program is_x_fix, rclass sortpreserve
-	syntax varlist(fv ts) [if], ivar(varname)	
-	ms_fvstrip `varlist' `if', expand dropomit
-	local vvlist `r(varlist)'
-	tempvar maxx minn
-	sort `ivar'
-	foreach i of local vvlist {
-		capture drop `maxx' `minn'
-		by `ivar': egen `maxx'=max(`i')
-		by `ivar': egen `minn'=min(`i')
-		if `maxx'==`minn' {
-			local xvarcons `xvarcons' `i'
-		}
-		else {
-			local xvarvar `xvarvar' `i'
-		}
-	}
-	return local xvarcons `xvarcons'
-	return local xvarvar `xvarvar'
+** Gets list of variables
+program getvarlist, rclass 
+    syntax varlist (fv ts)
+    ** First Get varlist
+    fvexpand `varlist' 
+    local vlist = subinstr("`r(varlist)'","."," ",.)
+    local vlist = subinstr("`vlist'","#"," ",.)
+    novarabbrev {
+        foreach i of local vlist {
+            capture confirm numeric var `i'
+            if _rc ==0 {
+                local vvlist `vvlist' `i'
+                
+            }
+            
+        }
+    }
+    ** Keep nonrepeating ones
+    mata: a=tokens("`vvlist'");a=uniqrows(a')';st_local("vvlist",invtokens(a))
+    return local varlist `vvlist'        
 end
 
+**  Small program to check fix vars
+mata:
+    void mt_fixvar(string scalar xvarname, string scalar touse){
+        // Load all data
+        xvar = st_data(.,xvarname,touse)        
+        // sort and PanelStup 
+        xvar=xvar[order(xvar[,1],1) ,]
+        // panel
+        info = panelsetup(xvar,1)
+        // sort across all variables
+        for(i=2;i<=cols(xvar);i++)    xvar[,i]=xvar[order(xvar[,(1,i)],(1,2)),i]
+        // verify if Variables change
+        csum =colsum(xvar[info[,2],]:-xvar[info[,1],])
+        toret1 = invtokens(select(tokens(xvarname), csum ))
+        toret2 = invtokens(select(tokens(xvarname),!csum ))
+        st_global("r(xvarvar)",toret1)
+        st_global("r(xvarcons)",toret2)
+    }
+end
+
+program is_x_fix, rclass
+    syntax varlist(fv ts) [if], ivar(varname)
+    ** Expand Interactions
+    marksample touse
+    ms_fvstrip `varlist', expand dropomit
+    local evarlist `r(varlist)'    
+    ** ID original variables
+    getvarlist `varlist'
+    local xvarlist `r(varlist)'    
+  fvset base none `xvarlist '
+    mata:mt_fixvar("`ivar' `evarlist '","`touse'")
+  fvset base default `xvarlist'
+    
+end 
+ 
 program jwdid, eclass
 	** Error with 14 or earlier
 	version 15
@@ -196,8 +233,10 @@ program jwdid, eclass
 	if "`method'"!="" & "`method'"!="ppmlhdfe" {
 		local group group
 	} 
+
 	local xvarvar `x'
- 	if "`ivar'"!="" & "`group'"=="" {
+
+ 	if "`ivar'"!="" & "`group'"=="" & "`x'"!="" {
 		is_x_fix `x' if `touse', ivar(`ivar')
 		local xvarcons  `r(xvarcons)'
 		local xvarvar   `r(xvarvar)'
