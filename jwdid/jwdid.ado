@@ -168,21 +168,26 @@ program jwdid, eclass
 								  [Gvar(varname) trtvar(varname) trgvar(varname)] ///
 								  [never group method(string asis) corr  ] ///
 								  [hettype(string asis) * ]    ///
-								  [exogvar(varlist fv ts) ]  /// Variables not to be interacted with Gvar Tvar Treatment
+								  [exovar(varlist fv ts) exogvar(varlist fv ts) ]  /// Variables not to be interacted with Gvar Tvar Treatment
                                   [xtvar(varlist fv ts) ]  /// Variables interacted with  Tvar 
                                   [xgvar(varlist fv ts) ]  /// Variables interacted with Gvar 
-								  [xasis ]
+								  [xasis ] ///  
+								  [ANTIcipation(numlist max=1 >0) ] // Allows for Anticipation
 						
 	// For Gravity
-	// trendvar(varlist) trendt trendg trendij 
+	// Anticipation is the number of periods before the event
+	// Default is 1 (so g-1 is the excluded period)
+	if "`anticipation'"=="" local anti 1
+	else local anti `anticipation'
+
 	if "`method'"!="" {
 		method_parser `method'
 		local method `r(method)'
 		local method1 `r(method1)'
 		local method_option `r(options)'
 	}
-
-
+	** Does not matter if one uses Exovar or Exogvar. Same thing
+	local exogvar `exovar' `exogvar'
 
 	if "`hettype'"=="" local hettype timecohort
    
@@ -233,7 +238,7 @@ program jwdid, eclass
 	if "`method'"!="" & "`method'"!="ppmlhdfe" {
 		local group group
 	} 
-
+	// ID Time Fixed Variables
 	local xvarvar `x'
 
  	if "`ivar'"!="" & "`group'"=="" & "`x'"!="" {
@@ -242,6 +247,7 @@ program jwdid, eclass
 		local xvarvar   `r(xvarvar)'
  
 	}
+
  	*easter_egg
 	** Count gvar
 	/*qui:count if `gvar'==0 & `touse'==1 
@@ -249,7 +255,8 @@ program jwdid, eclass
 		*qui:sum `gvar' if `touse'==1 , meanonly
 		
 	}*/
-	** Take out of sample units that have always been treated.
+
+	** Exclude of sample units that have always been treated.
 	tempvar tvar2
 	qui:bysort `touse' `ivar': egen long `tvar2'=min(`tvar')
 	qui:replace `touse'=0 if `touse'==1 & `tvar2'>=`gvar' & `gvar'!=0 & `tvar'>=`gvar'
@@ -265,33 +272,6 @@ program jwdid, eclass
 		local nnever=1
 	}
 	
-	** Never makes estimation like SUN ABRaham
-	** or CSDID with REG
-	if "`trtvar'"=="" {
-		qui:capture drop __tr__
-		qui:gen byte __tr__=0 if `touse'
-		display in w "`gvarmax'"
-		qui:replace  __tr__=1 if `tvar'>=`gvar' & `gvar'>0  & `touse' 
-		qui:replace  __tr__=1 if `touse' & "`never'"!=""  
-		qui:replace  __tr__=0 if `touse' & `gvar'>=`gvarmax'		
-	}	
-	else {
-		qui:capture drop __tr__
-		qui:gen      __tr__=`trtvar' if `touse'
-		qui:replace  __tr__=1        if `touse' & "`never'"!="" & `trtvar'==0 & `gvar'!=0
-		qui:replace  __tr__=0        if `touse' & `gvar'>=`gvarmax'		
-	}
-	** But effect is done for effectively treated so
-	qui:capture drop __etr__
-	qui:gen byte __etr__=0 if `touse'
-	qui:replace  __etr__=1 if `touse' & `tvar'>=`gvar' & `gvar'>0
-	
-	qui:levels `gvar' if `touse' & `gvar'>0 & `gvar'<`gvarmax', local(glist)
-	sum `tvar' if `touse' , meanonly
-	qui:levels `tvar' if `touse' & `tvar'>=r(min), local(tlist)
-	
-	*** Center Covariates
-	if "`weight'"!="" local wgt aw
 	*** Define the gap (across gvar tvar)
 	mata: st_view(xs1 =.,.,"`gvar'","`touse'")
 	mata: st_view(xs2 =.,.,"`tvar'","`touse'")
@@ -301,6 +281,48 @@ program jwdid, eclass
 	mata: st_local("gap",strofreal(gap))
 	mata: mata drop xs gap xs1 xs2
 
+	local antigap = `gap'*`anti'
+	local antigap0 = `gap'*(`anti'-1)
+
+
+	** Redefine Always treated
+	tempvar tvar2
+	qui:bysort `touse' `ivar': egen long `tvar2'=min(`tvar')
+	qui:replace `touse'=0 if `touse'==1 & `tvar2'>=(`gvar'-`antigap0') & `gvar'!=0 & `tvar'>=(`gvar'-`antigap0')
+
+
+	** Never makes estimation like SUN ABRaham
+	** or CSDID with REG
+	if "`trtvar'"=="" {
+		qui:capture drop __tr__
+		qui:gen byte __tr__=0 if `touse'
+		//display in w "`gvarmax'"
+		qui:replace  __tr__=1 if `tvar'>=(`gvar'-`antigap') & `gvar'>0  & `touse' 
+		qui:replace  __tr__=1 if `touse' & "`never'"!=""  
+		qui:replace  __tr__=0 if `touse' & `gvar'>=`gvarmax'	
+		
+	}	
+	else {		
+		error 1
+		qui:capture drop __tr__
+		qui:gen      __tr__=`trtvar' if `touse'
+		qui:replace  __tr__=1        if `touse' & "`never'"!="" & `trtvar'==0 & `gvar'!=0
+		qui:replace  __tr__=0        if `touse' & `gvar'>=`gvarmax'		
+		qui:replace  __tr__=0 if `touse' & `tvar'<(`gvar'-`antigap')	
+	}
+	
+	** But effect is done for effectively treated so
+	qui:capture drop __etr__
+	qui:gen byte __etr__=0 if `touse'
+	qui:replace  __etr__=1 if `touse' & `tvar'>(`gvar'-`antigap') & `gvar'>0
+	
+	qui:levels `gvar' if `touse' & `gvar'>0 & `gvar'<`gvarmax', local(glist)
+	sum `tvar' if `touse' , meanonly
+	qui:levels `tvar' if `touse' & `tvar'>=r(min), local(tlist)
+	
+	*** Center Covariates
+	if "`weight'"!="" local wgt aw
+
 ** Define Toabs based on Het Type
 ************************************
 	tempvar toabshere
@@ -308,8 +330,8 @@ program jwdid, eclass
 	if "`ehettype'"=="cohort"      {
 		qui: capture drop __post__
 		qui: gen byte __post__ = 0 if `touse'
-		qui: replace  __post__ = 1 if `tvar'<(`gvar'-`gap') & `gvar'>0 &  `touse'
-		qui: replace  __post__ = 2 if `tvar'>=`gvar'        & `gvar'>0 &  `touse'
+		qui: replace  __post__ = 1 if `tvar'< (`gvar'-`antigap' ) & `gvar'>0 &  `touse'
+		qui: replace  __post__ = 2 if `tvar'>=(`gvar'-`antigap0') & `gvar'>0 &  `touse'
 		qui: label define __post__ 0 "Base" 1 "Pre-Trt" 2 "Post-Trt", modify
 		qui: label values __post__ __post__		
 		qui:egen `toabshere'=group(`gvar' __post__) if `touse'
@@ -317,8 +339,8 @@ program jwdid, eclass
 	if "`ehettype'"=="time"        {
 		qui: capture drop __post__
 		qui: gen byte __post__ = 0 if `touse'
-		qui: replace  __post__ = 1 if `tvar'<(`gvar'-`gap') & `gvar'>0 &  `touse'
-		qui: replace  __post__ = 2 if `tvar'>=`gvar'        & `gvar'>0 &  `touse'
+		qui: replace  __post__ = 1 if `tvar'< (`gvar'-`antigap' ) & `gvar'>0 &  `touse'
+		qui: replace  __post__ = 2 if `tvar'>=(`gvar'-`antigap0') & `gvar'>0 &  `touse'
 		qui: label define __post__ 0 "Base" 1 "Pre-Trt" 2 "Post-Trt", modify
 		qui: label values __post__ __post__
 		qui:egen `toabshere'=group(`time' __post__ ) if `touse'
@@ -326,8 +348,8 @@ program jwdid, eclass
 	if "`ehettype'"=="twfe"        {
 		qui: capture drop __post__
 		qui: gen byte __post__ = 0 if `touse'
-		qui: replace  __post__ = 1 if `tvar'<(`gvar'-`gap') & `gvar'>0 &  `touse'
-		qui: replace  __post__ = 2 if `tvar'>=`gvar'        & `gvar'>0 &  `touse'
+		qui: replace  __post__ = 1 if `tvar'< (`gvar'-`antigap' ) & `gvar'>0 &  `touse'
+		qui: replace  __post__ = 2 if `tvar'>=(`gvar'-`antigap0') & `gvar'>0 &  `touse'
 		qui: label define __post__ 0 "Base" 1 "Pre-Trt" 2 "Post-Trt", modify
 		qui: label values __post__ __post__
 		qui:egen `toabshere'=group( __post__ ) if `touse'
@@ -383,21 +405,21 @@ program jwdid, eclass
 				qui:count if `i'==`gvar' & `j'==`tvar' & `touse'
 				if `r(N)'>0 {
 					if "`never'"!="" {
-						if (`i'-`gap')!=`j' {
+						if (`i'-`antigap')!=`j' {
 						
-						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar' 							  
-						local xvar2 `xvar2'          i`i'.`gvar'#i`j'.`tvar' 
+						local xvar  `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar' 							  
+						local xvar2 `xvar2'           i`i'.`gvar'#i`j'.`tvar' 
 						
 						if "`x'"!="" {
-							local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
-							local xvar3 `xvar3'          i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
+							local xvar  `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
+							local xvar3 `xvar3'           i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
 							}
 						}
 					}
-					else if `j'>=`i' {
+					else if `j'>=(`i'-`anitgap0') {
 
 						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar' 							  
-						local xvar2 `xvar2' i`i'.`gvar'#i`j'.`tvar' 
+						local xvar2 `xvar2'          i`i'.`gvar'#i`j'.`tvar' 
 						
 						if "`x'"!="" {
 							local xvar  `xvar'  c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
@@ -480,7 +502,7 @@ program jwdid, eclass
 	}
 	else if "`ehettype'"=="event" {
 **********************************************************************************************************
-    local gpevent = -`gap'
+    local gpevent = -`antigap'
     qui:levelsof __evnt__ if `touse', local(elist)
     if "`never'"=="" qui:levelsof __evnt__ if `touse' & __evnt__>-`gap', local(elist)
  
@@ -497,7 +519,7 @@ program jwdid, eclass
 		local ccev = `i'-`cev'
 		qui:count if `i'==__evnt__ & `touse'
 			if `r(N)'>0 {
-				if "`never'"=="" & (`ccev'>-1) {	
+				if "`never'"=="" & (`ccev'>-`antigap') {	
 					local xvar `xvar'   c.__tr__#i`i'.__evnt__
 					local xvar2 `xvar2'          i`i'.__evnt__						
 					if "`x'"!="" {
@@ -505,7 +527,7 @@ program jwdid, eclass
 						local xvar3 `xvar3'          i`i'.__evnt__#c.(`xxvar')  
 					}
 				}
-				if "`never'"!="" & `ccev'!=(-`gap') {	
+				if "`never'"!="" & `ccev'!=(-`antigap') {	
 					local xvar `xvar'   c.__tr__#i`i'.__evnt__
 					local xvar2 `xvar2'          i`i'.__evnt__						
 					if "`x'"!="" {
@@ -525,8 +547,7 @@ program jwdid, eclass
 			foreach j of local elist {
 				qui:count if `i'==`gvar' & `j'==__evnt__ & `touse'
 				if `r(N)'>0 {
-					if `j'!=`evbase' {
-						
+					if `j'!=`evbase' {						
 						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.__evnt__ 							  
 						local xvar2 `xvar2'          i`i'.`gvar'#i`j'.__evnt__
 						
@@ -651,6 +672,10 @@ program jwdid, eclass
 	ereturn local tvar `tvar'
 	ereturn local gvar `gvar'
 	
+	ereturn scalar  gap =  `gap'
+	ereturn scalar  anticipation =  `anti'
+	ereturn scalar  antigap =  `antigap'
+	
 end
 
 mata
@@ -672,20 +697,6 @@ void is_balanced(string scalar ivars, string scalar touse){
 	if ( (max1==min1) & (max2==min2) & (max3==min3)) st_local("ibal","1")
 	else st_local("ibal","0")
 }
-end
-
-program easter_egg
-	
-	local date_to = date("`c(current_date)'","DMY")
-	local month   = month(`date_to')
-	local day     = day(`date_to')
-	
-	if runiform()<0.001 | (`month'==8 & `day'==6 & runiform()<0.1 ) {
-	display in w "{p}Hi there, thank you for using this command. I hope you are finding this 'easter egg' as a surprised, and not because you " ///
-	"decided to take a peak on the code. But if you did, shame on me for not making a better easter egg {p_end}"
-	display in w "{p}Anyways, This easter egg is for my Daughter! Yes as of August 6th 2022 (Viva Bolivia) my little one was born!. " _n  ///
-		"so if you happen to read this, two things happen. Either you were in the 0.1% lucky to see this, or its my little one birthday. If the latter  please send my little one, a Happy Birthday! {p_end}"
-	}
 end
 
 program myhdmean, rclass

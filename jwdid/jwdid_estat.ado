@@ -41,8 +41,8 @@ program define jwdid_estat, sortpreserve
 		capture noisily {
 			if inlist("`key'","simple","group","calendar","event","plot") {				
 				jwdid_`key'  `rest'
-				addr local cmd  estat, 
-				addr local cmd2 jwdid, 
+				addr local cmd  estat 
+				addr local cmd2 jwdid 
 				/*if "`key'"=="plot"  {
 					jwdid_plot, `plot1'
 				} */
@@ -134,17 +134,19 @@ program define jwdid_simple, rclass
 		matrix `bb' = `b'
 		matrix `VV' = `V'
 		adde repost b=`bb' V=`VV', rename
-
+		
 		ereturn display
+		tempname tb2
+		matrix `tb2' = r(table)
 		
 		if "`estore'"!="" est store `estore'
 		if `"`esave'"'!="" est save "`esave'", `replace'
 		if "`post'"=="" qui:est restore `lastreg'
 		
-		return matrix table = `table'
+		return matrix table = `tb2'
 		return matrix b = `b'
 		return matrix V = `V'
-		return local cmd jwdid_estat
+		return local ecmd jwdid_estat
 		return local agg simple
 end
 
@@ -193,16 +195,18 @@ program define jwdid_group, rclass
 		adde repost b=`bb' V=`VV', rename
 
 		ereturn display
+		tempname tb2
+		matrix `tb2' = r(table)
 		
 		if "`estore'"!="" est store `estore'
 		if `"`esave'"'!="" est save "`esave'", `replace'
 		if "`post'"=="" qui:est restore `lastreg'
 		
-		return matrix table = `table'
+		return matrix table = `tb2'
 		return matrix b = `b'
 		return matrix V = `V'
 		return local agg group
-		return local cmd jwdid_estat
+		return local ecmd jwdid_estat
 		capture drop __group__
 end
 
@@ -250,17 +254,19 @@ program define jwdid_calendar, rclass
 		adde repost b=`bb' V=`VV', rename
 
 		ereturn display
-		
+		tempname tb2
+		matrix `tb2' = r(table)
+
 		
 		if "`estore'"!="" est store `estore'
 		if `"`esave'"'!="" est save "`esave'", `replace'
 		if "`post'"=="" qui:est restore `lastreg'
 		
-		return matrix table = `table'
+		return matrix table = `tb2'
 		return matrix b = `b'
 		return matrix V = `V'
 		return local agg calendar
-		return local cmd jwdid_estat
+		return local ecmd jwdid_estat
 		capture drop __calendar__
 end
 
@@ -361,27 +367,37 @@ program define jwdid_event, rclass
 		matrix `bb' = `b'
 		matrix `VV' = `V'
 		adde repost b=`bb' V=`VV', rename
-
+ 
 		ereturn display
-		
+		tempname tb2
+		matrix `tb2' = r(table)
         *** PTA
         
         if "`pretrend'"!="" & "`nvr'"=="on" {
-            qui:levelsof __event__ & `sel' , local(lv)
+            qui:levelsof __event__ if `sel' , local(lv)
 			foreach i of local lv {
 				if `=-1+`i'+`rmin''<-1 local totest `totest' `i'.__event__ 
 			}
+			display in result "Pre-treatment test"
             test `totest'
+			scalar pre_chi2= r(chi2)
+			scalar pre_dfr = r(df_r)
+			scalar pre_p   = r(p) 
         }
         
 		if "`estore'"!="" est store `estore'
 		if `"`esave'"'!="" est save "`esave'", `replace'
 		if "`post'"=="" qui:est restore `lastreg'
 		
-		return matrix table = `table'
+		return matrix table = `tb2'
 		return matrix b = `b'
 		return matrix V = `V'
 		return local agg event
-		return local cmd jwdid_estat
+		return local ecmd jwdid_estat
+		if "`pretrend'"!="" {
+			return scalar pre_chi2= pre_chi2
+			return scalar pre_df = pre_df
+			return scalar pre_p  = pre_p
+		}	
 		*capture drop __event__
 end
