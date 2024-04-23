@@ -1,4 +1,5 @@
-*! v1.6 FRA. Fixes to esave, and Orestriction
+*! v1.7 FRA. Fixes how to Store Table (with new names)
+* v1.6 FRA. Fixes to esave, and Orestriction
 * v1.51 FRA. adds Window to event
 * v1.5 FRA. Fix Bug with Continuous treatment
 *           adds PTA test   
@@ -138,7 +139,7 @@ program define jwdid_simple, rclass
 		ereturn display
 		tempname tb2
 		matrix `tb2' = r(table)
-		
+
 		if "`estore'"!="" est store `estore'
 		if `"`esave'"'!="" est save "`esave'", `replace'
 		if "`post'"=="" qui:est restore `lastreg'

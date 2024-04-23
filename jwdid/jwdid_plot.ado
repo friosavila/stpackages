@@ -1,4 +1,5 @@
-* v1 Clone for jwdid
+*!v1.1 Plot for SIMPLE OVER
+* v1 Clone for jwdid:
 /*capture program drop  csdid_plot
 capture program drop  adds
 capture program drop jwdid_default

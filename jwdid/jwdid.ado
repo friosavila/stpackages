@@ -1,4 +1,5 @@
-*!v1.76 Excludes Fixed variables from the interactions with Cohort
+*!v1.77 Allows Anticipation 
+*v1.76 Excludes Fixed variables from the interactions with Cohort
 *v1.75 May allow for Intervalled Event
 *v1.71  Better Hettype
 *v1.7  Adds Event Hettype. Also allows to use Characteristics as is, or demean.
