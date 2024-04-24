@@ -116,7 +116,7 @@ program jwdid_plot_wh
 		 	qui:replace `kk'="`i'" in `k'
 		}
 		tempname k2
-		qui:encode `kk', gen(`k2')
+		qui:destring `kk', gen(`k2')
 		 
 		jwdid_plot_group `k2'  `mm1'  `mm5' `mm6'	, ///
 					`style' `title' `name'  `ytitle'	`xtitle' `legend'	 `options'  
@@ -145,7 +145,7 @@ program jwdid_plot_wh
 		 	qui:replace `kk'="`i'" in `k'
 		}
 		tempname k2
-		qui:encode `kk', gen(`k2')
+		qui:destring `kk', gen(`k2')
 		 
 		jwdid_plot_calendar `k2'  `mm1'  `mm5' `mm6'	, ///
 					`style'	  `title' `name'  `ytitle'	`xtitle' `legend' `options'		   
@@ -370,18 +370,18 @@ program jwdid_plot_group
 	gettoken ll rest:rest 
 	gettoken uu rest:rest 
 		
-	qui:levelsof `t', local(tlev)
+	/*qui:levelsof `t', local(tlev)
 	local tlb: value label `t'
 	local xlab 0 " "
 	foreach i of local tlev {
 	    local j = `j'+1
 	    local xlab `xlab' `i' "`:label `tlb' `i''"
-	}
+	}*/
 	
 	if `"`xtitle'"'=="" local xtitle xtitle("Groups")
 	if `"`ytitle'"'=="" local ytitle ytitle("ATT")
 	
-	local xlab `xlab' `=`j'+1' " "
+	*local xlab `xlab' `=`j'+1' " "
 	
 	jwdid_default , `options' `style'
 	local gf11  `s(df11)'
@@ -406,19 +406,19 @@ program jwdid_plot_calendar
 	gettoken ll rest:rest 
 	gettoken uu rest:rest 
 		
-	qui:levelsof `t', local(tlev)
+	/*qui:levelsof `t', local(tlev)
 	local tlb: value label `t'
 	local xlab 0 " "
 	foreach i of local tlev {
 	    local j = `j'+1
 	    local xlab `xlab' `i' "`:label `tlb' `i''"
-	}
+	}*/
 	
 	if `"`xtitle'"'=="" local xtitle xtitle("Periods")
 	if `"`ytitle'"'=="" local ytitle ytitle("ATT")
 	
 
-	local xlab `xlab' `=`j'+1' " "
+	*local xlab `xlab' `=`j'+1' " "
 	
 	jwdid_default , `options' `style'
 	local gf11  `s(df11)'

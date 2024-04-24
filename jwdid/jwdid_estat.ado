@@ -1,4 +1,5 @@
-*! v1.71 FRA. Bug with Pretrend
+*! v1.72 FRA. Anticipation without Never
+* v1.71 FRA. Bug with Pretrend
 * v1.7 FRA. Fixes how to Store Table (with new names)
 * v1.6 FRA. Fixes to esave, and Orestriction
 * v1.51 FRA. adds Window to event
@@ -317,6 +318,19 @@ program define jwdid_event, rclass
 
 		*qui:replace __event__ =__event__ - 1 if  __event__ <0
 		if "`e(type)'"=="notyet" {
+****
+            local nvr = "on"
+			capture drop __event2__
+			qui:sum __event__ , meanonly
+			local rmin = r(min)
+			qui:replace __event__=1+__event__-r(min)
+			qui:levelsof __event__, local(lv)
+			foreach i of local lv {
+				label define __event__ `i' "`=-1+`i'+`rmin''", modify
+			}
+			label values __event__ __event__
+
+****
 				if "`asis'"=="" {
 					qui:margins [`weight'`exp'], subpop(if `sel' & __etr__==1 & `tosel') at(__tr__=(0 1)) ///
 						  over(__event__) noestimcheck contrast(atcontrast(r)) ///
