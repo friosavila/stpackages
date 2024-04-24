@@ -417,7 +417,7 @@ program jwdid, eclass
 							}
 						}
 					}
-					else if `j'>=(`i'-`anitgap0') {
+					else if `j'>=(`i'-`antigap0') {
 
 						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar' 							  
 						local xvar2 `xvar2'          i`i'.`gvar'#i`j'.`tvar' 

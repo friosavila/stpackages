@@ -1,4 +1,5 @@
-*! v1.7 FRA. Fixes how to Store Table (with new names)
+*! v1.71 FRA. Bug with Pretrend
+* v1.7 FRA. Fixes how to Store Table (with new names)
 * v1.6 FRA. Fixes to esave, and Orestriction
 * v1.51 FRA. adds Window to event
 * v1.5 FRA. Fix Bug with Continuous treatment
@@ -397,7 +398,7 @@ program define jwdid_event, rclass
 		return local ecmd jwdid_estat
 		if "`pretrend'"!="" {
 			return scalar pre_chi2= pre_chi2
-			return scalar pre_df = pre_df
+			return scalar pre_df = pre_dfr
 			return scalar pre_p  = pre_p
 		}	
 		*capture drop __event__

@@ -1,4 +1,5 @@
-*!v1.1 Plot for SIMPLE OVER
+*!v1.2 Bugs with Lwidth
+*v1.1 Plot for SIMPLE OVER
 * v1 Clone for jwdid:
 /*capture program drop  csdid_plot
 capture program drop  adds
@@ -252,29 +253,46 @@ program jwdid_default, sclass
 	else local color1 color(`"`color1'"')
 	if "`color2'"=="" local color2 color(%40)
 	else local color2 color(`"`color2'"')
-	
+
+	  
 	if "`style'"=="rspike" {
-		if "`lwidth1'"=="" local lwidth1 lwidth(3)		
+		if "`lwidth1'"=="" local lwidth1 lwidth(3)
+		else               local lwidth1 lwidth(`lwidth1') 
 		if "`lwidth2'"=="" local lwidth2 lwidth(3)
+        else               local lwidth2 lwidth(`lwidth2') 
 	}
 	
 	if "`style'"=="rarea" {
 		if "`lwidth1'"=="" local lwidth1 lwidth(0)		
+   		else               local lwidth1 lwidth(`lwidth1') 
+
 		if "`lwidth2'"=="" local lwidth2 lwidth(0) 
+		else               local lwidth2 lwidth(`lwidth2') 
+        
 		local conn connect(l)
 	}
 	
 	if "`style'"=="rcap" {
 		if "`lwidth1'"=="" local lwidth1 lwidth(1)		
+		else               local lwidth1 lwidth(`lwidth1') 
+        
 		if "`lwidth2'"=="" local lwidth2 lwidth(1) 
+		else               local lwidth2 lwidth(`lwidth2') 
+        
 		local conn connect(l)
 	}
 		
 	if "`style'"=="rbar" {
 		if "`lwidth1'"=="" local lwidth1 lwidth(0)		
+   		else               local lwidth1 lwidth(`lwidth1') 
+
 		if "`lwidth2'"=="" local lwidth2 lwidth(0) 
+		else               local lwidth2 lwidth(`lwidth2') 
+        
 		if "`barwidth1'"=="" local barwidth1 barwidth(0.5)		
+        els                  local barwidth1 barwidth(`barwidth1')	
 		if "`barwidth2'"=="" local barwidth2 barwidth(0.5)
+        els                  local barwidth2 barwidth(`barwidth2')	
 		local conn connect(l)
 	}
 	 
@@ -311,8 +329,8 @@ end
 
 program jwdid_plot_event 
 	syntax varlist, [style(passthru) title(passthru) name(passthru) ///
-					ytitle(passthru) xtitle(passthru)	///
-					legend(passthru) *  ]
+					ytitle(passthru) * xtitle(passthru)	///
+					legend(passthru)  ]
 	gettoken t rest:varlist
 	gettoken b rest:rest
 	gettoken ll rest:rest 
@@ -419,7 +437,7 @@ end
 
 program jwdid_plot_simple
 	syntax varlist, [title(passthru) name(passthru)	///
-								ytitle(passthru) xtitle(passthru) * ]
+						*		ytitle(passthru) xtitle(passthru) * ]
 	gettoken t rest:varlist
 	gettoken b rest:rest
 	gettoken ll rest:rest 
