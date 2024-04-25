@@ -393,7 +393,7 @@ program jwdid_plot_group
 	two   (`style'  `ll' `uu' `t'  , `gf11' )  ///
 		  (scatter  `b'      `t'   , `gf12' ) , ///
 		  legend(off) `xtitle'  `ytitle'  ///
-		  yline(0 , lp(dash) lcolor(black)) `title' `name' xlabel(`xlab') `dels'
+		  yline(0 , lp(dash) lcolor(black)) `title' `name'  `dels'
 	
 end
 
@@ -431,7 +431,7 @@ program jwdid_plot_calendar
 	two   (`style'  `ll' `uu' `t'  , `gf11' )  ///
 		  (scatter  `b'      `t'   , `gf12'  ) , ///
 		  legend(off) `xtitle'  `ytitle'  ///
-		  yline(0 , lp(dash) lcolor(black)) `title' `name' xlabel(`xlab') `dels'
+		  yline(0 , lp(dash) lcolor(black)) `title' `name'  `dels'
 end
 
 
@@ -468,7 +468,7 @@ program jwdid_plot_simple
 	two   (`style'  `ll' `uu' `t'  , `gf11' )  ///
 		  (scatter  `b'      `t'   , `gf12'  ) , ///
 		  legend(off) `xtitle'  `ytitle'  ///
-		  yline(0 , lp(dash) lcolor(black)) `title' `name' xlabel(`xlab') `dels'
+		  yline(0 , lp(dash) lcolor(black)) `title' `name'  `dels'
 end
 
 
