@@ -67,9 +67,9 @@
 {title:Description}
 
 {pstd}
-{cmd:jwdid} is a program that implements the Extended TWFE estimator proposed by Wooldridge(2022,2023) for the estimation of ATT's based on a generalized DID design. 
+{cmd:jwdid} is a program that implements the Extended TWFE estimator proposed by Wooldridge(2022,2023) for a generalized DID design that addresses the problems related to the standard TWFE. The program also incorporates additional options that allow for a more flexible model specification. This includes the guidelines for the estimation of Gravity-trade models as proposed by Nagengast and Yotov (2024) and  Nagengast et al (2024).   
 
-{pstd}In principle, this estimator simply suggests that to avoid some of the negative aspects of the traditional TWFE-DID estimator, which uses already treated units as controls causing the so-called negative weights, one should simply use a fully interacted set of dummies allowing for treatment effect heterogeneity by cohort and timing. 
+{pstd}In principle, this estimator suggests that to avoid some of the negative aspects of the traditional TWFE-DID estimator, one should simply use a fully interacted set of dummies allowing for treatment effect heterogeneity by cohort and timing. By using such interaction, one avoids using already treated units as controls causing the so-called negative weights problems.
 
 {pstd}Specifically, instead of estimating a model as follows:
 
@@ -77,42 +77,37 @@
 
 {pstd}where D_it indicates if unit i is treated at time t. One should estimate a model like the following:
 
-{pstd}y_it = sum(gamma_gt * G_i * t) + a_i + b_t + e_t
+{pstd}y_it = sum(gamma_gt * G_i * T) + a_i + b_t + e_t
 
-{pstd}where G_i * t corresponds to all possible interactions of the cohort unit i belongs to (G_i) and the period we aim to estimate that effect at (t). 
+{pstd}where G_i * T corresponds to all possible interactions of the cohort unit i belongs to (G_i) and the period we aim to estimate that effect at (T), using as reference group all units that have not been treated yet. 
 
-{pstd}In the simplest case, gamma_gt represents the ATT for cohort G at time t, and the estimates are comparable to the ones one could obtain using {cmd: csdid}.
+{pstd}In the simplest case, gamma_gt represents the ATT for cohort G at time t. When the option {cmd: never} is used, the specification also includes the Group period interactions including all those periods before treatment occured. In the case without covariates, the estimates are numerically identical to those identified using Callaway and Sant'Anna (2021)-regression outcome method, or using Sun and Abraham (2021) approach.
 
-{pstd}This command also allows you to add controls to the model, but those controls should be time invariant. The command will NOT verify that this is the case. 
+{pstd}Similar to {help xthdidregres} and {help hdidregress}, it is possible to estimate the DID model by declaring a treatment variable {cmd:trtvar()} instead of the group variable {cmd:gvar()}. Similarly, to reduce the complexity of the estimation, it is possible to impose some restrictions on the treatment effect heterogeneity using {cmd:hettype()}.
 
-{pstd}One should also be aware that {cmd: jwdid} will create as many interactions as cohorts and periods are there in the data, times all possible controls. 
-This could provide an extreamly large number of estimated coefficients, which could make the models difficult to estimate.
+{pstd}In addition to impossing constrains to the treatment effect heterogeneity, it is also possible to add covariates that allows for covariate heterogeneity, as well as restricting the heterogneity only across time, across cohorts or no heterogeneity at all. Any variable that is included in the {cmd:varlist} is interacted with the corresponding level of treatment heterogeneity. The default option is to add sub-group demeaned variables to the model, but it is possible to request using the original variables using the option {cmd: xasis}. Both approaches produces the same aggregate average treatment effects, but the interpretation of the model coefficients is changes. 
 
-{pstd}When using other estimation methods using {cmd: method()}, the program will assume group/cohort fixed effects only, instead of individual fixed effects. Mostly, this is to avoid the incidental parameter problem.
+{pstd}One can also request adding variable that are interacted with the time variable only {cmd: xtvar()}, cohort variable only {cmd: xgvar()}, or not interacted at all {cmd: exovar()}. Similarly, additional fixed effects can be added to the model using the option {cmd: fevar()}.
 
-{pstd}The default comparison group only the interactions of cohort and time AFTER treatment occurred are included in the specification. This effectively uses not-yet treated as controls. When using the option {cmd:never}, all posible interactions of cohort 
-and time are used, thus considering only the never treated as controls. The results from this are equivalent to Callaway and Sant'Anna (2021) and {cmd: csdid}, and the proposition by Sun and Abraham (2021). 
+{pstd}One should also be aware that {cmd: jwdid} will create as many interactions as cohorts and periods are there in the data, times all possible controls, unless heterogeneity is restricted and covariate heterogeneity is restricted using the above options.
+
+{ptsd}This could provide an extreamly large number of estimated coefficients, which could make some models difficult to estimate.
+
+{pstd}Other estimation methods can be used by declaring the option {cmd: method()}. The default method is {cmd: reghdfe}, which is a linear regression model with fixed effects. Other methods include {cmd: poisson}, {cmd: logit}, or {cmd: ppmlhdfe}, which is the leading approaach for the estimation of gravity-trade models. 
+
+{ptsd} Except when {cmd: ppmlhdfe} is used, whever {cmd: method()} is declared, the program will assume group/cohort fixed effects only, instead of individual fixed effects. This is to avoid the incidental parameter problem.
 
 {marker remarks}{...}
 {title:Remarks}
 
 {pstd}
-The first version of this command came out as one of my attempts of learning some of the new DID methods. 
-For a while, most of my efforts were centered on {cmd:drdid} and {cmd:csdid}. 
-However, the methodology proposed by Prof. Wooldridge has important advantages over other methods, which called my applied econometrician's attention. 
+The code of this program is based on some of the advances by Prof. Wooldridge on the estimation of DID models. It has important advantages over other methods: 
 
-{pstd}The two most important advantages are: 
+{phang2}1. It is based on regression analysis, and most people understand regression, compared to the other alternatives.
 
-{phang2}1. It is based on regression analysis, and most people understand regression, compared to the other alternatives
+{phang2}2. It is flexible for other methods. Namely, you should be easily be able to apply it for binary or count models, or even for the estimation of gravity-trade models, as we show in Nagengast et al (2024).
 
-{phang2}2. It is flexible for other methods. Namely, you should be easily be able to apply it for binary or count models (or other methods yet untested?)
-
-{pstd}Also, this program was coded independently from Jeff Wooldridge, but mostly based on some of his simulation codes he shared with the community. 
-Thus all errors of interpretation, and re-implementation (some of my own views on it) are my own. 
-If you see an error or bug, Please let me know.
-
-{pstd}And of course, there are now other two options to do the same in Stata. In Stata18, they lunch -xthdidregress- and -hdidregress-, which have the option 
-to estimate DID models using the same approach. And most recently, someone developed -wooldid-. Lots of options! but I still like mine better! Just saying.
+{pstd}This program was coded independently from Jeff Wooldridge, but is mostly based on some of his early simulation codes he shared with the community. Some further advances were made following the official implentation of {help xthdidregress} and {help hdidregress}. Most advanced were developed for the joint work with Arne Nagengast and Yoto Yotov, for the estimation of DID type models in gravity trade settings.
 
 {pstd}To estimate aggregates, see {help jwdid_postestimation}
 
