@@ -617,8 +617,9 @@ program jwdid, eclass
 	if "`method'"=="" {
 		if "`group'"=="" {
 			** ogxvar  will be excluded if they are fixed across time
+			if "`tocluster'"=="" local tocluster vce(robust)
 			reghdfe `y' `xvar' `ogxvar'  `otxvar' 	`exogvar' ///
-				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons
+				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons `options'
 			local scmd `e(cmdline)'		
 		}	
 		else {
@@ -633,14 +634,15 @@ program jwdid, eclass
 				}
 			}	
 			reghdfe `y' `xvar'  `x'  `ogxvar' `otxvar'   `exogvar' `xcorr' ///
-			if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') `tocluster' keepsingletons noempty
+			if `touse' [`weight'`exp'], abs(`gvar'  `tvar' `fevar') `tocluster' keepsingletons noempty `options'
 			local scmd `e(cmdline)'
 		}
 	}
 	else if "`method'"=="ppmlhdfe" {
+		
 		ppmlhdfe `y' `xvar' `ogxvar'  `otxvar'	`exogvar' ///
 				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons ///
-				d `method_option'
+				d `method_option' `options'
 		local scmd `e(cmdline)'				
 	}	
 	else {
@@ -654,7 +656,7 @@ program jwdid, eclass
 			} 
 		}
 		`method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `exogvar'   i.`gvar' i.`tvar' ///
-		if `touse' [`weight'`exp'], `tocluster' `method_option'
+		if `touse' [`weight'`exp'], `tocluster' `method_option' `options'
 		local scmd `e(cmdline)'
 	}
 	
