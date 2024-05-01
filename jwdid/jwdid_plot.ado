@@ -1,4 +1,5 @@
-*!v1.2 Bugs with Lwidth
+*!v1.3 Allows Tight Graph
+*v1.2 Bugs with Lwidth
 *v1.1 Plot for SIMPLE OVER
 * v1 Clone for jwdid:
 /*capture program drop  csdid_plot
@@ -60,7 +61,7 @@ end
 program jwdid_plot_wh
 	syntax, [style(passthru) title(passthru) name(passthru) Group(str) ///
 							 ytitle(passthru) xtitle(passthru)	///
-							 legend(passthru) agg(str) * ]
+							 legend(passthru) agg(str) * tight ]
 	tempvar mm  b
 	tempvar kk
 	
@@ -90,7 +91,7 @@ program jwdid_plot_wh
 		 	    local k = `k'+1
 			qui:replace `kk'=`i' in `k'
 		}
-	
+ 
 		jwdid_plot_event `kk'  `mm1'  `mm5' `mm6'	, ///
 					`style' `title' `name'  `ytitle'	`xtitle' `legend'	`options'    
 	}
@@ -117,7 +118,12 @@ program jwdid_plot_wh
 		}
 		tempname k2
 		qui:destring `kk', gen(`k2')
-		 
+		if "`tight'"!="" {
+			tempvar mm7 
+			qui:egen `mm7'=group(`k2'), label
+			qui:drop `k2'
+			qui:rename `mm7' `k2'
+		} 		 
 		jwdid_plot_group `k2'  `mm1'  `mm5' `mm6'	, ///
 					`style' `title' `name'  `ytitle'	`xtitle' `legend'	 `options'  
 		*drop `mm'? 
@@ -146,7 +152,12 @@ program jwdid_plot_wh
 		}
 		tempname k2
 		qui:destring `kk', gen(`k2')
-		 
+		if "`tight'"!="" {
+			tempvar mm7 
+			qui:egen `mm7'=group(`k2'), label
+			qui:drop `k2'
+			qui:rename `mm7' `k2'
+		} 
 		jwdid_plot_calendar `k2'  `mm1'  `mm5' `mm6'	, ///
 					`style'	  `title' `name'  `ytitle'	`xtitle' `legend' `options'		   
 		*drop `mm'? 
@@ -351,6 +362,8 @@ program jwdid_plot_event
 	local gf22 `s(df22)'
 	local style `s(style)'
 	local dels  `s(delse)'
+
+
  	two   (`style'  `ll' `uu' `t'  if `t'<=-`antigap' , `gf11') ///
 		  (scatter  `b'      `t'   if `t'<=-`antigap' , `gf12')  ///
 		  (`style'  `ll' `uu' `t'  if `t'>-`antigap', `gf21')  ///
