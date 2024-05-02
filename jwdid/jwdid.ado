@@ -344,7 +344,7 @@ program jwdid, eclass
 		qui: replace  __post__ = 2 if `tvar'>=(`gvar'-`antigap0') & `gvar'>0 &  `touse'
 		qui: label define __post__ 0 "Base" 1 "Pre-Trt" 2 "Post-Trt", modify
 		qui: label values __post__ __post__
-		qui:egen `toabshere'=group(`time' __post__ ) if `touse'
+		qui:egen `toabshere'=group(`tvar' __post__ ) if `touse'
 	}
 	if "`ehettype'"=="twfe"        {
 		qui: capture drop __post__

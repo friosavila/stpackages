@@ -67,7 +67,7 @@
 {title:Description}
 
 {pstd}
-{cmd:jwdid} is a program that implements the Extended TWFE estimator proposed by Wooldridge(2022,2023) for a generalized DID design that addresses the problems related to the standard TWFE. The program also incorporates additional options that allow for a more flexible model specification. This includes the guidelines for the estimation of Gravity-trade models as proposed by Nagengast and Yotov (2024) and  Nagengast et al (2024).   
+{cmd:jwdid} is a program that implements the Extended TWFE estimator proposed by Wooldridge(2021,2023) for a generalized DID design that addresses the problems related to the standard TWFE. The program also incorporates additional options that allow for a more flexible model specification. This includes the guidelines for the estimation of Gravity-trade models as proposed by Nagengast and Yotov (2024) and  Nagengast et al (2024).   
 
 {pstd}In principle, this estimator suggests that to avoid some of the negative aspects of the traditional TWFE-DID estimator, one should simply use a fully interacted set of dummies allowing for treatment effect heterogeneity by cohort and timing. By using such interaction, one avoids using already treated units as controls causing the so-called negative weights problems.
 
@@ -107,7 +107,7 @@ The code of this program is based on some of the advances by Prof. Wooldridge on
 
 {phang2}2. It is flexible for other methods. Namely, you should be easily be able to apply it for binary or count models, or even for the estimation of gravity-trade models, as we show in Nagengast et al (2024).
 
-{pstd}This program was coded independently from Jeff Wooldridge, but is mostly based on some of his early simulation codes he shared with the community. Some further advances were made following the official implentation of {help xthdidregress} and {help hdidregress}. Most advanced were developed for the joint work with Arne Nagengast and Yoto Yotov, for the estimation of DID type models in gravity trade settings.
+{pstd}This program was coded independently from Jeff Wooldridge, but is based on some of his early simulation codes he shared with the community. Some further advances were made following the official implentation of {help xthdidregress} and {help hdidregress}. Most advanced were developed for the joint work with Arne Nagengast and Yoto Yotov, for the estimation of DID type models in gravity trade settings.
 
 {pstd}To estimate aggregates, see {help jwdid_postestimation}
 
@@ -131,16 +131,24 @@ Simple DID using not-treated as controls, based on group (rather than individual
 
 {phang}{stata "jwdid lemp, ivar(countyreal) tvar(year) gvar(first_treat) group"}{p_end}
 
-DID using not-treated as controls, based on group (rather than individual) fixed effects, and one time invariant control
+DID using not-treated as controls, based on group (rather than individual) fixed effects, and one time invariant control.
 
 {phang}{stata "jwdid lemp lpop, ivar(countyreal) tvar(year) gvar(first_treat) group"}{p_end}
 
-DID using not-treated as controls, based on group (rather than individual) fixed effects, and one time invariant control. 
-Poisson regression estimator.
+DID using not-treated as controls, based on group (rather than individual) fixed effects, and one time invariant control. Using poisson regression estimator.
 
 {phang}{stata "gen emp = exp(lemp)"}{p_end}
 {phang}{stata "jwdid emp lpop, ivar(countyreal) tvar(year) gvar(first_treat) method(poisson)"}{p_end}
 
+DID using never treated as controls, using different treatment effects heterogeneity restrictions.
+
+{phang}{stata "jwdid lemp, ivar(countyreal) tvar(year) gvar(first_treat) never (time)"}{p_end}
+
+{phang}{stata "jwdid lemp, ivar(countyreal) tvar(year) gvar(first_treat) never hettype(cohort)"}{p_end}
+
+{phang}{stata "jwdid lemp, ivar(countyreal) tvar(year) gvar(first_treat) never hettype(event)"}{p_end}
+
+{phang}{stata "jwdid lemp, ivar(countyreal) tvar(year) gvar(first_treat) never hettype(twfe)"}{p_end}
 
 {marker authors}{...}
 {title:Authors}
@@ -150,6 +158,16 @@ Fernando Rios-Avila{break}
 Levy Economics Institute of Bard College{break}
 Annandale-on-Hudson, NY{break}
 friosavi@levy.org
+
+{ptsd}
+Arne J. Nagengast{break} 
+Deutsche Bundesbank{break}
+arne.nagengast@bundesbank.de
+
+{ptsd}
+Yoto V. Yotov{break}
+School of Economics,Drexel University{break}
+yotov@drexel.edu
 
 {marker references}{...}
 {title:References}
@@ -161,12 +179,13 @@ estimators. Working paper.{p_end}
 {phang2}Wooldridge, Jeffrey. 2023.
 Simple Approaches to Nonlinear Difference-in-Differences with Panel Data. The Econometrics Journal, Volume 26, Issue 3, September 2023, Pages C31–C66.{p_end}
 
+{phang2}Yoto 1
+
 
 {marker aknowledgement}{...}
 {title:Aknowledgement}
 
-{pstd}This command was put together just for fun, and as my last push of "productivity" before my 
-baby girl was born! (she is now 15months!) {p_end}
+{pstd}This command started as an isolated project before becoming a dad! 2 years later and Im almost ready to get a much better version of it. {p_end}
 
 {title:Also see}
 
