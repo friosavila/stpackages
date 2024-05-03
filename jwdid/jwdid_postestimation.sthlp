@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 1 }{...}
+{* *! version 2}{...}
 
 {title:Title}
 
@@ -11,7 +11,7 @@
 
 {p 8 17 2}
 {cmdab:estat}
-[aggregation]
+[aggregation] [pw]
 [{cmd:,} {it:options}]
 
 {synoptset 20 tabbed}{...}
@@ -23,26 +23,36 @@
 {synopt:{opt calendar}}Estimates the ATT for each period, across all groups or cohorts.{p_end}
 {synopt:{opt event}}Dynamic aggregation. When default option is used (not-yet treated)
 this option only provides the post-treatment ATT aggregations.{p_end}
+{synopt:{opt plot}}Produces Plots using the last estimated results{p_end}
 {synoptline}
+One can also request using weights different from those used in the estimation.
 
-{pstd}Because {cmd:jwdid} uses {help margins} to estimate the ATT, you can use many margins options, including "post" to store the output for further reporting, or predict()
-to produce results for other outcomes (other than default).{p_end}
+{pstd}Because {cmd:jwdid} uses {help margins} to estimate the aggregate ATTs, you can use many margins options, including "post" to store the output for further reporting, or predict() to produce results for other outcomes (other than default).{p_end}
 
-{pstd}However, I added extra options to faciliate storing, as well as alternative effects.{p_end}
+{pstd}However, there are other options available options.{p_end}
 
 {synoptset 20 tabbed}{...}
 {synopthdr}
 {synoptline}
-Options
-{synopt:{opt plot}[(plotting options)]} You can request plotting the results after producing them. THis follows a syntax similar to margins, plot[()]
-Everything in parenthesis are two-way option plots that can be added to the figure construction.{p_end}
-{synopt:{opt esave(name)}}Saves the output into a ster file{p_end}
-{synopt:{opt estore(name)}}Saves the output in memory under name{p_end}
-{synopt:{opt other(varname)}}When using calendar, group or event aggregations, you can request getting the aggregations for specific subgroups. Say excluding first and last event period.
-This should be specified with a dummy that identifies with 1 observations to be kept in the analysis{p_end}
-{synopt:{opt over(varname)}}When using simple, one can request to estimate "simple" estimates across multiple subgroups. For example,
-to reproduce ATTGTs for all post-treament data in nonlinear model{p_end}
+ 
+{synopt:{opt esave(name)}}Saves the output into a ster file, without erasing the previouly estimated results. Can be used with {opt replace}, to overwritte a previouly existing file{p_end}
+{synopt:{opt estore(name)}}Stores the output in memory under {cmd: name}{p_end}
+{synopt:{opt ores:triction(str)}}Imposes an additional restriction on the ATT's aggregation. For example, -estat simple, ores(sex==2)- would estimate a simple ATT for women only. This option can be used for all aggregations. {p_end}
+{synopt:{opt over(varname)}}When using {opt simple} aggregation, one can request to obtain "simple" estimates across subgroups. For example, to produce ATT's for men and women.{p_end}
+{synopt:{opt pretrend}}When using {opt event} aggregation, one can request to obtain a simple Parallel trends assumption test. This will use -test- on the Null that all pre-treament aggregated ATTs are zero. {p_end}
+{synopt:{opt window}}When using {opt event} aggregation, this option can be requested to restrict the aggregation and use data only the event periods within {opt window}{p_end}
+{synopt:{opt cwindow}}In contrast to {opt window}, this option censores the "events" to be used before doing the aggregation. For example, -cwindow(-4 4)- would display aggragates for periods -4 to 4, but the lower threshold would aggregate all ATTs before T-4. {p_end}
 {synoptline}
+
+The {opt plot} option works similar to a post estimation command. It uses the last estimated results to produce the corresponding plots. It has various options:
+
+{synoptset 20 tabbed}{...}
+{synopthdr}
+{synoptline}
+
+{synoptline}
+
+
 
 {p2colreset}{...}
 
@@ -50,23 +60,40 @@ to reproduce ATTGTs for all post-treament data in nonlinear model{p_end}
 {title:Description}
 
 {pstd}
-{cmd:jwdid} comes with a basic post-estimation command that estimates 4 types of aggregations: 
-Simple, Calendar, group and event/dynamic ATTs. These are similar to the aggregations based on {cmd:csdid}.
+In the simple linear model, average treatment effects on group G and time T can be directly analyzed by looking at the corresponding regression coefficients. However, in more complex models, those coefficients will not reflect the average treatment effect, except for the latent variable. 
 
 {pstd}
-All estimations are constructed using {help margins} turning on and off the "treatment" dummy __tr__.
- You can use many margins options, including "post" to store the output for further reporting. For example, using predict(xb) to 
- get effects based on the linear predictor.
+The procedure used for aggregation is based on the following steps:
+
+1. Given the estimated coefficients, obtain the predicted outcome of interest (linear index for ols) using all data as observed. Call this y_hat_observed.
+2. Obtain the predicted outcome setting to zero all coefficients that are associated with the treatment dummy (ie __tr__=0). Call this y_hat_nontreated
+
+{pstd} Once these two estimates are obtained, it is possible to calculate the individual level ATT as ATT_i = y_hat_observed_i - y_hat_nontreated_i. Which is the difference between the predicted potential outcome as observed minus the predicted potential outcome as if the individual was not treated.
+
+{pstd} Once the ATT_i is obtained, Any aggregation can be calculated by simply using a weighted avarage, and a selection indicator. 
+
+AGGATT = sum(ATT_i * w_i*sel_i)/sum(w_i*sel_i)
+
+{pstd} In this case, -w_i- is the weight observation i has in the survey (or the weight requested using [pw=var]). And -sel_i- is a dummy variable that is 1 if the observation is selected for the aggregation, and 0 otherwise.
+
+{pstd} Similar to {cmd:csdid} and {cmd:csdid2}, four basic aggregations are available:
+
+Simple: sel_i = 1 if t_i >= g_i (all observations for periods after treatment)
+
+Calendar: sel_i = 1 if t_i >= g_i & t_i == t_c (all observations for periods after treatment, if treated at time t_c)
+
+Group: sel_i = 1 if t_i >= g_i & g_i == g_c (all observations for periods after treatment, if they belong to group g_c)
+
+Event: sel_i = 1 if (t_i -  g_i) = e & g_i != 0 (all observations where the gap between time and treatment period is e)
 
 {pstd}
-When other estimation methods are used (probit/poisson) margins are calculated based on the default options in margins.
+When other estimation methods are used (probit/poisson) margins are calculated based on the default options in margins. However, the user can also request to use other options, such as -predict(xb)-.
 
 {pstd}
-The command allows you to directly save -esave- or store -estore- the outcomes from margins. As well as estimate margins for other subsamples using 
-the -other(varname)- and -over(name) options.
+Combining the basic aggregations with {opt ores:triction()} and {opt over()} allows for a wide range of aggregations to be calculated, allowing for the direct identification of Characteristics heterogeneity.
 
 {pstd}
-You can also request to create plots right after producing the aggregations. This follows a syntax similar to margins, plot[()].
+After producing the aggregations, one can use -estat plot- to produce the corresponding plots. 
 
 {marker remarks}{...}
 {title:Remarks}
@@ -74,10 +101,13 @@ You can also request to create plots right after producing the aggregations. Thi
 {pstd}
 This code shows how simple is to produce Aggregations for ATT's based on this approach. 
 However, as experienced with the first round of CSDID, when you have too many periods and cohorts, 
-the aggregations may take some time.
+some aggregations may take some time to be produced.
 
 {pstd}
-Also, all errors are my own. And this code was not necessarily checked by Prof Wooldridge. So if something looks different from his, look into his work.
+Also, the general recommendation is to produce aggregations and Standard errors using -vce(unconditional)- option. However, this not possible in all cases. Specifically, if the model is estimated with reghdfe (default) or ppmlhdfe, the unconditional standard errors are not available. 
+
+{pstd}
+Also, all errors are my own. 
 
 {marker examples}{...}
 {title:Examples}
@@ -206,6 +236,16 @@ Levy Economics Institute of Bard College{break}
 Annandale-on-Hudson, NY{break}
 friosavi@levy.org
 
+{ptsd}
+Arne J. Nagengast{break} 
+Deutsche Bundesbank{break}
+arne.nagengast@bundesbank.de
+
+{ptsd}
+Yoto V. Yotov{break}
+School of Economics,Drexel University{break}
+yotov@drexel.edu
+
 {marker references}{...}
 {title:References}
 
@@ -218,25 +258,10 @@ estimators. Working paper.{p_end}
 Simple Approaches to Nonlinear Difference-in-Differences 
 with Panel Data. Working paper.{p_end}
 
-{phang2}
- Jann, B. (2014). addplot: Stata module to add twoway plot objects to an existing twoway graph. Available from 
-        http://ideas.repec.org/c/boc/bocode/s457917.html.
-{p_end}
-
-{marker acknowledgement}{...}
-{title:Acknowledgement}
-
-{pstd}This command was put together just for fun, and 
-as my last push of "productivity" before my 
-baby girl was born! Who is now 15months!{p_end}
-
-{pstd}jwdid_plot was also written due to request of people interested in this estimator.
-{p_end}
-
 
 {title:Also see}
 
 {p 7 14 2}
 Help:  {help drdid}, {help csdid}, {help csdid_postestimation}, 
-{help jwdid}, {help jwdid_postestimation}, {help xtdidregress} {p_end}
+{help jwdid}, {help jwdid_postestimation}, {help xthdidregress} {p_end}
 

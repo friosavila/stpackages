@@ -1,4 +1,5 @@
-*! v1.72 FRA. Anticipation without Never
+*! v2.0 FRA. Gravity
+* v1.72 FRA. Anticipation without Never
 * v1.71 FRA. Bug with Pretrend
 * v1.7 FRA. Fixes how to Store Table (with new names)
 * v1.6 FRA. Fixes to esave, and Orestriction
@@ -143,7 +144,7 @@ program define jwdid_simple, rclass
 		matrix `tb2' = r(table)
 
 		if "`estore'"!="" est store `estore'
-		if `"`esave'"'!="" est save "`esave'", `replace'
+		if `"`esave'"'!="" est save `esave', `replace'
 		if "`post'"=="" qui:est restore `lastreg'
 		
 		return matrix table = `tb2'
@@ -202,7 +203,7 @@ program define jwdid_group, rclass
 		matrix `tb2' = r(table)
 		
 		if "`estore'"!="" est store `estore'
-		if `"`esave'"'!="" est save "`esave'", `replace'
+		if `"`esave'"'!="" est save `esave', `replace'
 		if "`post'"=="" qui:est restore `lastreg'
 		
 		return matrix table = `tb2'
@@ -262,7 +263,7 @@ program define jwdid_calendar, rclass
 
 		
 		if "`estore'"!="" est store `estore'
-		if `"`esave'"'!="" est save "`esave'", `replace'
+		if `"`esave'"'!="" est save `esave', `replace'
 		if "`post'"=="" qui:est restore `lastreg'
 		
 		return matrix table = `tb2'
@@ -402,7 +403,7 @@ program define jwdid_event, rclass
         }
         
 		if "`estore'"!="" est store `estore'
-		if `"`esave'"'!="" est save "`esave'", `replace'
+		if `"`esave'"'!="" est save `esave', `replace'
 		if "`post'"=="" qui:est restore `lastreg'
 		
 		return matrix table = `tb2'
