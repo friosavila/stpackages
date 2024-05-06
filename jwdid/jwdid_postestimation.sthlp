@@ -204,12 +204,12 @@ Levy Economics Institute of Bard College{break}
 Annandale-on-Hudson, NY{break}
 friosavi@levy.org
 
-{ptsd}
+{pstd}
 Arne J. Nagengast{break} 
 Deutsche Bundesbank{break}
 arne.nagengast@bundesbank.de
 
-{ptsd}
+{pstd}
 Yoto V. Yotov{break}
 School of Economics, Drexel University{break}
 yotov@drexel.edu
@@ -217,18 +217,20 @@ yotov@drexel.edu
 {marker references}{...}
 {title:References}
 
+{phang2}Nagengast, Arne J., Fernando Rios-Avila and Yoto V. Yotov. 2024. The European Single Market and Intra-EU Trade: An Assessment with Heterogeneity-Robust Difference-in-Differences Methods
+working paper {browse "https://friosavila.github.io/app_metrics/eu_etwfe.pdf":Paper}.{p_end}
+
+{phang2}Nagengast, Arne J. and Yoto V. Yotov. 2024. Staggered Difference-in-Differences in Gravity Settings: Revisiting the Effects of Trade Agreements. American Economic Journal: Applied Economics (forthcoming).{p_end}
+
 {phang2}Wooldridge, Jeffrey. 2021.
-Two-Way Fixed Effects, the Two-Way Mundlak Regression, and 
-Differences-in-Differences 
+Two-Way Fixed Effects, the Two-Way Mundlak Regression, and Differences-in-Differences 
 estimators. Working paper.{p_end}
 
-{phang2}Wooldridge, Jeffrey. 2022.
-Simple Approaches to Nonlinear Difference-in-Differences 
-with Panel Data. Working paper.{p_end}
-
+{phang2}Wooldridge, Jeffrey. 2023.
+Simple Approaches to Nonlinear Difference-in-Differences with Panel Data. The Econometrics Journal, Volume 26, Issue 3, September 2023, Pages C31–C66.{p_end}
 
 {title:Also see}
 
 {p 7 14 2}
 Help:  {help drdid}, {help csdid}, {help csdid_postestimation}, 
-{help jwdid}, {help jwdid_postestimation}, {help xthdidregress} {p_end}
+{help jwdid}, {help jwdid_postestimation}, {help xthdidregress}, {help hdidregress} {p_end}

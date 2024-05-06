@@ -114,6 +114,7 @@ The code of this program is based on some of the advances by Prof. Wooldridge on
 {marker examples}{...}
 {title:Examples}
 
+Setup
 
 {phang}{stata "ssc install frause"}{p_end}
 {phang}{stata "frause mpdta.dta, clear"}{p_end}
@@ -131,18 +132,18 @@ Simple DID using not-treated as controls, based on group (rather than individual
 
 {phang}{stata "jwdid lemp, ivar(countyreal) tvar(year) gvar(first_treat) group"}{p_end}
 
-DID using not-treated as controls, based on group (rather than individual) fixed effects, and one time invariant control.
+{p}DID using not-treated as controls, based on group (rather than individual) fixed effects, and one time invariant control.{p_end}
 
 {phang}{stata "jwdid lemp lpop, ivar(countyreal) tvar(year) gvar(first_treat) group"}{p_end}
 
-DID using not-treated as controls, based on group (rather than individual) fixed effects, and one time invariant control. Using poisson regression estimator.
+{p}DID using not-treated as controls, based on group (rather than individual) fixed effects, and one time invariant control. Using poisson regression estimator.{p_end}
 
 {phang}{stata "gen emp = exp(lemp)"}{p_end}
 {phang}{stata "jwdid emp lpop, ivar(countyreal) tvar(year) gvar(first_treat) method(poisson)"}{p_end}
 
-DID using never treated as controls, using different treatment effects heterogeneity restrictions.
+{p}DID using never treated as controls, using different treatment effects heterogeneity restrictions.{p_end}
 
-{phang}{stata "jwdid lemp, ivar(countyreal) tvar(year) gvar(first_treat) never (time)"}{p_end}
+{phang}{stata "jwdid lemp, ivar(countyreal) tvar(year) gvar(first_treat) never hettype(time)"}{p_end}
 
 {phang}{stata "jwdid lemp, ivar(countyreal) tvar(year) gvar(first_treat) never hettype(cohort)"}{p_end}
 
@@ -159,18 +160,23 @@ Levy Economics Institute of Bard College{break}
 Annandale-on-Hudson, NY{break}
 friosavi@levy.org
 
-{ptsd}
+{pstd}
 Arne J. Nagengast{break} 
 Deutsche Bundesbank{break}
 arne.nagengast@bundesbank.de
 
-{ptsd}
+{pstd}
 Yoto V. Yotov{break}
 School of Economics,Drexel University{break}
 yotov@drexel.edu
 
 {marker references}{...}
 {title:References}
+
+{phang2}Nagengast, Arne J., Fernando Rios-Avila and Yoto V. Yotov. 2024. The European Single Market and Intra-EU Trade: An Assessment with Heterogeneity-Robust Difference-in-Differences Methods
+working paper {browse "https://friosavila.github.io/app_metrics/eu_etwfe.pdf":Paper}.{p_end}
+
+{phang2}Nagengast, Arne J. and Yoto V. Yotov. 2024. Staggered Difference-in-Differences in Gravity Settings: Revisiting the Effects of Trade Agreements. American Economic Journal: Applied Economics (forthcoming).{p_end}
 
 {phang2}Wooldridge, Jeffrey. 2021.
 Two-Way Fixed Effects, the Two-Way Mundlak Regression, and Differences-in-Differences 
