@@ -301,9 +301,9 @@ program jwdid_default, sclass
 		else               local lwidth2 lwidth(`lwidth2') 
         
 		if "`barwidth1'"=="" local barwidth1 barwidth(0.5)		
-        els                  local barwidth1 barwidth(`barwidth1')	
+        else                 local barwidth1 barwidth(`barwidth1')	
 		if "`barwidth2'"=="" local barwidth2 barwidth(0.5)
-        els                  local barwidth2 barwidth(`barwidth2')	
+        else                 local barwidth2 barwidth(`barwidth2')	
 		local conn connect(l)
 	}
 	 

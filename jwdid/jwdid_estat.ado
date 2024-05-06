@@ -303,8 +303,8 @@ program define jwdid_event, rclass
 				}
 			}	
 			else if "`cwindow'"!="" {
-				qui:replace  __event__=`lwmin' if __event__<`lwmin' 
-				qui:replace  __event__=`lwmax' if __event__>`lwmax' 
+				qui:replace  __event__=`lwmin' if __event__<`lwmin' & __event__!=.
+				qui:replace  __event__=`lwmax' if __event__>`lwmax' & __event__!=.
 			}
 		}
 			
