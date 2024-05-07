@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 2}{...}
+{* *! version 2 May 2024}{...}
 
 {title:Title}
 
@@ -217,16 +217,16 @@ yotov@drexel.edu
 {marker references}{...}
 {title:References}
 
-{phang2}Nagengast, Arne J., Fernando Rios-Avila and Yoto V. Yotov. 2024. The European Single Market and Intra-EU Trade: An Assessment with Heterogeneity-Robust Difference-in-Differences Methods
-working paper {browse "https://friosavila.github.io/app_metrics/eu_etwfe.pdf":Paper}.{p_end}
+{phang}Nagengast, Arne J., Fernando Rios-Avila and Yoto V. Yotov. 2024. The European Single Market and Intra-EU Trade: An Assessment with Heterogeneity-Robust Difference-in-Differences Methods. 
+School of Economics Working Paper Series 2024-5, LeBow College of Business, Drexel University. https://ideas.repec.org/p/ris/drxlwp/2024_005.html. {browse "https://drive.google.com/file/d/1d3RocZguRYoFNLjK6KFbX3oHXeVrbJcM/view":Paper}.{p_end}
 
-{phang2}Nagengast, Arne J. and Yoto V. Yotov. 2024. Staggered Difference-in-Differences in Gravity Settings: Revisiting the Effects of Trade Agreements. American Economic Journal: Applied Economics (forthcoming).{p_end}
+{phang}Nagengast, Arne J. and Yoto V. Yotov. 2024. Staggered Difference-in-Differences in Gravity Settings: Revisiting the Effects of Trade Agreements. American Economic Journal: Applied Economics (forthcoming).{p_end}
 
-{phang2}Wooldridge, Jeffrey. 2021.
+{phang}Wooldridge, Jeffrey. 2021.
 Two-Way Fixed Effects, the Two-Way Mundlak Regression, and Differences-in-Differences 
 estimators. Working paper.{p_end}
 
-{phang2}Wooldridge, Jeffrey. 2023.
+{phang}Wooldridge, Jeffrey. 2023.
 Simple Approaches to Nonlinear Difference-in-Differences with Panel Data. The Econometrics Journal, Volume 26, Issue 3, September 2023, Pages C31–C66.{p_end}
 
 {title:Also see}
