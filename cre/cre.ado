@@ -1,4 +1,5 @@
-*! v1.1  CRE Correlated RE model. Drops unnecessary Means
+*! v1.1.1  CRE Correlated RE model. Allows for Fracreg
+* v1.1  CRE Correlated RE model. Drops unnecessary Means
 * does not work with "complex" heckman, because that requires different variables. 
 
 * requires reghdfe
@@ -24,14 +25,15 @@ program define cre, properties(prefix)
 		*cmd0 will have the command itself.
 
 		gettoken cmd 0: cmd0
-		if inlist("`cmd'","ivregress") {
+		if inlist("`cmd'","ivregress","fracreg") {
 			gettoken cmd2 0: 0	
 			local cmd `cmd' `cmd2'
 		}
 		
 		syntax anything [if] [in] [aw iw fw pw], [*]
 		
-		 _iv_parse `0'
+		_iv_parse `0'
+
 		local x `s(exog)'   `s(inst)'
 		local y `s(lhs)' 
 		marksample touse
