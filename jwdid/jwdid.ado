@@ -1,4 +1,5 @@
-*!v2.00 Paper Out
+*!v2.01 xattvar
+*v2.00 Paper Out
 *v1.77 Allows Anticipation 
 *v1.76 Excludes Fixed variables from the interactions with Cohort
 *v1.75 May allow for Intervalled Event
@@ -173,6 +174,7 @@ program jwdid, eclass
 								  [exovar(varlist fv ts) exogvar(varlist fv ts) ]  /// Variables not to be interacted with Gvar Tvar Treatment
                                   [xtvar(varlist fv ts) ]  /// Variables interacted with  Tvar 
                                   [xgvar(varlist fv ts) ]  /// Variables interacted with Gvar 
+                                  [xattvar(varlist fv ts) ]  /// Variables interacted with Gvar 
 								  [xasis ] ///  
 								  [ANTIcipation(numlist max=1 >0) ] // Allows for Anticipation
 						
@@ -388,15 +390,15 @@ program jwdid, eclass
 ** Two options: Either we Demean  data, or used actual data
 ** Same Results		
 	if "`xasis'"=="" {
-		if "`x'"!="" {
+		if "`x'`xattvar'"!="" {
 				capture drop _x_*
-				qui:hdfe `y' `x' if `touse'	[`wgt'`exp'], abs(`toabshere') 	keepsingletons  gen(_x_)
+				qui:hdfe `y' `x' `xattvar' if `touse'	[`wgt'`exp'], abs(`toabshere') 	keepsingletons  gen(_x_)
 				capture drop _x_`y'
 				local xxvar _x_*
 		}
 	}
-	else local xxvar `x'
-
+	else local xxvar `x' `xattvar'
+ 
 	*****************************************************
 	*****************************************************
 	// If Hettype Full
@@ -412,7 +414,7 @@ program jwdid, eclass
 						local xvar  `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar' 							  
 						local xvar2 `xvar2'           i`i'.`gvar'#i`j'.`tvar' 
 						
-						if "`x'"!="" {
+						if "`x'`xxvar'"!="" {
 							local xvar  `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
 							local xvar3 `xvar3'           i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
 							}
@@ -423,7 +425,7 @@ program jwdid, eclass
 						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.`tvar' 							  
 						local xvar2 `xvar2'          i`i'.`gvar'#i`j'.`tvar' 
 						
-						if "`x'"!="" {
+						if "`x'`xxvar'"!="" {
 							local xvar  `xvar'  c.__tr__#i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar') 
 							local xvar3 `xvar3'          i`i'.`gvar'#i`j'.`tvar'#c.(`xxvar')  
 						}
@@ -445,7 +447,7 @@ program jwdid, eclass
 						local xvar `xvar'   c.__tr__#i`i'.__post__#i`j'.`tvar' 							  
 						local xvar2 `xvar2'          i`i'.__post__#i`j'.`tvar' 
 						
-						if "`x'"!="" {
+						if "`x'`xxvar'"!="" {
 							local xvar `xvar'   c.__tr__#i`i'.__post__#i`j'.`tvar'#c.(`xxvar') 
 							local xvar3 `xvar3'          i`i'.__post__#i`j'.`tvar'#c.(`xxvar')  
 						}
@@ -456,7 +458,7 @@ program jwdid, eclass
 						local xvar `xvar'   c.__tr__#i`i'.__post__#i`j'.`tvar' 							  
 						local xvar2 `xvar2'          i`i'.__post__#i`j'.`tvar' 
 						
-						if "`x'"!="" {
+						if "`x'`xxvar'"!="" {
 							local xvar  `xvar'  c.__tr__#i`i'.__post__#i`j'.`tvar'#c.(`xxvar') 
 							local xvar3 `xvar3'          i`i'.__post__#i`j'.`tvar'#c.(`xxvar')  
 						}
@@ -479,7 +481,7 @@ program jwdid, eclass
 						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.__post__ 							  
 						local xvar2 `xvar2'          i`i'.`gvar'#i`j'.__post__
 						
-						if "`x'"!="" {
+						if "`x'`xxvar'"!="" {
 							local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.__post__#c.(`xxvar') 
 							local xvar3 `xvar3'          i`i'.`gvar'#i`j'.__post__#c.(`xxvar')  
 						}
@@ -490,7 +492,7 @@ program jwdid, eclass
 						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.__post__ 							  
 						local xvar2 `xvar2'          i`i'.`gvar'#i`j'.__post__ 
 						
-						if "`x'"!="" {
+						if "`x'`xxvar'"!="" {
 							local xvar  `xvar'  c.__tr__#i`i'.`gvar'#i`j'.__post__#c.(`xxvar') 
 							local xvar3 `xvar3'          i`i'.`gvar'#i`j'.__post__#c.(`xxvar')  
 						}
@@ -524,7 +526,7 @@ program jwdid, eclass
 				if "`never'"=="" & (`ccev'>-`antigap') {	
 					local xvar `xvar'   c.__tr__#i`i'.__evnt__
 					local xvar2 `xvar2'          i`i'.__evnt__						
-					if "`x'"!="" {
+					if "`x'`xxvar'"!="" {
 						local xvar `xvar'   c.__tr__#i`i'.__evnt__#c.(`xxvar') 
 						local xvar3 `xvar3'          i`i'.__evnt__#c.(`xxvar')  
 					}
@@ -532,7 +534,7 @@ program jwdid, eclass
 				if "`never'"!="" & `ccev'!=(-`antigap') {	
 					local xvar `xvar'   c.__tr__#i`i'.__evnt__
 					local xvar2 `xvar2'          i`i'.__evnt__						
-					if "`x'"!="" {
+					if "`x'`xxvar'"!="" {
 						local xvar `xvar'   c.__tr__#i`i'.__evnt__#c.(`xxvar') 
 						local xvar3 `xvar3'          i`i'.__evnt__#c.(`xxvar')  
 					}
@@ -553,7 +555,7 @@ program jwdid, eclass
 						local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.__evnt__ 							  
 						local xvar2 `xvar2'          i`i'.`gvar'#i`j'.__evnt__
 						
-						if "`x'"!="" {
+						if "`x'`xxvar'"!="" {
 							local xvar `xvar'   c.__tr__#i`i'.`gvar'#i`j'.__evnt__#c.(`xxvar') 
 							local xvar3 `xvar3'          i`i'.`gvar'#i`j'.__evnt__#c.(`xxvar')  
 							}
@@ -573,7 +575,7 @@ program jwdid, eclass
 					local xvar `xvar'   c.__tr__#i`i'.__post__
 					local xvar2 `xvar2'          i`i'.__post__ 
 					
-					if "`x'"!="" {
+					if "`x'`xxvar'"!="" {
 						local xvar `xvar'   c.__tr__#i`i'.__post__#c.(`xxvar') 
 						local xvar3 `xvar3'          i`i'.__post__#c.(`xxvar')  
 					}
@@ -584,7 +586,7 @@ program jwdid, eclass
 					local xvar `xvar'   c.__tr__#i`i'.__post__
 					local xvar2 `xvar2'          i`i'.__post__
 					
-					if "`x'"!="" {
+					if "`x'`xxvar'"!="" {
 						local xvar  `xvar'  c.__tr__#i`i'.__post__#c.(`xxvar') 
 						local xvar3 `xvar3'          i`i'.__post__#c.(`xxvar')  
 					}
