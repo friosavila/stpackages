@@ -2,7 +2,8 @@
 ** and Separate Colros for RBAR from RAREA
 ** check colors for transitions
 
-*! v1.33 by FRA further imp to wide
+*! v1.34 by FRA Bug with SORT
+* v1.33 by FRA further imp to wide
 * v1.32 by FRA fix wide and adds update
 * v1.31 by FRA fix for varabbref
 * v1.3 by FRA adds more control and transform data
@@ -337,7 +338,7 @@ program adjust_coordinates, sortpreserve
 	syntax [if]
 	*sum `width0' `width1'
 	tempvar sort
-	gen `sort' = _n `if'
+	gen `sort' = -_n `if'
 	tempvar yy0 yy1
 	clonevar `yy0' = y0_ `if'
 	clonevar `yy1' = y1_ `if'
