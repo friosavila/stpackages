@@ -1,4 +1,5 @@
-*! v1.1 Allows for new Estimators. 
+*! v1.11 Bug with Cluster and Panel
+* v1.1 Allows for new Estimators. 
 * v1 Allows for anticipation
 
 mata:
@@ -483,7 +484,7 @@ void csdid::csdid(){
 	fgtvar   = select(fgtvar , convar)
 	convar = select(convar , convar)
 	
-	
+	//ConVar Converged Variable
 	
 	/// cleaning all else
     // TRT not needed
@@ -493,18 +494,31 @@ void csdid::csdid(){
 	if (type_data==1) {
 		real matrix aux 
 
-		if (length(cvar)>0) aux = oid, gvar, wvar, cvar
-			else 			aux = oid, gvar, wvar
-		aux=uniqrows(aux)
-		oid = aux[,1]
-		gvar= aux[,2]
-		wvar= aux[,3]
-		if (length(cvar)>0) cvar= aux[,4]
+		if (length(cvar)>0) {
+            aux = oid, gvar, wvar, cvar
+            aux=uniqrows(aux)
+            ord = order(aux,(4,1,2,3))
+            aux = aux[ord,]
+            oid = aux[,1]
+            gvar= aux[,2]
+            wvar= aux[,3]
+            cvar= aux[,4]
+            frwt = frwt[ord,]
+            frif = frif[ord,]
+        }
+        else 			{
+            aux = oid, gvar, wvar
+            aux=uniqrows(aux)   
+            oid = aux[,1]
+            gvar= aux[,2]
+            wvar= aux[,3]
+        }    
+        
 	}
- 
+  
 	/// Very last step. Sort important variables by Cvar?
 	 	
-	aux = J(0,0,.)
+	ord=aux = J(0,0,.)
 }
 
 end             
