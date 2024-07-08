@@ -517,7 +517,7 @@ void csdid_estat::cevent_att(class csdid scalar csdid ){
 ////////////////////////////////////////////////////////////////////////////////
 /// event Aggregations
 ////////////////////////////////////////////////////////////////////////////////
-  
+
 void csdid_estat::event_att(class csdid scalar csdid){
 	// Counter i
 	// kgroups (max)
@@ -577,8 +577,7 @@ void csdid_estat::event_att(class csdid scalar csdid){
 					onames[iic,] = sprintf("tp%f", abs(csdid.sevent[i]:-csdid.antici))
 				}	
 				
-				aux_wgt   =       select(csdid.frwt,toselect)
- 
+				aux_wgt   =       select(csdid.frwt,toselect)							
 				aux[,iic-ievent]   = aggte(select(csdid.frif,toselect),aux_wgt )
 				//sumwgt[i,]   = rowsum(aux_wgt):/cols(aux_wgt)
 

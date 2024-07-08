@@ -186,7 +186,6 @@ void csdid::csdid_setup(){
 	// antici for Anticipation
 	antici = 0
 	rolljw = 0
-    
 	if (length(ivar)==0) {
         // Repeated CrosSection
 		type_data = 2
@@ -367,35 +366,24 @@ real matrix csdid::nvalid(real matrix sgtvar,
 real matrix csdid::nsample_select() {
 	real scalar i
 	real matrix tsel, gsel, sgtvar
-	real scalar gv, tv, tv0, tv1
+	real scalar gv, tv
 	real matrix toreturn
 	real matrix eftime
 	toreturn = J(rows(fgtvar),7,0)
 	// event
 	eftime=J(1,2,0)
 	
-    
-    
 	// This is to determine Obs  
 	for(i=1;i<=rows(fgtvar);i++){
-        
-		gv  = fgtvar[i,1]; tv = fgtvar[i,2]
-        
-        /// Group Selection
+		gv = fgtvar[i,1];tv = fgtvar[i,2]
+ 
 		if (notyet==0) 	gsel = (ogtvar[,1]:==0    :| ogtvar[,1]:==gv)
 		else {
-			gsel = (ogtvar[,1]:==0 :| ogtvar[,1]:>max((gv,tv)) :| ogtvar[,1]:==gv)
-			// Check asin R: Include other units not treated at tv 
+				gsel = (ogtvar[,1]:==0 :| ogtvar[,1]:>max((gv,tv)) :| ogtvar[,1]:==gv)
+			// Check asin R above. This is the same but with N (counting Obs)
 			if ((asinr==1) & (tv<gv)) {
-				if (shortx==0) {
-                    // If long pre-att
-                   // gsel = ( (gvar:==0) :| (gvar:>tv0)  :| (gvar:==gv))
-                   gsel = ( (gvar:==0) :| (gvar :> tv0)  :| (gvar:==gv))
-                }
-                else           {
-                      // If short pre-att
-                   gsel = ( (gvar:==0) :| (gvar :> tv1)  :| (gvar:==gv))
-                }
+				   if (shortx==0) gsel = (ogvar:==0 :| ogvar:>tv0           :| ogvar:==gv)
+			   else               gsel = (ogvar:==0 :| ogvar:>tv1           :| ogvar:==gv)
 			}	
 				  
 		}
@@ -407,13 +395,11 @@ real matrix csdid::nsample_select() {
 		}
 		else {
 			if (shortx==0 ) {
-                // Long Pre ATT
 				tsel = (ogtvar[,2]:==gv-delta :| ogtvar[,2]:==tv-delta)
 				///        T0         T1        T
 				eftime=( tv-delta ,gv-delta, tv-delta ) 	
 			}	
 			else {
-                // Short Pre ATT
 				tsel = (ogtvar[,2]:==tv-delta :| ogtvar[,2]:==tv)
 				///        T0         T1       T     
 				eftime=(tv-delta ,tv       , tv-delta)
@@ -469,7 +455,6 @@ void csdid::csdid(){
 		drdid.trt =gvar[smsel,]:==gv
 		//if (cols(wvar)>0) drdid.wvar=select(wvar,smsel)     
 		if (cols(wvar)>0) drdid.wvar=wvar[smsel,]
-         
 		//drdid.id  =select(ivar,smsel)
 		//drdid.oid =select(oid ,smsel) 
 		drdid.id  =ivar[smsel,]
@@ -484,12 +469,10 @@ void csdid::csdid(){
 			convar[i,]=1
 			if (shortx==0) frif[drdid.oid,i]=drdid.rif:*sign(eventvar[i]+.01)
 			else           frif[drdid.oid,i]=drdid.rif 
-			frwt[drdid.oid,i]=drdid.wvar:*drdid.trt
-            
+			frwt[drdid.oid,i]=drdid.wvar
             //:*drdid.trt
 			 
 		}
- 
 		dots = dots-convar[i,]
 		stata(sprintf("_dots %f %f",i,dots))
 	} 
@@ -518,15 +501,14 @@ void csdid::csdid(){
 		real matrix aux 
 
 		if (length(cvar)>0) {
-            aux = cvar, oid, gvar, wvar
+            aux = oid, gvar, wvar, cvar
             aux=uniqrows(aux)
-            ord = order(aux,(1,2,3,4))
+            ord = order(aux,(4,1,2,3))
             aux = aux[ord,]
-            cvar= aux[,1]
-            oid = aux[,2]
-            gvar= aux[,3]
-            wvar= aux[,4]
-            
+            oid = aux[,1]
+            gvar= aux[,2]
+            wvar= aux[,3]
+            cvar= aux[,4]
             frwt = frwt[ord,]
             frif = frif[ord,]
         }
