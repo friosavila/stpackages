@@ -484,7 +484,7 @@ void csdid::csdid(){
 			convar[i,]=1
 			if (shortx==0) frif[drdid.oid,i]=drdid.rif:*sign(eventvar[i]+.01)
 			else           frif[drdid.oid,i]=drdid.rif 
-			frwt[drdid.oid,i]=drdid.wvar:*drdid.trt
+			frwt[drdid.oid,i]=drdid.owvar:*drdid.trt
             
             //:*drdid.trt
 			 
