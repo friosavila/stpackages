@@ -1,14 +1,16 @@
 frause mpdta, clear
 gen st = floor(county/1000)
+set seed 1
 gen w = runiformint(1,7)
 bysort county:replace w=w[1]
 mata mata clear
 run "C:\Users\Fernando\Documents\GitHub\stpackages\csdid2\drdid.mata"
 run "C:\Users\Fernando\Documents\GitHub\stpackages\csdid2\csdid.mata"
 run "C:\Users\Fernando\Documents\GitHub\stpackages\csdid2\csdid_stats.mata"
-csdid  lemp    , ivar( countyreal) time(year) gvar(first) agg(attgt) method(reg) long2
-csdid2 lemp    , ivar( countyreal) tvar(year) gvar(first) agg(attgt) method(reg)
-
+qui:csdid  lemp     ,   time(year) gvar(first) agg(attgt) method(reg) long2 cluster(st)
+estat event
+qui:csdid2 lemp      , tvar(year) gvar(first) agg(attgt) method(reg2) long2 cluster(st)
+estat event
 
 csdid2 lemp  , ivar( countyreal) tvar(year) gvar(first) agg(event) 
 csdid lemp  , ivar( countyreal) time(year) gvar(first) agg(event)  long2
