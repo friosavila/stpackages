@@ -93,9 +93,9 @@ program define grqreg_x, rclass
 	}
 		
 	if !inlist("`e(cmd)'","qreg","bsqreg","mmqreg","rifhdreg","qrprocess","sqreg") & ///
-		!inlist("`e(cmd)'","bsrifhdreg","qreg2","xtqreg","ivqreg2","smqreg","sivqr")	{
+		!inlist("`e(cmd)'","bsrifhdreg","qreg2","xtqreg","ivqreg2","smqreg","sivqr","qregfe")	{
 	    display in red "This command can only be used after -qreg- ,-bsqreg-, -sqreg-, -mmqreg- or -rifhdreg- " _n ///
-						"-bsrifhdreg-, -qreg2-, -qrprocess-, -xtqreg-, -ivqreg2-, `smqreg' " _n
+						"-bsrifhdreg-, -qreg2-, -qrprocess-, -xtqreg-, -ivqreg2-, -smqreg-, -qregfe- " _n
 						"If you have suggestions for adding other -quantile/type- regressions, contact me at friosa@gmail.com"
 		error 10
 	}
@@ -159,8 +159,6 @@ program define grqreg_x, rclass
 		local oth  `e(oth)'
 		local ifin `e(ifin)'
 		local wgt  [`e(wtype)'`e(wexp)']
-
-		
 	}
 	if inlist("`e(cmd)'","sqreg") { 
 		tempname aux2
@@ -196,7 +194,20 @@ program define grqreg_x, rclass
 		local wgt  `r(wgt)'
 	
 	}
+    if inlist("`e(wcmd)'","qregfe"){
+        local cmdl `e(cmdline)'
+        gettoken cmd xvars:cmdl
+	    *local xvars `"`=subinstr("`e(cmdline)'","`e(cmd)'","",1)'"'
+	    qui:qreg_stripper `xvars'
  
+ 
+		local xvar `r(xvar)'
+		local yvar `r(yvar)'
+		local qnt  `r(qnt)'
+		local oth  `r(oth)'
+		local ifin `r(ifin)'
+		local wgt  `r(wgt)'
+    }
 	
 	
 	** verify variables in list exist.
@@ -288,7 +299,6 @@ program define grqreg_x, rclass
 			if `cnt'==1 qui:qreg `yvar' `xvar' `ifin' `wgt',  q(`q') 
 			matrix `binit' = e(b)
 		    qui:`cmd' `yvar' `xvar' `ifin' `wgt',  `oth' q(`q') bw(`bw0') from(`binit')
-			*qui:`cmd' `yvar' `xvar' `ifin' `wgt',  `oth' q(`q') bw(`bw0') 
 			matrix `binit' = e(b)
 			
 			qui:ereturn display
@@ -341,6 +351,27 @@ program define grqreg_x, rclass
 			matrix `bs'=nullmat(`bs') \ `aux2'["b" ,"`qtc':"]
 			matrix `ll'=nullmat(`ll') \ `aux2'["ll","`qtc':"]
 			matrix `ul'=nullmat(`ul') \ `aux2'["ul","`qtc':"]
+			if "`ols'"!="" {
+				matrix `bso'=nullmat(`bso') \ `olsaux'["b" ,":"]
+				matrix `llo'=nullmat(`llo') \ `olsaux'["ll",":"]
+				matrix `ulo'=nullmat(`ulo') \ `olsaux'["ul",":"]
+			}
+		}
+	}
+    ******
+    if inlist("`cmd'","qregfe") {
+	    foreach q of local qlist {
+            if "`e(qmethod)'"=="qrprocess"   local qrq = `q'/100	
+            else local qrq = `q'
+		    qui:`cmd' `yvar' `xvar' `ifin' `wgt',  `oth' q(`qrq')
+            qui:ereturn display
+			matrix `aux'=r(table)
+            
+			matrix coleq `aux'=""
+			matrix `qq'=nullmat(`qq') \ `q' 
+			matrix `bs'=nullmat(`bs') \ `aux'["b" ,":"]
+			matrix `ll'=nullmat(`ll') \ `aux'["ll",":"]
+			matrix `ul'=nullmat(`ul') \ `aux'["ul",":"]            		
 			if "`ols'"!="" {
 				matrix `bso'=nullmat(`bso') \ `olsaux'["b" ,":"]
 				matrix `llo'=nullmat(`llo') \ `olsaux'["ll",":"]
@@ -429,7 +460,8 @@ local nvlist
 end 
 
 program define qreg_stripper, rclass
-	syntax anything [if] [in] [aw iw pw fw], [Quantile(string)] *
+	syntax anything [if] [in] [aw iw pw fw], [Quantile(string)] [* ] [ls]
+    *Note: LS so mmqreg does not create those
 	gettoken yvar xvar:anything  
 	*local xvar `=subinstr("`anything'","`e(depvar)'","",1)' 
 	*local yvar `e(depvar)'
