@@ -1,4 +1,5 @@
-*! version 1.24  (Jan 2024) No longer gets an error if provices non-existing variables
+*! version 1.25  (July 2024) Adding QREGFE, automatically adds FE to oLS
+* version 1.24  (Jan 2024) No longer gets an error if provices non-existing variables
 * version 1.23  (June 2023) Bug with IFs and String variable
 * version 1.22  (March 2023) Small changes to SIVQR weights, Ifs and ins
 * version 1.21  (Feb 2023) Adds smqreg and sivqr
@@ -76,27 +77,38 @@ program define grqreg_x, rclass
 		
 	if "`from'"!="" {
 	    ** idea.. if we can do from memory, we save time and money!!
-		est restore `from'
-		if "`e(cmd)'"=="qregplot" {
-			if "`varlist'"!="" {
-				ms_fvstrip `varlist', expand dropomit
-				local vlist `r(varlist)'
-				is_vlist_in_xlist, vlist(`vlist') xlist(`e(xlist)')
-				return local vlist `r(nvlist)'
-			}
-			qrgraph ,  `cons'  `e(ols)' raopt(`raopt') lnopt(`lnopt') grcopt(`grcopt')  twopt(`twopt') ///
-							matrixlist(e(qq) e(bs) e(ll) e(ul)) matrixols(e(bso) e(llo) e(ulo)) ///
-							vlist(`vlist') xlist(`e(xlist)') `label' labelopt(`labelopt') `options' `mtitles'
-		}		
-		
-		exit
+        if `:word count `from''==1 {
+            est restore `from'
+            if "`e(cmd)'"=="qregplot" {
+                if "`varlist'"!="" {
+                    ms_fvstrip `varlist', expand dropomit
+                    local vlist `r(varlist)'
+                    is_vlist_in_xlist, vlist(`vlist') xlist(`e(xlist)')
+                    return local vlist `r(nvlist)'
+                }
+                qrgraph ,  `cons'  `e(ols)' raopt(`raopt') lnopt(`lnopt') grcopt(`grcopt')  twopt(`twopt') ///
+                                matrixlist(e(qq) e(bs) e(ll) e(ul)) matrixols(e(bso) e(llo) e(ulo)) ///
+                                vlist(`vlist') xlist(`e(xlist)') `label' labelopt(`labelopt') `options' `mtitles'
+            }				
+            exit
+        }
+        else {            
+            if c(version)<17 {
+                display "You need Stata V17 or higher to use this feature"
+                error 1
+            }
+            else {
+                qrgraph2, from(`from') `cons'  `e(ols)' raopt(`raopt') lnopt(`lnopt') grcopt(`grcopt')  twopt(`twopt') ///
+                                vlist(`vlist') xlist(`e(xlist)') `label' labelopt(`labelopt') `options' `mtitles'
+            }
+        }
 	}
 		
 	if !inlist("`e(cmd)'","qreg","bsqreg","mmqreg","rifhdreg","qrprocess","sqreg") & ///
 		!inlist("`e(cmd)'","bsrifhdreg","qreg2","xtqreg","ivqreg2","smqreg","sivqr","qregfe")	{
 	    display in red "This command can only be used after -qreg- ,-bsqreg-, -sqreg-, -mmqreg- or -rifhdreg- " _n ///
 						"-bsrifhdreg-, -qreg2-, -qrprocess-, -xtqreg-, -ivqreg2-, -smqreg-, -qregfe- " _n
-						"If you have suggestions for adding other -quantile/type- regressions, contact me at friosa@gmail.com"
+						"If you have suggestions for adding other -quantile/type- regressions, contact me at friosa@gmail.com" _n
 		error 10
 	}
 	/*else {
@@ -228,7 +240,8 @@ program define grqreg_x, rclass
 	tempvar     bso  llo ulo  
 	if "`ols'"!="" {
 	    tempname olsaux
-		qui:regress `yvar' `xvar' `ifin' `wgt',  `olsopt'
+        if "`e(absorb)'"=="" 		qui:regress `yvar' `xvar' `ifin' `wgt',  `olsopt'
+        else qui:reghdfe `yvar' `xvar' `ifin' `wgt',  `olsopt' abs(`e(absorb)')
 		matrix `olsaux'=r(table)
 	}
 	**********************************************************
@@ -756,3 +769,30 @@ if "`rplot'"=="" local rplot rarea
 	
 end
 
+program define qrgraph2
+   	syntax , from(str asis) xlist(string)  ///
+			[ vlist(string) cons  ols raopt(str asis ) lnopt(str asis ) ///
+			   grcopt(str asis )	twopt(str asis ) ///
+			   mtitles(str asis)    ///
+			   rplot(string) ///
+			   label labelopt(str asis )   *] 
+     tempname toplot mattemp
+     frame create `toplot'
+     frame `toplot' {
+         foreach i of local from {
+             est restore `i'
+             matrix `i'_ul = e(ul)
+             matrix `i'_ll = e(ll)
+             matrix `i'_bs = e(bs)
+             matrix `i'_qq = e(qq)
+             if "`ols'"!="" {
+                    tokenize `matrixols'		
+                    matrix `i'_`bso'=e(bso)
+                    matrix `i'_`llo'=e(llo)
+                    matrix `i'_`ulo'=e(ulo)
+                }
+         }
+       	
+         
+     }
+end
