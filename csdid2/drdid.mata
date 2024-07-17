@@ -58,6 +58,7 @@ class drdid {
       
       real matrix xvar
       real matrix wvar
+      real matrix owvar
       real matrix id
       real matrix oid
       real matrix trt
@@ -182,19 +183,7 @@ void drdid::ilogit(){
 }
 
  
-void drdid::ols(real matrix sw, ixx ){
-      real matrix xy
-      if (kx>0) {
-            ixx   = invsym(quadcross(xvar,1,sw,xvar,1))
-            xy   = quadcross(xvar,1,sw,yvar,0)
-            b    = ixx*xy
-      }
-      else {
-            b=mean(yvar,sw)
-            ixx=1/sum(sw:!=0)
-      } 
-}
- 
+
  
 /// Setting Data UP
  
@@ -239,6 +228,7 @@ void drdid::msetup_panel(){
    
        //wtrt = 
       wvar = select(wvar,((id[,2]:==2):*(tmt:==0)))
+      owvar = wvar
       wvar = wvar:/mean(wvar)
       
       // Original Copy of selected cases
@@ -318,6 +308,7 @@ void drdid::msetup_panel2(){
    
        //wtrt = 
       wvar = select(wvar,(tmt:==1))
+      owvar = wvar
       wvar = wvar:/mean(wvar)
       
       // Original Copy of selected cases
@@ -368,6 +359,7 @@ void drdid::msetup_rc(){
        
       //wtrt = wvar:*trt
       // Standardizes Weights to avoid overshooting 
+      owvar = wvar
       wvar = wvar:/mean(wvar)
       // Sample size 
       nn   = rows(yvar)
@@ -585,6 +577,20 @@ void drdid::dripw_panel() {
             }
       }
 
+void drdid::ols(real matrix sw, ixx ){
+      real matrix xy
+      
+      if (kx>0) {
+            ixx   = invsym(quadcross(xvar,1,sw,xvar,1))
+            xy   = quadcross(xvar,1,sw,yvar,0)
+            b    = ixx*xy
+      }
+      else {
+            b=mean(yvar,sw)
+            ixx=1/sum(sw)
+      } 
+}
+       
 void drdid::ols_ipw_rc(real scalar ii, real matrix yy, real matrix ixx ){
       ///tmt_trt = (tmt:+ 2*trt)
       /// 0   0  = 0
@@ -602,7 +608,7 @@ void drdid::ols_ipw_rc(real scalar ii, real matrix yy, real matrix ixx ){
       }
       else {
             b=mean(yvar,sw)
-            ixx=1/sum(sw:!=0)
+            ixx=1/sum(sw)
             yy   = b
       }
 }      
@@ -620,7 +626,8 @@ void drdid::ols_ipt_rc( real scalar ii,
       real matrix xy, sw 
       
       sw = ww:*(tmt_trt:==ii)
-      
+      sw = sw :/mean(sw)
+
       if (kx>0) {
       
             ixx  = invsym(quadcross(xvar,1,sw,xvar,1))
@@ -628,10 +635,9 @@ void drdid::ols_ipt_rc( real scalar ii,
             b    = ixx*xy
             yy   = (xvar,J(nn,1,1))*b
       }
-      else {
-      
+      else {      
             b=mean(yvar,sw)
-            ixx=1/sum(sw:!=0)
+            ixx=1/sum(sw)
             yy   = b
       }
 }
@@ -891,10 +897,11 @@ void drdid::reg2_rc(){
     w01 = wvar :* (tmt_trt:==1)         
     w10 = wvar :* (tmt_trt:==2)       
     w11 = wvar :* (tmt_trt:==3)     
-    w1  = wvar :* trt                
-       
-      xvar=xvar,J(nn,1,1)
-       
+    w1  = wvar :* trt                       
+                  
+      if (kx > 0) xvar=xvar,J(nn,1,1)
+      else        xvar=     J(nn,1,1)
+      
       real matrix y00,   y01,   y10,   y11,
                         ixx00, ixx01, ixx10, ixx11
                 
