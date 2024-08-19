@@ -1,5 +1,6 @@
-*! version 3.2 Agust 2021 Fernando Rios-Avila Quick fixed to iqratio. 
-*! version 3.1 July 2021 Fernando Rios-Avila Quick fixed to CINDEX. 
+*! version 3.21 Agust 2024 Fernando Rios-Avila Quick fixed to acindex
+* version 3.2 Agust 2021 Fernando Rios-Avila Quick fixed to iqratio. 
+* version 3.1 July 2021 Fernando Rios-Avila Quick fixed to CINDEX. 
 * Indices are now faster. Just a bit slower than ado
 * version 3. March 2021 Fernando Rios-Avila
 * All translated to Mata
@@ -1194,9 +1195,9 @@ void rif_acindex(string scalar ywb,touse,newvar) {
 		info2=select(info2,info2[,1]:<info2[,2])
 		aux3=(awgt,sumw)
 
-		for(j=1;j<=rows(info2);j++){
-			naux = rows(aux2)
+		for(j=1;j<=rows(info2);j++){			
 			aux2 = panelsubmatrix(aux3, j, info2)
+			naux = rows(aux2)
 			padj[|info2[j,1],1 \ info2[j,2],1|]=J(naux,1,1)#(0.5/nn):*(aux2[naux,2]:+aux2[1,2]-aux2[1,1])
 
 		}

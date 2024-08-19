@@ -1,4 +1,4 @@
-*! version 1.25  (July 2024) Adding QREGFE, automatically adds FE to oLS
+*! version 1.25  (Aug 2024) mtitles can be blank
 * version 1.24  (Jan 2024) No longer gets an error if provices non-existing variables
 * version 1.23  (June 2023) Bug with IFs and String variable
 * version 1.22  (March 2023) Small changes to SIVQR weights, Ifs and ins
@@ -17,7 +17,7 @@
 * and allowing the command to be used after other commands including mmqreg, qrprocess and rifhdreg (for uqreg)
 
 
- 
+** This little piece of code "prevents"  loosing all!
 ** This little piece of code "prevents"  loosing all!
 program define qregplot, rclass
 	syntax [varlist( fv default=none)], [*]
@@ -77,38 +77,27 @@ program define grqreg_x, rclass
 		
 	if "`from'"!="" {
 	    ** idea.. if we can do from memory, we save time and money!!
-        if `:word count `from''==1 {
-            est restore `from'
-            if "`e(cmd)'"=="qregplot" {
-                if "`varlist'"!="" {
-                    ms_fvstrip `varlist', expand dropomit
-                    local vlist `r(varlist)'
-                    is_vlist_in_xlist, vlist(`vlist') xlist(`e(xlist)')
-                    return local vlist `r(nvlist)'
-                }
-                qrgraph ,  `cons'  `e(ols)' raopt(`raopt') lnopt(`lnopt') grcopt(`grcopt')  twopt(`twopt') ///
-                                matrixlist(e(qq) e(bs) e(ll) e(ul)) matrixols(e(bso) e(llo) e(ulo)) ///
-                                vlist(`vlist') xlist(`e(xlist)') `label' labelopt(`labelopt') `options' `mtitles'
-            }				
-            exit
-        }
-        else {            
-            if c(version)<17 {
-                display "You need Stata V17 or higher to use this feature"
-                error 1
-            }
-            else {
-                qrgraph2, from(`from') `cons'  `e(ols)' raopt(`raopt') lnopt(`lnopt') grcopt(`grcopt')  twopt(`twopt') ///
-                                vlist(`vlist') xlist(`e(xlist)') `label' labelopt(`labelopt') `options' `mtitles'
-            }
-        }
+		est restore `from'
+		if "`e(cmd)'"=="qregplot" {
+			if "`varlist'"!="" {
+				ms_fvstrip `varlist', expand dropomit
+				local vlist `r(varlist)'
+				is_vlist_in_xlist, vlist(`vlist') xlist(`e(xlist)')
+				return local vlist `r(nvlist)'
+			}
+			qrgraph ,  `cons'  `e(ols)' raopt(`raopt') lnopt(`lnopt') grcopt(`grcopt')  twopt(`twopt') ///
+							matrixlist(e(qq) e(bs) e(ll) e(ul)) matrixols(e(bso) e(llo) e(ulo)) ///
+							vlist(`vlist') xlist(`e(xlist)') `label' labelopt(`labelopt') `options' `mtitles'
+		}		
+		
+		exit
 	}
 		
 	if !inlist("`e(cmd)'","qreg","bsqreg","mmqreg","rifhdreg","qrprocess","sqreg") & ///
-		!inlist("`e(cmd)'","bsrifhdreg","qreg2","xtqreg","ivqreg2","smqreg","sivqr","qregfe")	{
+		!inlist("`e(cmd)'","bsrifhdreg","qreg2","xtqreg","ivqreg2","smqreg","sivqr")	{
 	    display in red "This command can only be used after -qreg- ,-bsqreg-, -sqreg-, -mmqreg- or -rifhdreg- " _n ///
-						"-bsrifhdreg-, -qreg2-, -qrprocess-, -xtqreg-, -ivqreg2-, -smqreg-, -qregfe- " _n
-						"If you have suggestions for adding other -quantile/type- regressions, contact me at friosa@gmail.com" _n
+						"-bsrifhdreg-, -qreg2-, -qrprocess-, -xtqreg-, -ivqreg2-, `smqreg' " _n
+						"If you have suggestions for adding other -quantile/type- regressions, contact me at friosa@gmail.com"
 		error 10
 	}
 	/*else {
@@ -171,6 +160,8 @@ program define grqreg_x, rclass
 		local oth  `e(oth)'
 		local ifin `e(ifin)'
 		local wgt  [`e(wtype)'`e(wexp)']
+
+		
 	}
 	if inlist("`e(cmd)'","sqreg") { 
 		tempname aux2
@@ -206,20 +197,7 @@ program define grqreg_x, rclass
 		local wgt  `r(wgt)'
 	
 	}
-    if inlist("`e(wcmd)'","qregfe"){
-        local cmdl `e(cmdline)'
-        gettoken cmd xvars:cmdl
-	    *local xvars `"`=subinstr("`e(cmdline)'","`e(cmd)'","",1)'"'
-	    qui:qreg_stripper `xvars'
  
- 
-		local xvar `r(xvar)'
-		local yvar `r(yvar)'
-		local qnt  `r(qnt)'
-		local oth  `r(oth)'
-		local ifin `r(ifin)'
-		local wgt  `r(wgt)'
-    }
 	
 	
 	** verify variables in list exist.
@@ -240,8 +218,7 @@ program define grqreg_x, rclass
 	tempvar     bso  llo ulo  
 	if "`ols'"!="" {
 	    tempname olsaux
-        if "`e(absorb)'"=="" 		qui:regress `yvar' `xvar' `ifin' `wgt',  `olsopt'
-        else qui:reghdfe `yvar' `xvar' `ifin' `wgt',  `olsopt' abs(`e(absorb)')
+		qui:regress `yvar' `xvar' `ifin' `wgt',  `olsopt'
 		matrix `olsaux'=r(table)
 	}
 	**********************************************************
@@ -312,6 +289,7 @@ program define grqreg_x, rclass
 			if `cnt'==1 qui:qreg `yvar' `xvar' `ifin' `wgt',  q(`q') 
 			matrix `binit' = e(b)
 		    qui:`cmd' `yvar' `xvar' `ifin' `wgt',  `oth' q(`q') bw(`bw0') from(`binit')
+			*qui:`cmd' `yvar' `xvar' `ifin' `wgt',  `oth' q(`q') bw(`bw0') 
 			matrix `binit' = e(b)
 			
 			qui:ereturn display
@@ -364,27 +342,6 @@ program define grqreg_x, rclass
 			matrix `bs'=nullmat(`bs') \ `aux2'["b" ,"`qtc':"]
 			matrix `ll'=nullmat(`ll') \ `aux2'["ll","`qtc':"]
 			matrix `ul'=nullmat(`ul') \ `aux2'["ul","`qtc':"]
-			if "`ols'"!="" {
-				matrix `bso'=nullmat(`bso') \ `olsaux'["b" ,":"]
-				matrix `llo'=nullmat(`llo') \ `olsaux'["ll",":"]
-				matrix `ulo'=nullmat(`ulo') \ `olsaux'["ul",":"]
-			}
-		}
-	}
-    ******
-    if inlist("`cmd'","qregfe") {
-	    foreach q of local qlist {
-            if "`e(qmethod)'"=="qrprocess"   local qrq = `q'/100	
-            else local qrq = `q'
-		    qui:`cmd' `yvar' `xvar' `ifin' `wgt',  `oth' q(`qrq')
-            qui:ereturn display
-			matrix `aux'=r(table)
-            
-			matrix coleq `aux'=""
-			matrix `qq'=nullmat(`qq') \ `q' 
-			matrix `bs'=nullmat(`bs') \ `aux'["b" ,":"]
-			matrix `ll'=nullmat(`ll') \ `aux'["ll",":"]
-			matrix `ul'=nullmat(`ul') \ `aux'["ul",":"]            		
 			if "`ols'"!="" {
 				matrix `bso'=nullmat(`bso') \ `olsaux'["b" ,":"]
 				matrix `llo'=nullmat(`llo') \ `olsaux'["ll",":"]
@@ -473,8 +430,7 @@ local nvlist
 end 
 
 program define qreg_stripper, rclass
-	syntax anything [if] [in] [aw iw pw fw], [Quantile(string)] [* ] [ls]
-    *Note: LS so mmqreg does not create those
+	syntax anything [if] [in] [aw iw pw fw], [Quantile(string)] *
 	gettoken yvar xvar:anything  
 	*local xvar `=subinstr("`anything'","`e(depvar)'","",1)' 
 	*local yvar `e(depvar)'
@@ -723,7 +679,7 @@ if "`rplot'"=="" local rplot rarea
 			label_var_lab , var(`v') `label'
 			local vlab `r(labout)'
 			if "`v'"=="_cons" local vlab Intercept
-			short_local, llocal(`vlab') `labelopt'
+			if `"`vlab'"'!="" short_local, llocal(`vlab') `labelopt'
 			local vlab "`r(out)'"
 		}
 		else {
@@ -733,7 +689,7 @@ if "`rplot'"=="" local rplot rarea
 				label_var_lab , var(`v') `label'
 				local vlabx `r(labout)'
 			}
-			short_local, llocal(`vlabx') `labelopt'
+			if `"`vlab'"'!="" short_local, llocal(`vlab') `labelopt'
 			local vlab "`r(out)'"
 		}
 		
@@ -769,30 +725,3 @@ if "`rplot'"=="" local rplot rarea
 	
 end
 
-program define qrgraph2
-   	syntax , from(str asis) xlist(string)  ///
-			[ vlist(string) cons  ols raopt(str asis ) lnopt(str asis ) ///
-			   grcopt(str asis )	twopt(str asis ) ///
-			   mtitles(str asis)    ///
-			   rplot(string) ///
-			   label labelopt(str asis )   *] 
-     tempname toplot mattemp
-     frame create `toplot'
-     frame `toplot' {
-         foreach i of local from {
-             est restore `i'
-             matrix `i'_ul = e(ul)
-             matrix `i'_ll = e(ll)
-             matrix `i'_bs = e(bs)
-             matrix `i'_qq = e(qq)
-             if "`ols'"!="" {
-                    tokenize `matrixols'		
-                    matrix `i'_`bso'=e(bso)
-                    matrix `i'_`llo'=e(llo)
-                    matrix `i'_`ulo'=e(ulo)
-                }
-         }
-       	
-         
-     }
-end
