@@ -1,4 +1,5 @@
-*! version 1.25  (July 2024) Adding QREGFE, automatically adds FE to oLS
+*! version 1.27  (August 2024) Added Features
+* version 1.25  (July 2024) Adding QREGFE, automatically adds FE to oLS
 * version 1.24  (Jan 2024) No longer gets an error if provices non-existing variables
 * version 1.23  (June 2023) Bug with IFs and String variable
 * version 1.22  (March 2023) Small changes to SIVQR weights, Ifs and ins
@@ -206,7 +207,7 @@ program define grqreg_x, rclass
 		local wgt  `r(wgt)'
 	
 	}
-    if inlist("`e(wcmd)'","qregfe"){
+    if inlist("`e(cmd)'","qregfe"){
         local cmdl `e(cmdline)'
         gettoken cmd xvars:cmdl
 	    *local xvars `"`=subinstr("`e(cmdline)'","`e(cmd)'","",1)'"'
@@ -247,6 +248,7 @@ program define grqreg_x, rclass
 	**********************************************************
 	if inlist("`cmd'","rifhdreg","bsrifhdreg") {
 		foreach q of local qlist {
+            display _c "."
 			qui:`cmd' `yvar' `xvar' `ifin' `wgt',  `oth' rif(q(`q' `qopt')) 
 			matrix `aux'=r(table)
 			matrix `qq'=nullmat(`qq') \ `q' 
@@ -267,6 +269,7 @@ program define grqreg_x, rclass
 	
 	if inlist("`cmd'","qreg","bsqreg","mmqreg") {
 	    foreach q of local qlist {
+            display _c "."
 			if "`cmd'"=="bsqreg" {
 				if "`seed'"!="" set seed `seed'		
 			}
@@ -286,6 +289,7 @@ program define grqreg_x, rclass
 	******************************************
 	if inlist("`cmd'","qrprocess","qreg2","xtqreg","ivqreg2") {
 	    foreach q of local qlist {
+            display _c "."
 		    local qrq = `q'/100
 			
  			qui:`cmd' `yvar' `xvar' `ifin' `wgt',  `oth' q(`qrq')
@@ -308,6 +312,7 @@ program define grqreg_x, rclass
 		local bw0 = `e(bw)'		
 		tempname binit
 		foreach q of local qlist {
+            display _c "."
 			local cnt = `cnt'+1
 			if `cnt'==1 qui:qreg `yvar' `xvar' `ifin' `wgt',  q(`q') 
 			matrix `binit' = e(b)
@@ -334,6 +339,7 @@ program define grqreg_x, rclass
 		matrix `binit' =e(b)
 		
 	    foreach q of local qlist {
+            display _c "."
 			local cnt = `cnt'+1
 		    local qrq = `q'/100			
 			
@@ -357,6 +363,7 @@ program define grqreg_x, rclass
 	****
 	if inlist("`cmd'","sqreg") {
 	    forvalues iq = 1/`n_q' {
+            
 		    local q:word `iq' of `q_s'
 			local q=`q'*100
 			local qtc:word `iq' of `eqnames'
@@ -374,6 +381,7 @@ program define grqreg_x, rclass
     ******
     if inlist("`cmd'","qregfe") {
 	    foreach q of local qlist {
+            display _c "."
             if "`e(qmethod)'"=="qrprocess"   local qrq = `q'/100	
             else local qrq = `q'
 		    qui:`cmd' `yvar' `xvar' `ifin' `wgt',  `oth' q(`qrq')
@@ -729,7 +737,6 @@ if "`rplot'"=="" local rplot rarea
 		else {
 			local vlabx:word `cnt' of `mtitles'
 			if "`vlabx'"==" " {
-				display "here"
 				label_var_lab , var(`v') `label'
 				local vlabx `r(labout)'
 			}
