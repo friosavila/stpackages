@@ -4,7 +4,7 @@
 help for {cmd:qregplot}{right:Fernando Rios Avila}
 {hline}
 
-{title:Module for plotting coefficients of a {cmd:Quantile Regressions}}
+{title:Module for plotting coefficients of a {cmd:Quantile Regression}}
 
 {p 8 21 2}{cmdab:qregplot}
 [{it:varlist}]
@@ -28,11 +28,11 @@ help for {cmd:qregplot}{right:Fernando Rios Avila}
 
 {title:Description}
 
-{phang}{cmd:qregplot} graphs the coefficients of a quantile regression produces by various 
+{phang}{cmd:qregplot} graphs the coefficients of a quantile regression produced by various 
 programs that produce quantile coefficients including, qreg, bsqreg, sqreg,
 mmqreg, smqreg, sivqr, and rifhdreg (for unconditional quantiles).{p_end}
 
-{phang}{cmd:qregplot} Works in a similar way as {help grqreg}, but provides added options
+{phang}{cmd:qregplot} works in a similar way as {help grqreg}, but provides added options
 to give the user more control on the creation of the requested figures, also allowing 
 for the use of factor notation. {p_end}
 
@@ -47,8 +47,8 @@ quantile regressions following the same specification as the original model.
 One can select which quantiles will be used for the estimation of this models.  {p_end}
 
 {p 8 6} Step 3. Once all coefficients, and CI are stored, {cmd:qregplot} plots all requested coefficients
-using a {cmd:twoway rarea} for ploting CI, combined with {cmd:twoway line} for plotting the point estimates. 
-Each figure is stored temporary as a graph in memory. {p_end}
+using a {cmd:twoway rarea} for plotting CI, combined with {cmd:twoway line} for plotting the point estimates. 
+Each figure is stored temporarily as a graph in memory. {p_end}
 
 {p 8 6} Step 3b. If requested, OLS coefficients and CI are added to each figure in step 3. {p_end}
 
@@ -62,8 +62,8 @@ command, coefficients are collected from sqreg output, rather than reestimated. 
 {cmd: qreg} was first estimated using {cmd:vce(robust)}, {cmd:qregplot} will use 
 the same type of standard errors for plotting {p_end}
 
-{phang} Since the most time consumming part of quantile regressions is the estimation 
-of the qregressions themselves, specially if using boostrap standard errors, 
+{phang} Since the most time consuming part of quantile regressions is the estimation 
+of the qregressions themselves, specially if using bootstrap standard errors, 
 one can request {cmd:qregplot} to store all coefficients and CI in memory using the option 
 estore({it:name}). The advantage of doing this is that plots can be created using the stored coefficients
 directly. {p_end}
@@ -77,7 +77,7 @@ estimation specification (typically 95%) {p_end}
 {synopthdr :{cmd:Options}}
 {synoptline}
 
-{synopt:{opt varlist}} Select variables that will be graphed. If none is provided, 
+{synopt:{opt varlist}} Select variables that will be plotted. If none is provided, 
 all coefficients except the intercept, will be plotted. This accepts factor notation. {p_end}
 
 {synopt:{cmdab:q:uantiles(numlist)}} Indicates which quantiles to use for plotting. One can use
@@ -104,12 +104,13 @@ The default options are pstyle(p1) fintensity(30) lwidth(none)
 {synopt:{cmdab:lnopt}{cmd:(}{it:line options}{cmd:)}} 
 Provides options to be used in the "twoway line" part of the graph. This controls 
 aspects of the point estimates. 
-The default options are pstyle(p1) lwidth(0.3)({p_end}
+The default options are pstyle(p1) lwidth(0.3)
+{p_end}
 
 {synopt:{cmdab:twopt}{cmd:(}{it:twoway options}{cmd:)}} 
 Provides options to be used on the "twoway" graph. This controls
 aspects of the twoway graph, after combining rarea and line. 
-The default options is to set graph and plot region margins to vsmall ({p_end}
+The default option is to set the graph and plot region margins to vsmall {p_end}
 
 {synopt:{cmdab:grcopt}{cmd:(}{it:graph combine options}{cmd:)}} 
 Provides options to be used along with "graph combine". This controls 
@@ -148,11 +149,11 @@ Setup. {p_end}
 {phang2}
 {bf: {stata qreg wage age education i.married children i.county}}
 
-{pstd} Ploting all coefficients of interest, for quantiles 5 95 in 2.5 increments. Storing coefficients in qp {p_end}
+{pstd} Plotting all coefficients of interest, for quantiles 5 95 in 2.5 increments. Storing coefficients in qp {p_end}
 {phang2}
 {bf: {stata qregplot age education i.married children, q(5(2.5)95) estore(qp)}}
 
-{pstd} Same as above but adding OLS coefficients and CI {p_end}
+{pstd} Same as above, but adding OLS coefficients and CI {p_end}
 {phang2}
 {bf: {stata qregplot age education i.married children, q(5(2.5)95) ols }}
 
@@ -160,7 +161,7 @@ Setup. {p_end}
 {phang2}
 {bf: {stata qregplot age education i.married children, q(5(2.5)95) ols raopt( color(black%5))}}
 
-{pstd} Same as above, but ploting in only 1 column for the combined graph {p_end}
+{pstd} Same as above, but plotting in only 1 column for the combined graph {p_end}
 {phang2}
 {bf: {stata qregplot age education i.married children, q(5(2.5)95) ols raopt( color(black%5)) col(1) }}
 
@@ -171,13 +172,13 @@ Setup. {p_end}
 {pstd} Using only 3 variables and use results from qp (see above) {p_end}
 {phang2}{bf: {stata qregplot age education  children, from(qp) }}
 
-{pstd} Same as above but using labels as titles {p_end}
+{pstd} Same as above, but using labels as titles {p_end}
 {phang2}{bf: {stata qregplot age education  children, from(qp) label }}
 
-{pstd} Same as above but using own titles for figures 1 and 2 {p_end}
+{pstd} Same as above, but using own titles for figures 1 and 2 {p_end}
 {phang2}{bf: {stata qregplot age education  children, from(qp) label mtitles("Age in years since 1980" "Years of education")}}
 
-{pstd} Same as above but using own titles for figures 1 and 2, written in two lines {p_end}
+{pstd} Same as above, but using own titles for figures 1 and 2, written in two lines {p_end}
 {phang2}{bf: {stata qregplot age education  children, from(qp) label mtitles("Age in years since 1980 I want this to be long" "Years of education, including Highschool and college") labelopt(lines(2)) }}  
 
 {pstd} Using alternative estimator, bsqreg {p_end}
@@ -241,16 +242,16 @@ Setup. {p_end}
 {phang2}
 {bf: {stata qregplot age education i.married children, q(5(5)95) estore(qreg_1) }}
 
-{pstd} Ploting coefficients from stored estimations {p_end}
+{pstd} Plotting coefficients from stored estimations {p_end}
 {phang2}
 {bf: {stata qregplot age education i.married children, from(qreg_1) }}
 
-{pstd} Same as above but using labels for titles {p_end}
+{pstd} Same as above, but using labels for titles {p_end}
 {phang2}
 {bf: {stata qregplot age education i.married children, from(qreg_1) label }}
 
-{marker Aknowledgements}{...}
-{title:Aknowledgements}
+{marker Acknowledgements}{...}
+{title:Acknowledgements}
 
 {p 4} This program was created as a companion for {help rifhdreg}, for making it easier
 to plot coefficients across different quantiles, but also as an answer to a regular question

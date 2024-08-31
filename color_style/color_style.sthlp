@@ -4,154 +4,135 @@
 {title:Title}
 
 {phang}
-{bf:color_style} {hline 2} Module to change colors in your scheme file. 
-{p2colreset}{...}
+{bf:color_style} {hline 2} Module to change colors in your scheme file
 
 
 {title:Syntax}
 
 {p 8 16 2}
-{cmd:color_style} [palette], [graph list] [n(#) {help colorpalette} options]
+{cmd:color_style} [{it:palette}] [, {it:options}]
 
-{synoptset 12 tabbed}{...}
-{marker opt}{synopthdr:options}
+{synoptset 20 tabbed}{...}
+{synopthdr}
+{synoptline}
+{syntab:Main}
+{synopt:{opt g:raph}}display the palette of colors to be applied{p_end}
+{synopt:{opt rand:om}}select a random palette from those available with the package{p_end}
+{synopt:{opt list}}provide a list of palettes that accompany this file{p_end}
+{synopt:{opt list(letter)}}provide a list of palettes that start with "letter"{p_end}
+{synopt:{opt n(#)}}define the number of colors to be used for the palette (1-15){p_end}
+{synopt:{opt i:polate(#)}}same as {opt n()}, but works with Stata versions earlier than 14.2{p_end}
+{synopt:{opt show:case}}show how the palette will look for up to 15 colors{p_end}
+{synopt:{help colorpalette##options:{it:colorpalette_options}}}any options from {helpb colorpalette}{p_end}
 {synoptline}
 
-{p2coldent : {opt palette}} Specifies a particular palette to be applied to the Scheme file. One can use
-any of the palettes or color options following {help colorpalette} syntax, or the palettes provided along with this command. 
-See {cmd: list}.
+{p 4 6 2}
+{cmd:font_style} {it:font}
 
-{synopt : {cmd: graph}} When requested, the command will display the palette of colors one will apply.
-
-{synopt : {cmd: random}} Selects a random palette from the ones available with the package.
-
-{synopt : {cmd: list}} Provides a list of Palettes that accompany this file. These are in addition to the ones in {help colorpalette}. 
-
-{synopt : {cmd: list(letter)}} Provides a list of Palettes that start with "letter".
+{p 4 6 2}
+{cmd:graphquery} [{it:options}]
 
 
-{synopt :{cmd: n(#)}} Defines the number of colors to be used for the palette. n(#) should be between 1 to 15. If you select a number larger than 15, those colors will not be used in the scheme file. If n(#)<15, unused pstyle's will be recycled. 
-
-{synopt :{cmd: ipolate(#)}} Same as with n(#). However, using n(#) does not work under Stata versions earlier than 14.2.
-
-{synopt : } The default is to use the number of colors in the palette. For exaple {cmd: Greek} has 5 default colors. Using and n(#) higher or lower than this will interpolate colors. See the options in {help colorpalette}.
-
-{synopt :{cmd:showcase}} This will show you how the palette will look for up to 15 colors.
-
-Extra:
-
-{p 8 16 2}
-{cmd:font_style} {it: font}
-
-This has 1 job. Change the fontface for your graphs.  
-
-{p 8 16 2}
-{cmd:graphquery} {it: options}
-
-This has 1 job. Returns the scheme properties associated to a particular option.
-
-For example "graphquery color p1" should provide the color assigned to color p1 (navy for s2color).
-
-{marker description}{...}
 {title:Description}
 
-{p}This module aims to provide an easy way to change the palette colors in your scheme and graphs. 
-{p_end}
+{pstd}
+{cmd:color_style} provides an easy way to change the palette colors in your scheme and graphs. 
+It works as a wrapper for {helpb colorpalette} and {helpb grstyle}. The palettes were put together 
+by Blake Robert Mills, Karthik Ram, and Jake Lawlor.
 
-{p}This command works as a wrapper on top of Ben Jann's {help colorpalette} and {help grstyle}. Whereas the palette's 
-were put together by Blake Robert Mills, Karthik Ram and Jake Lawlor.
-{p_end}
+{pstd}
+Because this command works as a wrapper for {cmd:colorpalette}, you can easily use your own palettes 
+or the ones in {cmd:colorspace} to enhance your graphs.
 
-{p}Because this command works as a wrapper for colorpalette, you can easily use your own palettes, or the ones in colorspace to make your graphs shine.
+{pstd}
+{cmd:font_style} changes the font face for your graphs.
 
-{marker examples}{...}
+{pstd}
+{cmd:graphquery} returns the scheme properties associated with a particular option.
+
+
+{title:Options}
+
+{phang}
+{opt palette} specifies a particular palette to be applied to the scheme file. You can use
+any of the palettes or color options following {help colorpalette} syntax, or the palettes provided 
+with this command. See {cmd:list} option.
+
+{phang}
+{opt graph} displays the palette of colors to be applied.
+
+{phang}
+{opt random} selects a random palette from those available with the package.
+
+{phang}
+{opt list} provides a list of palettes that accompany this file. These are in addition to those in {help colorpalette}.
+
+{phang}
+{opt list(letter)} provides a list of palettes that start with "letter".
+
+{phang}
+{opt n(#)} defines the number of colors to be used for the palette. {it:#} should be between 1 and 15. 
+If you select a number larger than 15, those colors will not be used in the scheme file. If {it:#} < 15, 
+unused pstyles will be recycled.
+
+{phang}
+{opt ipolate(#)} same as {opt n(#)}. However, {opt n(#)} does not work under Stata versions earlier than 14.2.
+
+{phang}
+{opt showcase} shows how the palette will look for up to 15 colors.
+
+{pstd}
+The default is to use the number of colors in the palette. For example, {cmd:Greek} has 5 default colors. 
+Using an {opt n(#)} higher or lower than this will interpolate colors. See the options in {help colorpalette}.
+
+
 {title:Examples}
 
-{pstd}Lets start by loading some data:{p_end}
+{pstd}Load some data:{p_end}
+{phang2}{cmd:. use http://fmwww.bc.edu/RePEc/bocode/o/oaxaca.dta}{p_end}
+{phang2}{cmd:. set scheme white}{p_end}
 
-{phang2}
-{bf:. {stata "use http://fmwww.bc.edu/RePEc/bocode/o/oaxaca.dta"}}{p_end}
-{phang2}
-{bf:. {stata "set scheme white"}}{p_end}
+{pstd}List available palettes:{p_end}
+{phang2}{cmd:. color_style, list}{p_end}
 
-Say that you are considering using one of the color palettes that comes with this command. 
-However, you do not know what is available, so you start by simply typing:{p_end}
+{pstd}Display the Egypt palette:{p_end}
+{phang2}{cmd:. color_style egypt, graph}{p_end}
 
-{phang2}
-{bf:. {stata "color_style , list"}}
+{pstd}Extend the Egypt palette to 15 colors:{p_end}
+{phang2}{cmd:. color_style egypt, graph n(15)}{p_end}
 
-{pstd}
-Now, assume you want decide for the enigmatic Egypt, but are unsure about the colors,
-then you can type:{p_end}
+{pstd}Recycle colors using the {cmd:class()} option:{p_end}
+{phang2}{cmd:. color_style egypt, graph n(15) class(q)}{p_end}
 
-{phang2}
-{bf:. {stata "color_style egypt, graph"}}
+{pstd}Create a scatter plot with the selected palette:{p_end}
+{phang2}{cmd:. xtile q4 = exper, n(4)}{p_end}
+{phang2}{cmd:. separate lnwage, by(q4)}{p_end}
+{phang2}{cmd:. scatter lnwage? exper}{p_end}
 
-{pstd}
-What you will see is that this palette uses 4 colors. So only the first 4 Styles would be modified.
-You could extend this palette to 15 colors: {p_end}
+{pstd}Try different palettes:{p_end}
+{phang2}{cmd:. color_style peru1}{p_end}
+{phang2}{cmd:. scatter lnwage? exper}{p_end}
+{phang2}{cmd:. color_style peru2}{p_end}
+{phang2}{cmd:. scatter lnwage? exper}{p_end}
+{phang2}{cmd:. color_style johnson}{p_end}
+{phang2}{cmd:. scatter lnwage? exper}{p_end}
+{phang2}{cmd:. graph bar lnwage?, stack}{p_end}
+{phang2}{cmd:. color_style viridis, n(5)}{p_end}
+{phang2}{cmd:. scatter lnwage? exper}{p_end}
+{phang2}{cmd:. graph bar lnwage?, stack}{p_end}
 
-{phang2}
-{bf:. {stata "color_style egypt, graph n(15)"}}
 
-{pstd}
-You may or may not like this set of colors interpolated. Alternatively, you can choose to recycle the colors, 
-using option {cmd:class()}. This is a colorpalette option: {p_end}
-
-{phang2}
-{bf:. {stata "color_style egypt, graph n(15) class(q)"}}
-
-{pstd}
-So, lets settle with the option above, and now make a simple scatter plot {p_end}
-
-{phang2}
-{bf:. {stata "xtile q4=exper, n(4)"}}{p_end}
-{phang2}
-{bf:. {stata "separate lnwage,by(q4)"}}{p_end}
-{phang2}
-{bf:. {stata "scatter lnwage? exper"}}
+{title:Acknowledgements}
 
 {pstd}
-But of course, we can change this with any other palette:{p_end}
-
-{phang2}
-{bf:. {stata "color_style peru1"}}{p_end}
-{phang2}
-{bf:. {stata "scatter lnwage? exper"}}{p_end}
-{phang2}
-{bf:. {stata "color_style peru2"}}{p_end}
-{phang2}
-{bf:. {stata "scatter lnwage? exper"}}{p_end}
-{phang2}
-{bf:. {stata "color_style johnson"}}{p_end}
-{phang2}
-{bf:. {stata "scatter lnwage? exper"}}{p_end}
-{phang2}
-{bf:. {stata "graph bar lnwage?, stack"}}{p_end}
-{phang2}
-{bf:. {stata "color_style viridis, n(5)"}}{p_end}
-{phang2}
-{bf:. {stata "scatter lnwage? exper"}}{p_end}
-{phang2}
-{bf:. {stata "graph bar lnwage?, stack"}}
-
+This command would not have been possible without the work of Ben Jann, who made it possible to easily 
+manipulate colors in Stata using {cmd:colorpalette}, as well as his work with {cmd:grstyle}, which makes 
+it quite easy to manipulate schemes.
 
 {pstd}
-Finally, if you are interested looking at how many of the palettes look with , scatterplots, violinplots,
- or stream plots, you can look here: {browse "https://github.com/friosavila/playingwithstata/blob/gh-pages/articles/palette.md"}
+Furthermore, thanks to Blake Robert Mills, Karthik Ram, and Jake Lawlor, who put together amazing palettes.
 
-{marker Aknowledgement}{...}
-{title:Aknowledgement}
 
-{pstd}
-This command could not have been possible without the work by Ben Jann, who make it possible to easily manipulate colors in Stata using colorpalette, as well as his work with grstyle, which make it quite easy to manipulate schemes.
-{p_end}
-
-{pstd}
-Furthermore, thank you to Blake Robert Mills, Karthik Ram and Jake Lawlor, who put together very amazing palettes.
-{p_end}
-
-{marker Author}{...}
 {title:Author}
 
 {pstd}Fernando Rios-Avila{break}
@@ -160,8 +141,11 @@ Blithewood-Bard College{break}
 Annandale-on-Hudson, NY{break}
 friosavi@levy.org
 
+
 {title:Also see}
 
-{p 7 14 2}
+{p 4 14 2}
 Help:  {helpb colorpalette}, {helpb grstyle}
 
+{p 7 14 2}
+Online:  {browse "https://github.com/friosavila/playingwithstata/blob/gh-pages/articles/palette.md":Palette examples}
