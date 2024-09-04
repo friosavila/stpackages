@@ -20,6 +20,7 @@ program define cre, properties(prefix)
 		local keep   `r(keep)'
 		local replace `r(replace)'
 		local keepsingletons `r(keepsingletons)'
+        local hdfe    `r(hdfe)'
 		
 		local compact  `r(compact)'
 		
@@ -45,7 +46,7 @@ program define cre, properties(prefix)
 		markout `touse' `felist' `x'  `y'
  		***
   
-		myhdmean `x' if `touse' [`weight'`exp'], abs(`felist') prefix(`prefix') `compact' `keepsingletons' `replace'
+		myhdmean `x' if `touse' [`weight'`exp'], abs(`felist') prefix(`prefix') `compact' `keepsingletons' `replace' hdfe(`hdfe')
 		local vlist `r(vlist)'
 		`cmd' `anything' `vlist'  `if' `in' [`weight'`exp'], `options'
 		if "`keep'"==""{
@@ -56,14 +57,16 @@ program define cre, properties(prefix)
 end
 
 program cre_opt, rclass
-	syntax , abs(varlist) [keep prefix(name) compact keepsingletons replace]
+	syntax , abs(varlist) [drop prefix(name) compact dropsingletons replace hdfe(asis)]
 	if "`prefix'"=="" local prefix m
 	return local felist `abs'
 	return local prefix `prefix'
-	return local keep   `keep'
-	return local keepsingletons   `keepsingletons'
+    if "`drop'"=="" return local keep   keep
+    if "`dropsingletons'"=="" return local keepsingletons   keepsingletons
+    
 	return local compact   `compact'
 	return local replace `replace'
+    return local hdfe   `hdfe'
 end 
 
 program myhdmean, rclass
@@ -101,7 +104,7 @@ program myhdmean, rclass
 				local fex    `fex'    `prefix'`cnt'_`i'=`j'
 				local vplist `vplist' `prefix'`cnt'_`i'
 			}
-			qui:reghdfe `i' `if'  [`weight'`exp'], abs(`fex')  `keepsingletons' resid
+			qui:reghdfe `i' `if'  [`weight'`exp'], abs(`fex')  `keepsingletons' resid verbose(-1) hdfe(`hdfe')
 			label var `prefix'`cnt'_`i' "`:variable label `i''"
 			qui:sum _reghdfe_resid, meanonly
 			if abs(`r(max)'-`r(min)')>epsfloat() local vlist `vlist' `vplist'
@@ -124,7 +127,7 @@ program myhdmean, rclass
 			local fex
 			local vplist
 			capture drop `prefix'`cnt'_`i'
-			qui:reghdfe `i' `if'  [`weight'`exp'], abs(`abs') resid `keepsingletons'
+			qui:reghdfe `i' `if'  [`weight'`exp'], abs(`abs') resid `keepsingletons' verbose(-1) hdfe(`hdfe')
 			qui:sum _reghdfe_resid, meanonly
 			if abs(`r(max)'-`r(min)')>epsfloat() {
 				qui:gen double `prefix'`cnt'_`i'=`i'-_reghdfe_resid-_cons
@@ -144,7 +147,7 @@ program myhdmean, rclass
 	}
 	*display in w "`dropvlist'"
 	if "`dropvlist'"!="" drop `dropvlist'
-	
+	qui:capture:drop _reghdfe_resid	
 end
 
 *cre,   abs( age isco) :reg lnwage educ exper tenure  [w=wt]
