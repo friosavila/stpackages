@@ -1,4 +1,5 @@
-*! v1.2.0  CRE Correlated RE model. Allows for two word commands and long vars
+* v1.2.1  CRE Improvements on Options Keep drop
+* v1.2.0  CRE Correlated RE model. Allows for two word commands and long vars
 * v1.1.1  CRE Correlated RE model. Allows for Fracreg
 * v1.1  CRE Correlated RE model. Drops unnecessary Means
 * does not work with "complex" heckman, because that requires different variables. 
@@ -40,7 +41,7 @@ program define cre, properties(prefix)
 			else local nx 0
 		}
 		 
-		local x `s(exog)'   `s(inst)'
+		local x `s(exog)'   `s(inst)' `s(endog)' 
 		local y `s(lhs)' 
 		marksample touse
 		markout `touse' `felist' `x'  `y'
@@ -49,6 +50,7 @@ program define cre, properties(prefix)
 		myhdmean `x' if `touse' [`weight'`exp'], abs(`felist') prefix(`prefix') `compact' `keepsingletons' `replace' hdfe(`hdfe')
 		local vlist `r(vlist)'
 		`cmd' `anything' `vlist'  `if' `in' [`weight'`exp'], `options'
+        adde local m_list `vlist'
 		if "`keep'"==""{
 			drop `vlist'
 		}
@@ -57,7 +59,7 @@ program define cre, properties(prefix)
 end
 
 program cre_opt, rclass
-	syntax , abs(varlist) [drop prefix(name) compact dropsingletons replace hdfe(asis)]
+	syntax , abs(varlist) [drop prefix(name) compact dropsingletons replace hdfe(string asis)]
 	if "`prefix'"=="" local prefix m
 	return local felist `abs'
 	return local prefix `prefix'
@@ -70,7 +72,7 @@ program cre_opt, rclass
 end 
 
 program myhdmean, rclass
-	syntax anything [if] [aw iw pw fw], abs(varlist) prefix(name) [compact  keepsingletons replace]
+	syntax anything [if] [aw iw pw fw], abs(varlist) prefix(name) [compact  keepsingletons replace hdfe(string asis) ]
 	
 	ms_fvstrip `anything' `if', expand dropomit
 	local vvlist `r(varlist)'
@@ -104,7 +106,7 @@ program myhdmean, rclass
 				local fex    `fex'    `prefix'`cnt'_`i'=`j'
 				local vplist `vplist' `prefix'`cnt'_`i'
 			}
-			qui:reghdfe `i' `if'  [`weight'`exp'], abs(`fex')  `keepsingletons' resid verbose(-1) hdfe(`hdfe')
+			qui:reghdfe `i' `if'  [`weight'`exp'], abs(`fex')  `keepsingletons' resid verbose(-1) `hdfe'
 			label var `prefix'`cnt'_`i' "`:variable label `i''"
 			qui:sum _reghdfe_resid, meanonly
 			if abs(`r(max)'-`r(min)')>epsfloat() local vlist `vlist' `vplist'
@@ -127,7 +129,7 @@ program myhdmean, rclass
 			local fex
 			local vplist
 			capture drop `prefix'`cnt'_`i'
-			qui:reghdfe `i' `if'  [`weight'`exp'], abs(`abs') resid `keepsingletons' verbose(-1) hdfe(`hdfe')
+			qui:reghdfe `i' `if'  [`weight'`exp'], abs(`abs') resid `keepsingletons' verbose(-1) `hdfe'
 			qui:sum _reghdfe_resid, meanonly
 			if abs(`r(max)'-`r(min)')>epsfloat() {
 				qui:gen double `prefix'`cnt'_`i'=`i'-_reghdfe_resid-_cons
