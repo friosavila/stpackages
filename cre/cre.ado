@@ -22,7 +22,7 @@ program define cre, properties(prefix)
 		local replace `r(replace)'
 		local keepsingletons `r(keepsingletons)'
         local hdfe    `r(hdfe)'
-		
+		local exclude `r(exclude)'
 		local compact  `r(compact)'
 		
 		gettoken other cmd0 : second, parse(" :")
@@ -47,7 +47,10 @@ program define cre, properties(prefix)
 		markout `touse' `felist' `x'  `y'
  		***
   
-		myhdmean `x' if `touse' [`weight'`exp'], abs(`felist') prefix(`prefix') `compact' `keepsingletons' `replace' hdfe(`hdfe')
+		myhdmean `x' if `touse' [`weight'`exp'], ///
+            abs(`felist') prefix(`prefix') `compact' `keepsingletons' `replace' ///
+            hdfe(`hdfe') exclude(`exclude')
+            
 		local vlist `r(vlist)'
 		`cmd' `anything' `vlist'  `if' `in' [`weight'`exp'], `options'
         adde local m_list `vlist'
@@ -59,25 +62,43 @@ program define cre, properties(prefix)
 end
 
 program cre_opt, rclass
-	syntax , abs(varlist) [drop prefix(name) compact dropsingletons replace hdfe(string asis)]
+	syntax , abs(varlist) [drop prefix(name) compact dropsingletons replace hdfe(string asis) exclude(string asis)]
 	if "`prefix'"=="" local prefix m
 	return local felist `abs'
 	return local prefix `prefix'
     if "`drop'"=="" return local keep   keep
     if "`dropsingletons'"=="" return local keepsingletons   keepsingletons
     
-	return local compact   `compact'
-	return local replace `replace'
-    return local hdfe   `hdfe'
+	return local compact    `compact'
+	return local replace    `replace'
+    return local hdfe       `hdfe'
+    return local exclude    `exclude'
 end 
 
 program myhdmean, rclass
-	syntax anything [if] [aw iw pw fw], abs(varlist) prefix(name) [compact  keepsingletons replace hdfe(string asis) ]
+	syntax anything [if] [aw iw pw fw], abs(varlist) prefix(name) ///
+        [compact  keepsingletons replace hdfe(string asis) exclude(string asis)]
 	
 	ms_fvstrip `anything' `if', expand dropomit
 	local vvlist `r(varlist)'
+    if "`exclude'"!="" {
+        ms_fvstrip `exclude' `if', expand 
+        local evlist `r(varlist)'
+    }
+    ** check if vvlist is not in evlist
+    foreach i of local vvlist {
+        local is_in = 1
+        foreach j of local evlist {
+            if "`i'"=="`j'" local is_in = 0
+        }
+        if `is_in'==1 {
+            local v2list `v2list' `i'
+        }
+    }
+    
 	** First check and create
-	foreach i in `vvlist' {
+	foreach i of local v2list {
+    
 		local icnt = `icnt'+1
 		capture confirm variable `i'
 		if _rc!=0 {
@@ -152,5 +173,8 @@ program myhdmean, rclass
 	qui:capture:drop _reghdfe_resid	
 end
 
+program adde, eclass
+	ereturn `0'
+end
 *cre,   abs( age isco) :reg lnwage educ exper tenure  [w=wt]
 *reghdfe lnwage educ exper tenure  [w=wt], abs(age isco)

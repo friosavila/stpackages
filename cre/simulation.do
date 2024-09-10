@@ -77,39 +77,3 @@ two kdensity true_b_x1_i || kdensity false_b_x1_i || kdensity  xtlogit_b_x1_i ||
 
 ** MWAY
 
-program drop sim
-program sim, eclass
-clear
-set obs 500
-gen id1 = runiformint(1,100)
-gen id2 = runiformint(1,100)
-gen c1_i = runiform(-.5,.5)
-gen c2_i = runiform(-.5,.5)
-bysort id1:replace c1_=c1_[1]
-bysort id2:replace c2_=c2_[1]
-
-gen x1_i = 0.8*rnormal()+invnormal(c1_i+.5)+invnormal(c2_i+.5)
-gen x2_i = 0.8*rnormal()-invnormal(c1_i+.5)-invnormal(c2_i+.5)
-gen expy = exp(x1_i + x2_i + c1_i + c2_i)
-gen ypois=rpoisson(expy)
-
-poisson ypois x1 x2 c1 c2
-matrix b1=e(b)
-poisson ypois x1 x2 
-matrix b2=e(b)
-ppmlhdfe ypois x1 x2 , abs(id1 id2)
-matrix b3=e(b)
-cre, keep abs(id1 id2): poisson ypois x1 x2 , robust
-matrix b4=e(b)
-
-matrix coleq b1 = true
-matrix coleq b2 = false
-matrix coleq b3 = ppmlhdfe
-matrix coleq b4 = cre
-matrix b = b1,b2,b3,b4
-
-ereturn post b
-
-end
-
-parallel sim , reps(1000): sim
