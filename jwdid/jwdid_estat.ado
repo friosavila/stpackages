@@ -1,4 +1,5 @@
-*! v2.0 FRA. Gravity
+*! v2.01 FRA. Margins Fix
+* v2.0 FRA. Gravity
 * v1.72 FRA. Anticipation without Never
 * v1.71 FRA. Bug with Pretrend
 * v1.7 FRA. Fixes how to Store Table (with new names)
@@ -138,7 +139,7 @@ program define jwdid_simple, rclass
 		matrix `bb' = `b'
 		matrix `VV' = `V'
 		adde repost b=`bb' V=`VV', rename
-		
+		adde local p
 		ereturn display
 		tempname tb2
 		matrix `tb2' = r(table)
@@ -197,7 +198,7 @@ program define jwdid_group, rclass
 		matrix `bb' = `b'
 		matrix `VV' = `V'
 		adde repost b=`bb' V=`VV', rename
-
+		adde local p
 		ereturn display
 		tempname tb2
 		matrix `tb2' = r(table)
@@ -256,7 +257,7 @@ program define jwdid_calendar, rclass
 		matrix `bb' = `b'
 		matrix `VV' = `V'
 		adde repost b=`bb' V=`VV', rename
-
+		adde local p
 		ereturn display
 		tempname tb2
 		matrix `tb2' = r(table)
@@ -384,7 +385,7 @@ program define jwdid_event, rclass
 		matrix `bb' = `b'
 		matrix `VV' = `V'
 		adde repost b=`bb' V=`VV', rename
- 
+		adde local p
 		ereturn display
 		tempname tb2
 		matrix `tb2' = r(table)
