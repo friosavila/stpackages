@@ -1,5 +1,5 @@
 *! Describe, but with types
-program describe2,
+program describe2, rclass
     syntax [varlist], [type(str asis)] [*]
     if "`varlist'"=="" local varlist *
     local final_vlist
@@ -9,7 +9,6 @@ program describe2,
             local final_vlist `final_vlist' `var'
         }
     }
-    
     describe `final_vlist', `options'
-    addr local vlist `final_vlist'
+    return local varlist `final_vlist'
 end
