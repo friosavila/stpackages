@@ -1,7 +1,5 @@
-program drop _all
-mata mata clear
-
-*!v2.01 xattvar
+*v2.10 CRE! An addition of corrections for nonlinear models 
+*v2.01 xattvar
 *v2.00 Paper Out
 *v1.77 Allows Anticipation 
 *v1.76 Excludes Fixed variables from the interactions with Cohort
