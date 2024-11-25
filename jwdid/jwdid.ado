@@ -1,3 +1,6 @@
+program drop _all
+mata mata clear
+
 *!v2.01 xattvar
 *v2.00 Paper Out
 *v1.77 Allows Anticipation 
@@ -118,6 +121,11 @@ end
 **  Small program to check fix vars
 mata:
     void mt_fixvar(string scalar xvarname, string scalar touse){
+        real matrix xvar
+        real matrix info
+        real scalar i
+        real matrix csum
+        string matrix toret1 , toret2
         // Load all data
         xvar = st_data(.,xvarname,touse)        
         // sort and PanelStup 
@@ -174,8 +182,8 @@ program jwdid, eclass
 								  [exovar(varlist fv ts) exogvar(varlist fv ts) ]  /// Variables not to be interacted with Gvar Tvar Treatment
                                   [xtvar(varlist fv ts) ]  /// Variables interacted with  Tvar 
                                   [xgvar(varlist fv ts) ]  /// Variables interacted with Gvar 
-                                  [xattvar(varlist fv ts) ]  /// Variables interacted with Gvar 
-								  [xasis ] ///  
+                                  [xattvar(varlist fv ts) ]  /// Variables interacted with Tvar x Gvar <- for Treatment Heterogeneity
+								  [xasis cre] ///  
 								  [ANTIcipation(numlist max=1 >0) ] // Allows for Anticipation
 						
 	// For Gravity
@@ -617,6 +625,8 @@ program jwdid, eclass
 	if "`method1'"=="fracreg" local tocluster vce(cluster `cvar')
 	else local tocluster cluster(`cvar')
 	
+    
+    ***
 	if "`method'"=="" {
 		if "`group'"=="" {
 			** ogxvar  will be excluded if they are fixed across time
@@ -647,20 +657,38 @@ program jwdid, eclass
 				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons ///
 				d `method_option' `options'
 		local scmd `e(cmdline)'				
-	}	
+	}
+	**** Else Two Add CRE option
 	else {
-		if "`ivar'"!="" {
-			qui:xtset `ivar' `tvar'
-			mata:is_balanced("`ivar' `tvar'","`touse'")	
-			if   "`corr'"!=""  {
-					** Correction 
-					qui:myhdmean `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `exogvar'  i.`tvar' if `touse'	[`wgt'`exp'] , prefix(_z_) keepsingletons abs(`ivar')
-					local xcorr  `r(vlist)'				
-			} 
-		}
-		`method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `exogvar'   i.`gvar' i.`tvar' ///
-		if `touse' [`weight'`exp'], `tocluster' `method_option' `options'
-		local scmd `e(cmdline)'
+        if "`cre'"=="" {        
+            if "`ivar'"!="" {
+                qui:xtset `ivar' `tvar'
+                mata:is_balanced("`ivar' `tvar'","`touse'")	
+                if   "`corr'"!=""  {
+                        ** Correction 
+                        qui:myhdmean `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `exogvar'  i.`tvar' if `touse'	///
+                                     [`wgt'`exp'] , prefix(_z_) keepsingletons abs(`ivar')
+                        local xcorr  `r(vlist)'				
+                } 
+            }
+            `method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `exogvar'   i.`gvar' i.`tvar' ///
+            if `touse' [`weight'`exp'], `tocluster' `method_option' `options'
+            local scmd `e(cmdline)'
+        }
+        else {
+            if "`ivar'"!="" local tofe  `ivar'
+            else local tofe `gvar'
+            qui:cre_jwdid `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `exogvar' i.`tvar' if `touse' [`weight'`exp'], abs(`tofe')
+            
+            qui: `method'  `y' `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `exogvar' /// Main Variables
+                           _cre_* i.`tvar' /// Mundlak terms  + time FE
+                           if `touse' [`weight'`exp'], `tocluster' `method_option' `options'
+            
+            display "Estimation Done" _n ///
+                    "{p}If Need to see results type -ereturn display-. They could be very extensive, depending on the model{p_end}" _n ///
+                    "Otherwise, type -estat [simple/event]- for aggregates"
+            
+        }
 	}
 	
 	ereturn local cmd jwdid
@@ -809,6 +837,65 @@ program _gjwgvar, sortpreserve
 	label var `varlist' "Group Variable based on `exp'"
 end
 
+program cre_jwdid, rclass sortpreserve
+    syntax varlist(fv ts) [if] [aw iw pw], abs(varname)
+    capture drop _cre_*
+    ** Capturing sample
+    marksample  touse 
+    markout    `touse' `abs'
+	sort `touse' `abs' 
+    ** expand Varlist
+    fvexpand `varlist'
+    local mfvlist `r(varlist)'
+    ** define weights
+    if "`weight'"!="" local weight aw
+    local exp = subinstr("`exp'","=","",1)
+    if "`exp'"=="" local exp 1
+    ** Counts Obs
+    count if `touse'
+    
+    ** Gets Weight
+    tempvar vwexp
+    by `touse' `abs':gen double `vwexp' =  sum(`exp')
+    by `touse' `abs':replace    `vwexp' =  `vwexp'[_N]
+    
+    tempvar res_mm
+    qui:gen double `res_mm'=.
+    local cnt 0
+    foreach i of local mfvlist {
+        
+        ** Create
+        local cnt = `cnt'+1
+        by `touse' `abs':gen double _cre_`cnt'=sum((`i')*`exp') if `touse'
+        by `touse' `abs':replace    _cre_`cnt'=_cre_`cnt'[_N]/`vwexp'
+        ** check if Any Var
+        replace `res_mm' = abs((`i')-_cre_`cnt') if `touse'
+        sum `res_mm', meanonly
+        if (r(max)-r(min))>epsfloat()  {
+            local flist `flist' _cre_`cnt'
+            label var _cre_`cnt' "mndlk `i'"
+        }
+        else drop _cre_`cnt'
+    }
+    
+    ** Final Collinearity Check
+    qui: _rmcoll _cre_*
+    return list 
+    local fflist  `r(varlist)'
+    local flist
+    
+    foreach i of local fflist {
+        
+        if strpos("`i'","o.")>0 {
+            local todr= subinstr("`i'","o.","",1)
+            drop `todr'
+        }
+        else local flist `flist' `i'
+    }
+    return local varlist `flist'    
+    
+    
+end 
 *** Problem.
 /*
 What to do if DIF(1) c.x does give you a different result from dif() c.dx
