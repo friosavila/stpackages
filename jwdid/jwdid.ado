@@ -1,3 +1,4 @@
+*!v2.11 Bug with trtvar
 *v2.10 CRE! An addition of corrections for nonlinear models 
 *v2.01 xattvar
 *v2.00 Paper Out
