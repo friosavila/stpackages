@@ -313,7 +313,6 @@ program jwdid, eclass
 		
 	}	
 	else {		
-		error 1
 		qui:capture drop __tr__
 		qui:gen      __tr__=`trtvar' if `touse'
 		qui:replace  __tr__=1        if `touse' & "`never'"!="" & `trtvar'==0 & `gvar'!=0
