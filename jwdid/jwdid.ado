@@ -621,6 +621,7 @@ program jwdid, eclass
 	if "`cluster'"!=""                local cvar `cluster'
 	
 	if "`method1'"=="fracreg" local tocluster vce(cluster `cvar')
+	else if "`method1'"=="tobit" local tocluster vce(cluster `cvar')
 	else local tocluster cluster(`cvar')
 	
     
