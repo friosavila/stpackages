@@ -1,4 +1,5 @@
-*!v2.12 Bug with tobit
+*!v2.13 Fixing Treatment Intensity
+*v2.12 Bug with tobit
 *v2.11 Bug with trtvar
 *v2.10 CRE! An addition of corrections for nonlinear models 
 *v2.01 xattvar
@@ -227,18 +228,15 @@ program jwdid, eclass
 	}
 	if "`tvar'"=="" local tvar `time'
 
-	if "`gvar'`trtvar'"=="" {
-		display in red "option gvar/trtvar() required"
-		error 198
-	}
-
 	if "`trtvar'`gvar'"=="" {
 		display as error "Cohort variable not specified"
+		display in red "options gvar or trtvar() required"
 		error 198
 	} 
 	else if "`trtvar'"!="" & "`gvar'"!="" {
-		display as error "You can only specify gvar or trtvar. Not both"		
-		error 198
+		display "You Specified TRTVAR and Gvar. Make sure they are consistent"
+		display "if tvar<gvar -> trtvar = 0"
+		
 	}
 	else if "`trtvar'"!="" {
 		capture drop __gvar
