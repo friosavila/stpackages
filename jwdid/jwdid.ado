@@ -1,4 +1,5 @@
-*!v2.13 Fixing Treatment Intensity
+*!v2.2 Fixing issue with RCS 
+*v2.13 Fixing Treatment Intensity
 *v2.12 Bug with tobit
 *v2.11 Bug with trtvar
 *v2.10 CRE! An addition of corrections for nonlinear models 
@@ -139,8 +140,9 @@ mata:
         csum =colsum(xvar[info[,2],]:-xvar[info[,1],])
         toret1 = invtokens(select(tokens(xvarname), csum ))
         toret2 = invtokens(select(tokens(xvarname),!csum ))
-        st_global("r(xvarvar)",toret1)
-        st_global("r(xvarcons)",toret2)
+
+        st_local("xvarvar",toret1)
+        st_local("xvarcons",toret2)
     }
 end
 
@@ -153,10 +155,13 @@ program is_x_fix, rclass
     ** ID original variables
     getvarlist `varlist'
     local xvarlist `r(varlist)'    
-  fvset base none `xvarlist '
-    mata:mt_fixvar("`ivar' `evarlist '","`touse'")
-  fvset base default `xvarlist'
-    
+	fvset base none `xvarlist '
+	mata:mt_fixvar("`ivar' `evarlist '","`touse'")
+	
+	fvset base default `xvarlist'
+ 	return local xvarcons   `xvarcons'
+	return local xvarvar    `xvarvar'
+	 
 end 
  
 program jwdid, eclass
@@ -255,9 +260,9 @@ program jwdid, eclass
 		is_x_fix `x' if `touse', ivar(`ivar')
 		local xvarcons  `r(xvarcons)'
 		local xvarvar   `r(xvarvar)'
- 
+		
 	}
-
+	
  	*easter_egg
 	** Count gvar
 	/*qui:count if `gvar'==0 & `touse'==1 
@@ -629,7 +634,7 @@ program jwdid, eclass
 		if "`group'"=="" {
 			** ogxvar  will be excluded if they are fixed across time
 			if "`tocluster'"=="" local tocluster vce(robust)
-			reghdfe `y' `xvar' `ogxvar'  `otxvar' 	`exogvar' ///
+			reghdfe `y' `xvar' `xvarvar' `ogxvar'  `otxvar' 	`exogvar' ///
 				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons `options'
 			local scmd `e(cmdline)'		
 		}	
@@ -640,7 +645,7 @@ program jwdid, eclass
 		 
 				if "`corr'"!="" {
 					** Correction 
-					qui:myhdmean `xvar' `x' `ogxvar'  `otxvar' `exogvar'  i.`tvar' if `touse'	[`wgt'`exp'] , prefix(_z_) keepsingletons abs(`ivar')
+					qui:myhdmean `xvar' `xvarvar' `ogxvar'  `otxvar' `exogvar'  i.`tvar' if `touse'	[`wgt'`exp'] , prefix(_z_) keepsingletons abs(`ivar')
 					local xcorr  `r(vlist)'
 				}
 			}	
@@ -651,7 +656,7 @@ program jwdid, eclass
 	}
 	else if "`method'"=="ppmlhdfe" {
 		
-		ppmlhdfe `y' `xvar' `ogxvar'  `otxvar'	`exogvar' ///
+		ppmlhdfe `y' `xvar' `xvarvar' `ogxvar'  `otxvar'	`exogvar' ///
 				if `touse' [`weight'`exp'], abs(`ivar' `tvar' `fevar') `tocluster' keepsingletons ///
 				d `method_option' `options'
 		local scmd `e(cmdline)'				
@@ -664,7 +669,7 @@ program jwdid, eclass
                 mata:is_balanced("`ivar' `tvar'","`touse'")	
                 if   "`corr'"!=""  {
                         ** Correction 
-                        qui:myhdmean `xvar'  `x'  `ogxvar' `otxvar' `xcorr' `exogvar'  i.`tvar' if `touse'	///
+                        qui:myhdmean `xvar'  `xvarvar'  `ogxvar' `otxvar' `xcorr' `exogvar'  i.`tvar' if `touse'	///
                                      [`wgt'`exp'] , prefix(_z_) keepsingletons abs(`ivar')
                         local xcorr  `r(vlist)'				
                 } 
@@ -878,7 +883,7 @@ program cre_jwdid, rclass sortpreserve
     
     ** Final Collinearity Check
     qui: _rmcoll _cre_*
-    return list 
+     
     local fflist  `r(varlist)'
     local flist
     
