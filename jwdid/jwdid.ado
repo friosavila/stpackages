@@ -1,4 +1,5 @@
-*!v2.2 Fixing issue with RCS 
+*!v2.201 Index Option
+*v2.2 Fixing issue with RCS 
 *v2.13 Fixing Treatment Intensity
 *v2.12 Bug with tobit
 *v2.11 Bug with trtvar
@@ -168,7 +169,7 @@ program jwdid, eclass
 	** Error with 14 or earlier
 	version 15
 	** Replay
-	syntax [ anything(everything)] [in] [pw iw aw], [example *]
+	syntax [ anything(everything)] [in] [pw iw aw], [example * ]
 	if replay() {
 		if "`example'" !="" {
 			jwdid_example
@@ -190,11 +191,15 @@ program jwdid, eclass
                                   [xgvar(varlist fv ts) ]  /// Variables interacted with Gvar 
                                   [xattvar(varlist fv ts) ]  /// Variables interacted with Tvar x Gvar <- for Treatment Heterogeneity
 								  [xasis cre] ///  
-								  [ANTIcipation(numlist max=1 >0) ] // Allows for Anticipation
+								  [ANTIcipation(numlist max=1 >0) ] /// Allows for Anticipation
+								  [index] // Options to "save" information of how things should be stored
 						
+	
+	
 	// For Gravity
 	// Anticipation is the number of periods before the event
 	// Default is 1 (so g-1 is the excluded period)
+	
 	if "`anticipation'"=="" local anti 1
 	else local anti `anticipation'
 
@@ -712,7 +717,7 @@ program jwdid, eclass
 	ereturn scalar  gap =  `gap'
 	ereturn scalar  anticipation =  `anti'
 	ereturn scalar  antigap =  `antigap'
-	
+	ereturn local index `index'
 end
 
 mata
