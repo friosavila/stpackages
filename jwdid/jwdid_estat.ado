@@ -92,7 +92,7 @@ end
 program define jwdid_simple, rclass
         syntax [pw], [* post estore(str) esave(str asis) replace over(varname) ///
                     asis  OREStriction(passthru) ///
-                    window(numlist min=2 max=2) predict(passthru)  ]
+                    window(numlist min=2 max=2)   ]
         //tempvar aux
         //qui:bysort `e(ivar)':egen `aux'=min(`e(tvar)') if e(sample)
         capture:est store `lastreg'    
