@@ -1,4 +1,5 @@
-*! v2.1 FRA. More options including attgt and Over many
+*! v2.2 FRA. Fixing error with weights Stata 17
+* v2.1 FRA. More options including attgt and Over many
 * v2.01 FRA. Margins Fix
 * v2.0 FRA. Gravity
 * v1.72 FRA. Anticipation without Never
@@ -99,7 +100,8 @@ program define jwdid_simple, rclass
         tempname lastreg
         capture:qui:est store `lastreg'   
         tempvar etr
-        
+                ** weight control
+        if "`weight'`exp'"!="" local weightexp [`weight'`exp']
         ** Arbitrary Restriction
         tempvar tosel
         orest, `orestriction' selvar(`tosel')
@@ -108,12 +110,12 @@ program define jwdid_simple, rclass
         
         else local etr 
         if "`asis'"=="" {
-            qui:margins [`weight'`exp'],  subpop(if __etr__==1 & `tosel') at(__tr__=(0 1)) ///
+            qui:margins `weightexp',  subpop(if __etr__==1 & `tosel') at(__tr__=(0 1)) ///
                     noestimcheck contrast(atcontrast(r)) ///
                     `options' post over(`etr')  
         }
         else {
-            qui:margins [`weight'`exp'],  subpop(if __etr__==1 & `tosel') at(__tr__=0) at((asobserved) __tr__) ///
+            qui:margins `weightexp',  subpop(if __etr__==1 & `tosel') at(__tr__=0) at((asobserved) __tr__) ///
                     noestimcheck contrast(atcontrast(r)) ///
                     `options' post over(`etr')  
         }
@@ -169,6 +171,8 @@ program define jwdid_any, rclass
         capture:qui:est store `lastreg'   
         tempvar etr
         
+        ** weight control
+        if "`weight'`exp'"!="" local weightexp [`weight'`exp']
         ** Arbitrary Restriction
         tempvar tosel
         orest, `orestriction' selvar(`tosel')
@@ -177,12 +181,12 @@ program define jwdid_any, rclass
         
         else local etr 
         if "`asis'"=="" {
-            qui:margins [`weight'`exp'],  subpop(if `e(gvar)'!=0 & `tosel') at(__tr__=(0 1)) ///
+            qui:margins `weightexp',  subpop(if `e(gvar)'!=0 & `tosel') at(__tr__=(0 1)) ///
                     noestimcheck contrast(atcontrast(r)) ///
                     `options' post over(`etr')
         }
         else {
-            qui:margins [`weight'`exp'],  subpop(if `e(gvar)'!=0 & `tosel') at(__tr__=0) at((asobserved) __tr__) ///
+            qui:margins `weightexp',  subpop(if `e(gvar)'!=0 & `tosel') at(__tr__=0) at((asobserved) __tr__) ///
                     noestimcheck contrast(atcontrast(r)) ///
                     `options' post over(`etr')
         }
@@ -235,7 +239,9 @@ program define jwdid_group, rclass
         capture:est store `lastreg'    
         tempname lastreg
         capture:qui:est store `lastreg'  
-        
+        ** weight control
+        if "`weight'`exp'"!="" local weightexp [`weight'`exp']
+    
         ** Arbitrary Restriction
         tempvar tosel
         orest, `orestriction' selvar(`tosel')
@@ -250,12 +256,12 @@ program define jwdid_group, rclass
         }
         
         if "`asis'"=="" {
-            qui:margins [`weight'`exp'], subpop(if __etr__==1 & `tosel' ) at(__tr__=(0 1)) ///
+            qui:margins `weightexp', subpop(if __etr__==1 & `tosel' ) at(__tr__=(0 1)) ///
                   over(__group__) noestimcheck contrast(atcontrast(r)) ///
                   `options'  post
         }
         else {
-            qui:margins [`weight'`exp'],  subpop(if __etr__==1 & `tosel') at(__tr__=0) at((asobserved) __tr__) ///
+            qui:margins `weightexp',  subpop(if __etr__==1 & `tosel') at(__tr__=0) at((asobserved) __tr__) ///
                     over(__group__) noestimcheck contrast(atcontrast(r)) ///
                   `options'  post
         }
@@ -303,7 +309,9 @@ program define jwdid_attgt, rclass
         capture:est store `lastreg'    
         tempname lastreg
         capture:qui:est store `lastreg'  
-        
+                ** weight control
+        if "`weight'`exp'"!="" local weightexp [`weight'`exp']
+
         ** Arbitrary Restriction
         tempvar tosel
         orest, `orestriction' selvar(`tosel')
@@ -317,12 +325,12 @@ program define jwdid_attgt, rclass
         
         
         if "`asis'"=="" {
-            qui:margins [`weight'`exp'], subpop(if  `tosel' ) at(__tr__=(0 1)) ///
+            qui:margins `weightexp', subpop(if  `tosel' ) at(__tr__=(0 1)) ///
                   over(__attgt__) noestimcheck contrast(atcontrast(r)) ///
                   `options'  post
         }
         else {
-            qui:margins [`weight'`exp'],  subpop(if  `tosel') at(__tr__=0) at((asobserved) __tr__) ///
+            qui:margins `weightexp',  subpop(if  `tosel') at(__tr__=0) at((asobserved) __tr__) ///
                     over(__attgt__) noestimcheck contrast(atcontrast(r)) ///
                   `options'  post
         }
@@ -377,19 +385,20 @@ program define jwdid_calendar, rclass
         capture:est store `lastreg'    
         tempname lastreg
         capture:qui:est store `lastreg'  
-        
+                ** weight control
+        if "`weight'`exp'"!="" local weightexp [`weight'`exp']
         ** Arbitrary Restriction
         tempvar tosel
         orest, `orestriction' selvar(`tosel')
 
  
         if "`asis'"=="" {
-            qui:margins [`weight'`exp'], subpop(if __etr__==1 & `tosel') at(__tr__=(0 1)) ///
+            qui:margins `weightexp', subpop(if __etr__==1 & `tosel') at(__tr__=(0 1)) ///
                   over(__calendar__) noestimcheck contrast(atcontrast(r)) ///
                   `options'  post
         }
         else {
-            qui:margins [`weight'`exp'],  subpop(if __etr__==1 & `tosel') at(__tr__=0) at((asobserved) __tr__) ///
+            qui:margins `weightexp',  subpop(if __etr__==1 & `tosel') at(__tr__=0) at((asobserved) __tr__) ///
                     over(__calendar__) noestimcheck contrast(atcontrast(r)) ///
                   `options'  post
         }
@@ -467,7 +476,8 @@ program define jwdid_event, rclass
         capture:est store `lastreg'    
         tempname lastreg
         capture:qui:est store `lastreg'  
- 
+         ** weight control
+        if "`weight'`exp'"!="" local weightexp [`weight'`exp']
         ** Arbitrary Restriction
         tempvar tosel
         orest, `orestriction' selvar(`tosel')
@@ -497,12 +507,12 @@ program define jwdid_event, rclass
             }
             
                 if "`asis'"=="" {
-                    qui:margins [`weight'`exp'], subpop(if `sel' & __etr__==1 & `tosel') at(__tr__=(0 1)) ///
+                    qui:margins `weightexp', subpop(if `sel' & __etr__==1 & `tosel') at(__tr__=(0 1)) ///
                           over(__event__) noestimcheck contrast(atcontrast(r)) ///
                           `options'  post
                 }
                 else {
-                    qui:margins [`weight'`exp'],  subpop(if `sel' & __etr__==1 & `tosel') at(__tr__=0) at((asobserved) __tr__) ///
+                    qui:margins `weightexp',  subpop(if `sel' & __etr__==1 & `tosel') at(__tr__=0) at((asobserved) __tr__) ///
                             over(__event__) noestimcheck contrast(atcontrast(r)) ///
                           `options'  post
                 }
@@ -529,12 +539,12 @@ program define jwdid_event, rclass
             }
         
             if "`asis'"=="" {
-                qui:margins [`weight'`exp'], subpop(if `sel' & __tr__!=0 & `tosel') at(__tr__=(0 1)) ///
+                qui:margins `weightexp', subpop(if `sel' & __tr__!=0 & `tosel') at(__tr__=(0 1)) ///
                       over(__event__) noestimcheck contrast(atcontrast(r)) ///
                       `options'  post
             }
             else {
-                qui:margins [`weight'`exp'],  subpop(if `sel' & __tr__!=0 & `tosel') at(__tr__=0) at((asobserved) __tr__) ///
+                qui:margins `weightexp',  subpop(if `sel' & __tr__!=0 & `tosel') at(__tr__=0) at((asobserved) __tr__) ///
                         over(__event__) noestimcheck contrast(atcontrast(r)) ///
                       `options'  post
             }
