@@ -30,21 +30,29 @@ program define cre, properties(prefix)
 		** Improvement for ANY comd
 		gettoken cmd 0: cmd0
 		
-		local nx 1
-		while `nx' {
-			syntax anything [if] [in] [aw iw fw pw], [*]
-			capture _iv_parse `0'
-			if _rc!=0 {
-				gettoken cmd2 0: 0	
-				local cmd `cmd' `cmd2'
+		** Special cases
+		if "`cmd'"!="meglm" {
+			local nx 1
+			while `nx' {
+				display "`0'"
+				syntax anything [if] [in] [aw iw fw pw], [*]
+				capture _iv_parse `0'
+				if _rc!=0 {
+					gettoken cmd2 0: 0	
+					local cmd `cmd' `cmd2'
+				}
+				else local nx 0
 			}
-			else local nx 0
+			 
+			local x `s(exog)'   `s(inst)' `s(endog)' 
+			local y `s(lhs)' 
+			marksample touse
+			markout `touse' `felist' `x'  `y'
 		}
-		 
-		local x `s(exog)'   `s(inst)' `s(endog)' 
-		local y `s(lhs)' 
-		marksample touse
-		markout `touse' `felist' `x'  `y'
+		else {
+			display in red "-meglm Not Yet Implemented"
+			error 1
+		}
  		***
   
 		myhdmean `x' if `touse' [`weight'`exp'], ///

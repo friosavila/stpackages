@@ -58,10 +58,7 @@ The advantage, however, comes from using this strategy for nonlinear models.
 {marker remarks}{...}
 {title:Remarks}
 
-{pstd}
-This program was created as a tool to facilitate the comparison of CRE in quantile regression setups. 
-
-{pstd}It uses Sergio Correia's {help reghdfe} command.
+{pstd}It uses Sergio Correia's {help reghdfe} command and one utility from {help ftools}
 
 {pstd}All errors are the author's own.
 
