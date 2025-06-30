@@ -1,5 +1,4 @@
-*! Ver 1.8 Trimming
-* Ver 1.71 bug with weights
+*! Ver 1.71 bug with weights
 * Ver 1.7 adds version for easier update
 * Ver 1.68 Bug with drimp
 * Ver 1.67 Bug with IPW 
@@ -137,7 +136,6 @@ program define drdid_wh, eclass sortpreserve byable(recall)
 							vce(string)					///
 							gmm							///
 							pscore(string)				///
-							pscoretrim(float 0.995)     ///
 							csdid						///
 							binit(string)				///
 							dryrun						///
@@ -276,7 +274,7 @@ program define drdid_wh, eclass sortpreserve byable(recall)
 	
 	local 01 touse(`touse') tmt(`tmt') trt(`trt') y(`y') 	///
 			 xvar(`xvar') `isily' ivar(`ivar') 	///
-			 weight(`wgt') stub(`stub') pscoretrim(`pscoretrim') ///
+			 weight(`wgt') stub(`stub') ///
 			  treatvar(`treatment') `rc1' cluster(`cluster') ///
 			 `wboot' reps(`reps')  wbtype(`wbtype') level(`level')  binit(`binit')
 			 *seed(`seed') 
@@ -893,12 +891,6 @@ program define drdid_aipw, eclass
 			
 			matrix `psb'=e(b)
 			matrix `psV'=e(V)
-			
-			tempvar trimflag
-			gen byte `trimflag'=0
-			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse'=`touse'*`trimflag'
-			
 			** _delta
 			bysort `touse' `ivar' (`tmt'):gen double `__dy__'=`y'[2]-`y'[1] if `touse' 
 			gen byte `touse2'=`touse'*(`tmt'==0)
@@ -1023,17 +1015,14 @@ program define drdid_dripw, eclass
 			** _delta
 			bysort `touse' `ivar' (`tmt'):gen double `__dy__'=`y'[2]-`y'[1] if `touse'
 			** Reg for outcome 
-			tempvar trimflag
-			gen byte `trimflag'=0
-			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse'=`touse'*`trimflag'
-			`isily' reg `__dy__' `xvar' if `touse' & `trt'==0  & `tmt'==0 [iw = `weight'*`trim']
+ 
+			`isily' reg `__dy__' `xvar' if `touse' & `trt'==0  & `tmt'==0 [iw = `weight']
 			matrix `regb'=e(b)
 			matrix `regV'=e(V)
-			predict double `xb' if `trimflag' ==1
+			predict double `xb'
 			*capture drop `stub'att
 			*gen double `stub'att=. 
-			gen byte `touse2'=`touse'*(`tmt'==0)*`trimflag'
+			gen byte `touse2'=`touse'*(`tmt'==0)
 			replace `touse'=0 if `__dy__'==.
 			mata:drdid_panel("`__dy__'","`xvar' ","`xb'","`psb'","`psV'","`psxb'","`trt'","`tmt'","`touse2'","`att'","`weight'")
 			**replace `stub'att=. if `tmt'==1
@@ -1068,29 +1057,25 @@ program define drdid_dripw, eclass
 			matrix `psb'=e(b)
 			matrix `psV'=e(V)
 		    tempname b V ciband ncl
-			tempvar trimflag
-			gen byte `trimflag'=0
-			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse`=`touse'*`trimflag'
 			*capture drop `stub'att
 			*gen double `stub'att=.
 			**ols 
 			tempvar y00 y01 y10 y11
 			tempname regb00 regb01 regb10 regb11 
 			tempname regV00 regV01 regV10 regV11
-			`isily' reg `y' `xvar' if `trt'==0 & `tmt' ==0 [iw = `weight'*`trimflag']
+			`isily' reg `y' `xvar' if `trt'==0 & `tmt' ==0 [iw = `weight']
 			predict double `y00'
 			matrix `regb00'=e(b)
 			matrix `regV00'=e(V)
-			`isily' reg `y' `xvar' if `trt'==0 & `tmt' ==1 [iw = `weight'*`trimflag']
+			`isily' reg `y' `xvar' if `trt'==0 & `tmt' ==1 [iw = `weight']
 			predict double `y01'
 			matrix `regb01'=e(b)
 			matrix `regV01'=e(V)
-			`isily' reg `y' `xvar' if `trt'==1 & `tmt' ==0 [iw = `weight'*`trimflag']
+			`isily' reg `y' `xvar' if `trt'==1 & `tmt' ==0 [iw = `weight']
 			predict double `y10'
 			matrix `regb10'=e(b)
 			matrix `regV10'=e(V)
-			`isily' reg `y' `xvar' if `trt'==1 & `tmt' ==1 [iw = `weight'*`trimflag']
+			`isily' reg `y' `xvar' if `trt'==1 & `tmt' ==1 [iw = `weight']
 			predict double `y11'
 			matrix `regb11'=e(b)
 			matrix `regV11'=e(V)
@@ -1313,11 +1298,6 @@ program define drdid_stdipw, eclass
 			predict double `psxb', xb		
 			matrix `psb'=e(b)
 			matrix `psV'=e(V)
-			tempvar trimflag
-			gen byte `trimflag'=0
-			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse`=`touse'*`trimflag'
-
 			** _delta
 			bysort `touse' `ivar' (`tmt'):gen double `__dy__'=`y'[2]-`y'[1]	///
 				if `touse'
@@ -1360,11 +1340,6 @@ program define drdid_stdipw, eclass
 			matrix `psb'=e(b)
 			matrix `psV'=e(V)
 			tempname b V ciband ncl
-			tempvar trimflag
-			gen byte `trimflag'=0
-			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse`=`touse'*`trimflag'
-
 			*capture drop `stub'att
 			*gen `stub'att=.
 			mata:std_ipw_rc("`y'","`xvar' ","`tmt'","`trt'","`psV'","`psxb'","`weight'","`touse'","`att'")
@@ -1528,12 +1503,8 @@ program define drdid_imp, eclass
 			** Determine dy and dyhat
 			bysort `touse' `ivar' (`tmt'):gen double `__dy__'=`y'[2]-`y'[1] if `touse'
 
-			tempvar trimflag
-			gen byte `trimflag'=0
-			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse'=`touse'*`trimflag'
 			** determine weights
-			gen double `w0' = ((logistic(`psxb')*(1-`trt')))/(1-logistic(`psxb'))*`weight'*`trimflag'  
+			gen double `w0' = ((logistic(`psxb')*(1-`trt')))/(1-logistic(`psxb'))*`weight'
 			sum `w0' if `touse' , meanonly
 			replace `w0'=`w0'/r(mean)
 			
@@ -1601,11 +1572,7 @@ program define drdid_imp, eclass
 			matrix `iptV'=e(V)
 			predict double `psxb', xb
 			** outcomes
-			tempvar trimflag
-			gen byte `trimflag'=0
-			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-
-			gen double `w0' = (1-`trt')*logistic(`psxb')/(1-logistic(`psxb'))*`trimflag'
+			gen double `w0' = (1-`trt')*logistic(`psxb')/(1-logistic(`psxb'))
 			`isily' reg `y' `xvar' [w=`w0'] if `trt'==0 & `tmt'==0,
 			predict double `y00'
 			matrix `regb00' =e(b)
