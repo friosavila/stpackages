@@ -36,4 +36,4 @@ f drdid/_gmm_regipw.ado
 f drdid/_het_did_gmm.ado
 f drdid/_gmm_dripw.ado
 f drdid/_gmm_repeated.ado
-f drdid.sthlp
+f drdid/drdid.sthlp
