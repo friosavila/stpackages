@@ -137,7 +137,7 @@ program define drdid_wh, eclass sortpreserve byable(recall)
 							vce(string)					///
 							gmm							///
 							pscore(string)				///
-							pscoretrim(float 0.995)     ///
+							pscoretrim(real 0.995)     ///
 							csdid						///
 							binit(string)				///
 							dryrun						///
@@ -864,6 +864,7 @@ program define drdid_aipw, eclass
 			 stub(name) 			///	
 			 treatvar(string)		///
 			 wboot 					///
+			 pscoretrim(real 0.995)  ///
 			 reps(int 999) 			///
 			 level(int 95) 			///
 			 wbtype(int 1) 			///
@@ -999,6 +1000,7 @@ program define drdid_dripw, eclass
 				weight(str) 				///
 				rc1 						///
 				stub(name) 					///
+				pscoretrim(real 0.995)  ///
 				treatvar(string)			///
 				wboot 						///
 				level(int 95) 				///
@@ -1027,7 +1029,7 @@ program define drdid_dripw, eclass
 			gen byte `trimflag'=0
 			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
 			replace `touse'=`touse'*`trimflag'
-			`isily' reg `__dy__' `xvar' if `touse' & `trt'==0  & `tmt'==0 [iw = `weight'*`trim']
+			`isily' reg `__dy__' `xvar' if `touse' & `trt'==0  & `tmt'==0 [iw = `weight' ]
 			matrix `regb'=e(b)
 			matrix `regV'=e(V)
 			predict double `xb' if `trimflag' ==1
@@ -1071,7 +1073,7 @@ program define drdid_dripw, eclass
 			tempvar trimflag
 			gen byte `trimflag'=0
 			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse`=`touse'*`trimflag'
+			replace `touse'=`touse'*`trimflag'
 			*capture drop `stub'att
 			*gen double `stub'att=.
 			**ols 
@@ -1293,6 +1295,7 @@ program define drdid_stdipw, eclass
 			treatvar(string) 		///
 			wboot 					///
 			level(int 95) 			///
+			pscoretrim(real 0.995)  ///
 			reps(int 999) 			///
 			wbtype(int 1) 			///
 			seed(string)			///
@@ -1316,7 +1319,7 @@ program define drdid_stdipw, eclass
 			tempvar trimflag
 			gen byte `trimflag'=0
 			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse`=`touse'*`trimflag'
+			replace `touse'=`touse'*`trimflag'
 
 			** _delta
 			bysort `touse' `ivar' (`tmt'):gen double `__dy__'=`y'[2]-`y'[1]	///
@@ -1363,7 +1366,7 @@ program define drdid_stdipw, eclass
 			tempvar trimflag
 			gen byte `trimflag'=0
 			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse`=`touse'*`trimflag'
+			replace `touse'=`touse'*`trimflag'
 
 			*capture drop `stub'att
 			*gen `stub'att=.
@@ -1495,6 +1498,7 @@ program define drdid_imp, eclass
             wboot 				///
 			level(int 95) 		///
 			reps(int 999) 		///
+			pscoretrim(real 0.995)   ///
 			wbtype(int 1) 		///
 			seed(string)			///
 			cluster(str)			///

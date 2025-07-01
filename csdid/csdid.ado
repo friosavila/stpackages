@@ -1,6 +1,7 @@
  
 * Next step Integrate all into csdid.mata <- so Do not need to play with many files
-*! v1.73  by FRA. Adds tvar (in addition to time). and Treatvar
+*! v1.8  by FRA. Triming
+* v1.73  by FRA. Adds tvar (in addition to time). and Treatvar
 * v1.72  by FRA. Drops always treated
 * v1.71  by FRA. adds weights back
 * v1.7  by FRA. Changes on Datacheks. This should avoid time gaps problems.
@@ -378,6 +379,7 @@ program csdid_r, sortpreserve eclass
 							from(int 0) 		    /// for aggregations
 							long long2              /// to allow for "long gaps"
 							dryrun					/// for testing
+							pscoretrim(real 0.995)  /// for trimming
 							asinr					/// For pretreatment
 							]  // This allows other estimators
 	
@@ -615,7 +617,7 @@ program csdid_r, sortpreserve eclass
 								 & inlist(`time',`time1',`j') ///
 								 & `touse' [`weight'`exp'],   ///
 								ivar(`ivar') time(`time') treatment(`tr') ///
-								`method' stub(__) replace `dryrun' 
+								`method' stub(__) replace `dryrun'  pscoretrim(`pscoretrim')
 								*binit(`bii' )
 					*tempname bii
 					
@@ -697,7 +699,7 @@ program csdid_r, sortpreserve eclass
 								 & inlist(`time',`time1',`j') ///
 								 & `touse' [`weight'`exp'],   ///
 								ivar(`ivar') time(`time') treatment(`tr') ///
-								`method' stub(__) replace `dryrun' noisily
+								`method' stub(__) replace `dryrun' noisily pscoretrim(`pscoretrim')
 								*binit(`bii',skip)
 								*tempname bii			
 											 
