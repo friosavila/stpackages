@@ -1,7 +1,6 @@
  
 * Next step Integrate all into csdid.mata <- so Do not need to play with many files
-*! v1.8  by FRA. Triming
-* v1.73  by FRA. Adds tvar (in addition to time). and Treatvar
+*! v1.8  by FRA. Trim
 * v1.72  by FRA. Drops always treated
 * v1.71  by FRA. adds weights back
 * v1.7  by FRA. Changes on Datacheks. This should avoid time gaps problems.
@@ -39,7 +38,7 @@
 /*program csdid_check,
 syntax varlist(fv ) [if] [in] [iw], /// Basic syntax  allows for weights
 										[Ivar(varname)]  ///
-										[Time(varname) tvar(varname)]    ///
+										Time(varname)    ///
 										[gvar(varname)]  /// Ppl either declare gvar
 										[trvar(varname)] /// or declare treat var, and we create gvar. Only works if Panel data
 										[att_gt]  ///
@@ -145,8 +144,8 @@ program csdid, sortpreserve eclass
 		syntax [anything(everything)] [iw aw pw], [* version]
 
 		if  "`version'"!="" {
-			display "version: 1.73"
-			addr scalar version = 1.73
+			display "version: 1.8"
+			addr scalar version = 1.8
 			exit
 		}
 		
@@ -157,7 +156,7 @@ program csdid, sortpreserve eclass
 			*exit 101
 		}
 		if _rc==0 {
-			if r(version)<1.71 			display in red "Program DRDID is outdated. Please update" as text
+			if r(version)<1.8 			display in red "Program DRDID is outdated. Please update" as text
 			*exit 101
 		}
 
@@ -362,8 +361,8 @@ end
 program csdid_r, sortpreserve eclass
 	syntax varlist(fv ) [if] [in] [iw], 			/// Basic syntax  allows for weights
 							[Ivar(varname numeric)] 		///
-							[Time(varname) tvar(varname)]   ///
-							[Gvar(varname numeric) trtvar(varname)]			/// Ppl either declare gvar
+							Time(varname numeric)  			///
+							Gvar(varname numeric)  			/// Ppl either declare gvar
 							[cluster(varname numeric)] 		/// 
 							[notyet] 				/// att_gt basic option. May prepare others as Post estimation
 							[saverif(name) replace ] ///
@@ -372,6 +371,7 @@ program csdid_r, sortpreserve eclass
 							WBOOT(str) 				///
 							WBOOT1					///
 							*reps(int 999) 			///
+							pscoretrim(real 1.0)    ///
 							*wbtype(str)  			/// Hidden option
 							rseed(str)				/// set seed
 							Level(int 95)			/// CI level
@@ -379,7 +379,6 @@ program csdid_r, sortpreserve eclass
 							from(int 0) 		    /// for aggregations
 							long long2              /// to allow for "long gaps"
 							dryrun					/// for testing
-							pscoretrim(real 0.995)  /// for trimming
 							asinr					/// For pretreatment
 							]  // This allows other estimators
 	
@@ -389,34 +388,6 @@ program csdid_r, sortpreserve eclass
 	marksample touse
 	** First determine outcome and xvars
 	gettoken y xvar:varlist
-
-	** Substitutes tvar
-	if "`tvar'`time'"=="" {
-		display as error "Time variable not specified"
-		error 198
-	}
-	
-	if "`tvar'"!="" & "`time'"=="" {
-		local time `tvar'
-	}
-	** Alternative to Gvar
-
-	if "`trtvar'`gvar'"=="" {
-		display as error "Cohort variable not specified"
-		error 198
-	}
-
-	if "`trtvar'"!="" & "`gvar'"!="" {
-		display as error "You can only specify gvar or trtvar. Not both"		
-		error 198
-	}
-	else if "`trtvar'"!="" {
-		capture drop __gvar
-		qui:_gcsgvar __gvar=`trtvar', tvar(`time') ivar(`ivar') 
-		local gvar __gvar
-	}
-
-
 	markout `touse' `ivar' `time' `gvar' `y' `xvar' `cluster'
 	tempname cband
 	** Parsing WBOOT
@@ -699,7 +670,8 @@ program csdid_r, sortpreserve eclass
 								 & inlist(`time',`time1',`j') ///
 								 & `touse' [`weight'`exp'],   ///
 								ivar(`ivar') time(`time') treatment(`tr') ///
-								`method' stub(__) replace `dryrun' noisily pscoretrim(`pscoretrim')
+								`method' stub(__) replace `dryrun' ///
+								pscoretrim(`pscoretrim') noisily 
 								*binit(`bii',skip)
 								*tempname bii			
 											 

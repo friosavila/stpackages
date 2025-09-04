@@ -110,6 +110,8 @@ When using cluster, one is effectively requesting a two-way cluster estimation.{
 {synopthdr}
 {synoptline}
 
+{synopt:{opt pscoretrim(#)}}This option is used to trim control observations with extream propensity score values. Default is 1. Note: R default is 0.995{p_end}
+
 {synopt:stub(str)}Request the command to save a variable in the dataset under the neame {it:stub}att. This 
 variable contains the Recentered Influence function associated with the DID ATT. {p_end}
 
@@ -247,6 +249,8 @@ Many thanks to Pedro for helping understanding the inner workings on the estimat
 {pstd}Further thanks to Enrique, who helped with the gmm estimator and displaying set up{p_end}
 
 {pstd}Also thank you to Miklos Koren, for helping setting up the original helpfile and github repository {p_end}
+
+{pstd}Finally, or gain, Thanks to Scott. Who manage to get a hold of DRDID now that my time has been extreamly tight{p_end}
 
 {pstd}If you use this package, please cite:{p_end}
 

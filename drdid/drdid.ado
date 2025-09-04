@@ -1,4 +1,5 @@
-*! Ver 1.8 Trimming
+* Ver 1.9 Scott Cunningham edits added a few lines of trimming propensity scores above 1 for the control groups and then correctly constructing normalized weights so weights sum to one.  Let it be that on my tombstone it says "he died doing what he hated: trying to get the weights to sum to one in mata". <-- Ha Ha Ha
+* Ver 1.8 Trimming
 * Ver 1.71 bug with weights
 * Ver 1.7 adds version for easier update
 * Ver 1.68 Bug with drimp
@@ -68,8 +69,8 @@ program define drdid, eclass byable(onecall)
 		syntax [anything(everything)] [iw pw aw], [* version]
 		/**Version**/
 		if   "`version'"!="" {
-			display "version: 1.71"
-			addr scalar version = 1.71
+			display "version: 1.9"
+			return scalar version = 1.9
 			exit
 		}
 		
@@ -113,51 +114,53 @@ void is_balp(string scalar ivar, touse, balp){
 end
 
 program define drdid_wh, eclass sortpreserve byable(recall)
-	syntax varlist(fv numeric) [if] [in] [iw],			///
-							[Ivar(varname)] 			///
-							Time(varname) 				///
-							TReatment(varname) 			///
-							[noisily 					///
-							drimp 						///
-							dripw 						///
-							reg 						///
-							stdipw 						///
-							ipw 						///
-							ipwra 						///
-							all  						///
-							rc1 						///
-							WBOOT(string) 				///
-							WBOOT1						///
-							*reps(int 999) 				///
-							*wbtype(int 1)  			/// Hidden option
-							rseed(str)					/// set seed
-							Level(int 95)				/// CI level
-							stub(name) replace 			/// to avoid overwritting
-							cluster(varname)			/// For Cluster
-							vce(string)					///
-							gmm							///
-							pscore(string)				///
-							pscoretrim(real 0.995)     ///
-							csdid						///
-							binit(string)				///
-							dryrun						///
-							*							///
-							]  
+    syntax varlist(fv numeric) [if] [in] [iw],			///
+                            [Ivar(varname)] 			///
+                            Time(varname) 				///
+                            TReatment(varname) 			///
+                            [noisily 					///
+                            drimp 						///
+                            dripw 						///
+                            reg 						///
+                            stdipw 						///
+                            ipw 						///
+                            ipwra 						///
+                            all  						///
+                            rc1 						///
+                            WBOOT(string) 				///
+                            WBOOT1						///
+                            *reps(int 999) 				///
+                            *wbtype(int 1)  			/// Hidden option
+                            rseed(str)					/// set seed
+                            Level(int 95)				/// CI level
+                            stub(name) replace 			/// to avoid overwritting
+                            cluster(varname)			/// For Cluster
+                            vce(string)					///
+                            gmm							///
+                            pscore(string)				///
+                            pscoretrim(real 1)     ///
+                            csdid						///
+                            binit(string)				///
+                            dryrun						///
+                            *							///
+                            ]  
     * so it returns Nothing								
-	if "`dryrun'"!="" error 1111
-	
-	_get_diopts diopts other, `options' 
-	quietly capture Display, `diopts' `other' level(`level')	
-	if _rc==198 {
-		Display, `diopts' `other'  level(`level')     
-	}
+    if "`dryrun'"!="" error 1111
+        
+    _get_diopts diopts other, `options' 
+    quietly capture Display, `diopts' `other' level(`level')	
+    if _rc==198 {
+        Display, `diopts' `other'  level(`level')     
+    }
 
-
-	marksample touse
-	markout `touse' `ivar' `time' `treatment'  `cluster'
-	
-	_Vce_Parse if `touse',  `gmm' `wboot1' wboot(`wboot') vce(`vce')
-** Move this into VCE_parse
+    marksample touse
+    markout `touse' `ivar' `time' `treatment'  `cluster'
+    
+    
+    _Vce_Parse if `touse',  `gmm' `wboot1' wboot(`wboot') vce(`vce')
+    
+    	
+	** Move this into VCE_parse
 	*if "`binit'"!="" 	local  binit `binit', skip
 	local semethod "`r(semethod)'"
 	
@@ -257,30 +260,35 @@ program define drdid_wh, eclass sortpreserve byable(recall)
 	qui:egen byte `trt'=group(`treatment') if `touse'
 	qui:replace `trt'=`trt'-1
 	
-	** Sanity Check Weights
-	** Weights
-	if "`exp'"=="" {
-	    tempname wgt
-		gen byte `wgt'=1
-	}
-	else {
-		tempvar wgt
-		qui:gen double `wgt'`exp'
-		qui:sum `wgt' if `touse' & `tmt'==0, meanonly
-		qui:replace `wgt'=`wgt'/r(mean)
-	}
-	
+** Sanity Check Weights
+** Weights
+if "`exp'"=="" {
+    tempname wgt
+    gen byte `wgt'=1
+}
+else {
+    tempvar wgt
+    qui:gen double `wgt'`exp'
+    qui:sum `wgt' if `touse' & `tmt'==0, meanonly
+    qui:replace `wgt'=`wgt'/r(mean)
+}
+
 	
 	**# Here we collect all options
 	** This are all the options send to DRDID 
 	
-	local 01 touse(`touse') tmt(`tmt') trt(`trt') y(`y') 	///
-			 xvar(`xvar') `isily' ivar(`ivar') 	///
-			 weight(`wgt') stub(`stub') pscoretrim(`pscoretrim') ///
-			  treatvar(`treatment') `rc1' cluster(`cluster') ///
-			 `wboot' reps(`reps')  wbtype(`wbtype') level(`level')  binit(`binit')
-			 *seed(`seed') 
-		
+local 01 touse(`touse') tmt(`tmt') trt(`trt') y(`y') 	///
+         xvar(`xvar') `isily' ivar(`ivar') 	///
+         weight(`wgt') stub(`stub') pscoretrim(`pscoretrim') ///
+          treatvar(`treatment') `rc1' cluster(`cluster') ///
+         `wboot' reps(`reps')  wbtype(`wbtype') level(`level')
+         *seed(`seed') 
+
+// Only add binit if it's not empty
+if "`binit'"!="" {
+    local 01 `01' binit(`binit')
+}
+
 	** Default will be IPT 
  	if "`estimator'"!="all" {
 		if ("`semethod'"!="gmm") {
@@ -293,6 +301,7 @@ program define drdid_wh, eclass sortpreserve byable(recall)
 			Display, bmatrix(e(b)) vmatrix(e(V)) `diopts' level(`level')
 			exit 
 		}
+		
 		else {
 			tempvar touse2
 			tempname b V 
@@ -843,12 +852,13 @@ program define easter_egg
 		"lack of understanding. I tried to do CSDID (RUN) before learning DRDID (walk). {p_end} " _n  ///
 		"{p} Asjad, was the first person who started to properly implement the code in Stata. I got inspired on his work that, " ///
 		"Reread the paper, and voala. Everything fit in the form of the first version of this code. {p_end} " _n ///
-		"{p} Many thanks go to Pedro, who spend a lot of time explaining details that would otherwise would remain confusing (he is the author fo the original paper after all; {p_end} " _n ///
+		"{p} Many thanks go to Pedro, who spent a lot of time explaining details that would otherwise would remain confusing (he is the author fo the original paper after all; {p_end} " _n ///
 		"{p} to Miklos, who pushed us to mantain a Github repository for this program. He is taking the side of the user {p_end}" ///
 		"{p} To Enrique Pinzon, who helped from the shadows, for a smooth transition from R to Stata (Yay Stata) {p_end}" _n ///
 		"{p} and Austin, who was working in parallel when Asjad and I took the lead on this. {p_end}"
 end
 ////////////////////////////////////////////////////////////////////////////////
+
 *** FIRST
 **# Abadies
 program define drdid_aipw, eclass
@@ -864,7 +874,7 @@ program define drdid_aipw, eclass
 			 stub(name) 			///	
 			 treatvar(string)		///
 			 wboot 					///
-			 pscoretrim(real 0.995)  ///
+			 pscoretrim(real 1)  ///
 			 reps(int 999) 			///
 			 level(int 95) 			///
 			 wbtype(int 1) 			///
@@ -896,16 +906,17 @@ program define drdid_aipw, eclass
 			matrix `psV'=e(V)
 			
 			tempvar trimflag
-			gen byte `trimflag'=0
-			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse'=`touse'*`trimflag'
+			gen byte `trimflag'=1  // Keep everyone by default
+			replace `trimflag'=0 if `trt'==0 & logistic(`psxb')>`pscoretrim'  // Flag only the extreme propensity scores above 1 but don't drop them.
+			* replace `touse'=`touse'*`trimflag' 
 			
+
 			** _delta
 			bysort `touse' `ivar' (`tmt'):gen double `__dy__'=`y'[2]-`y'[1] if `touse' 
 			gen byte `touse2'=`touse'*(`tmt'==0)
   			replace `touse'=0 if `__dy__'==.
  		    tempname b V ciband ncl
-			mata:ipw_abadie_panel("`__dy__'","`xvar' ","`xb'","`psb' ","`psV' ","`psxb'","`trt'","`tmt'","`touse2'","`att'","`weight'")
+			mata:ipw_abadie_panel("`__dy__'","`xvar' ","`xb'","`psb' ","`psV' ","`psxb'","`trt'","`tmt'","`touse2'","`att'","`weight'","`trimflag'")
 			local ci = `level'/100
 			mata:make_tbl("`att'","`cluster' ", "`touse2'", "`b'","`V'","`ciband' ","`ncl'","`wboot' ", `reps', `wbtype', `ci')
 			
@@ -936,8 +947,16 @@ program define drdid_aipw, eclass
 			matrix `psb'=e(b)
 			matrix `psV'=e(V)
 		    tempname b V ciband ncl
+
+			// ADD TRIMMING FOR Abadie's IPW RC CASE HERE:
+			tempvar trimflag
+			gen byte `trimflag'=1  // Keep everyone by default
+			replace `trimflag'=0 if `trt'==0 & logistic(`psxb')>`pscoretrim'  // Drop only controls with extreme PS
+			* replace `touse'=`touse'*`trimflag'
+
+
  
-			mata:ipw_abadie_rc("`y'","`xvar' ","`tmt'","`trt'","`psV'","`psxb'","`weight'","`touse'","`att'")
+			mata:ipw_abadie_rc("`y'","`xvar' ","`tmt'","`trt'","`psV'","`psxb'","`weight'","`touse'","`att'","`trimflag'")
 			** Wbootstrap Multipler
 			local ci = `level'/100
 			local touse2 `touse'
@@ -1000,7 +1019,7 @@ program define drdid_dripw, eclass
 				weight(str) 				///
 				rc1 						///
 				stub(name) 					///
-				pscoretrim(real 0.995)  ///
+				pscoretrim(real 1)  ///
 				treatvar(string)			///
 				wboot 						///
 				level(int 95) 				///
@@ -1011,33 +1030,39 @@ program define drdid_dripw, eclass
 				binit(str)            ///
 				*							///
 				]
+	
 	** PS
 	tempvar att psxb __dy__ xb touse2
 	tempname psb psV regb regV  b V ciband ncl 
 	qui:gen double `att'=.
 	if "`ivar'"!="" {
 	    *display "Estimating IPW logit"
+		
 		qui {		
 			`isily' logit `trt' `xvar' if `touse' & `tmt'==0 [iw = `weight']
 			predict double `psxb', xb			
 			matrix `psb'=e(b)
 			matrix `psV'=e(V)
 			** _delta
-			bysort `touse' `ivar' (`tmt'):gen double `__dy__'=`y'[2]-`y'[1] if `touse'
+    		bysort `touse' `ivar' (`tmt'):gen double `__dy__'=`y'[2]-`y'[1] if `touse'
+			
 			** Reg for outcome 
 			tempvar trimflag
-			gen byte `trimflag'=0
-			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse'=`touse'*`trimflag'
-			`isily' reg `__dy__' `xvar' if `touse' & `trt'==0  & `tmt'==0 [iw = `weight' ]
+			gen byte `trimflag'=1  // Keep everyone by default
+			replace `trimflag'=0 if `trt'==0 & logistic(`psxb')>`pscoretrim'  // Drop only controls with extreme PS
+			* replace `touse'=`touse'*`trimflag'
+			`isily' reg `__dy__' `xvar' if `touse' & `trt'==0 & `tmt'==0 [iw = `weight']
+
 			matrix `regb'=e(b)
 			matrix `regV'=e(V)
-			predict double `xb' if `trimflag' ==1
+			predict double `xb' if `touse' & `tmt'==0
+			noisily count if `xb'==. & `touse' & `tmt'==0
+
 			*capture drop `stub'att
 			*gen double `stub'att=. 
-			gen byte `touse2'=`touse'*(`tmt'==0)*`trimflag'
+			gen byte `touse2'=`touse'*(`tmt'==0)
 			replace `touse'=0 if `__dy__'==.
-			mata:drdid_panel("`__dy__'","`xvar' ","`xb'","`psb'","`psV'","`psxb'","`trt'","`tmt'","`touse2'","`att'","`weight'")
+			mata:drdid_panel("`__dy__'","`xvar' ","`xb'","`psb'","`psV'","`psxb'","`trt'","`tmt'","`touse2'","`att'","`weight'","`trimflag'")
 			**replace `stub'att=. if `tmt'==1
 			local ci = `level'/100
 			mata:make_tbl("`att'","`cluster' ", "`touse2'", "`b'","`V'","`ciband' ","`ncl'","`wboot' ", `reps', `wbtype', `ci')
@@ -1071,9 +1096,10 @@ program define drdid_dripw, eclass
 			matrix `psV'=e(V)
 		    tempname b V ciband ncl
 			tempvar trimflag
-			gen byte `trimflag'=0
-			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse'=`touse'*`trimflag'
+			gen byte `trimflag'=1  // Keep everyone by default
+			replace `trimflag'=0 if `trt'==0 & logistic(`psxb')>`pscoretrim'  // Condition out (weights will be zero) units with propensity scores > 1
+			* replace `touse'=`touse'*`trimflag'
+
 			*capture drop `stub'att
 			*gen double `stub'att=.
 			**ols 
@@ -1097,10 +1123,10 @@ program define drdid_dripw, eclass
 			matrix `regb11'=e(b)
 			matrix `regV11'=e(V)
 			if "`rc1'"=="" {
-				mata:drdid_rc("`y'","`y00' `y01' `y10' `y11'","`xvar' ","`tmt'","`trt'","`psV'","`psxb'","`weight'","`touse'","`att'")
+				mata:drdid_rc("`y'","`y00' `y01' `y10' `y11'","`xvar' ","`tmt'","`trt'","`psV'","`psxb'","`weight'","`touse'","`att'","`trimflag'")
 			}
 			else {
-			    mata:drdid_rc1("`y'","`y00' `y01' `y10' `y11'","`xvar' ","`tmt'","`trt'","`psV'","`psxb'","`weight'","`touse'","`att'")
+			    mata:drdid_rc1("`y'","`y00' `y01' `y10' `y11'","`xvar' ","`tmt'","`trt'","`psV'","`psxb'","`weight'","`touse'","`att'","`trimflag'")
 				local nle "Not Locally efficient"
 			}
 			////
@@ -1295,7 +1321,7 @@ program define drdid_stdipw, eclass
 			treatvar(string) 		///
 			wboot 					///
 			level(int 95) 			///
-			pscoretrim(real 0.995)  ///
+			pscoretrim(real 1)  ///
 			reps(int 999) 			///
 			wbtype(int 1) 			///
 			seed(string)			///
@@ -1317,9 +1343,10 @@ program define drdid_stdipw, eclass
 			matrix `psb'=e(b)
 			matrix `psV'=e(V)
 			tempvar trimflag
-			gen byte `trimflag'=0
-			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse'=`touse'*`trimflag'
+			gen byte `trimflag'=1  // Keep everyone by default
+			replace `trimflag'=0 if `trt'==0 & logistic(`psxb')>`pscoretrim'  // Drop only controls with extreme PS
+			* replace `touse'=`touse'*`trimflag'
+
 
 			** _delta
 			bysort `touse' `ivar' (`tmt'):gen double `__dy__'=`y'[2]-`y'[1]	///
@@ -1332,9 +1359,7 @@ program define drdid_stdipw, eclass
 			*gen double `stub'att=.		
 			gen byte `touse2'=`touse'*(`tmt'==0)
 			replace `touse'=0 if `__dy__'==.
-			mata:std_ipw_panel("`__dy__'","`xvar' ","`xb'",		///
-				"`psb'","`psV'","`psxb'","`trt'","`tmt'","`touse2'",	///
-				"`att'","`weight'")
+			mata:std_ipw_panel("`__dy__'","`xvar' ","`xb'","`psb'","`psV'","`psxb'","`trt'","`tmt'","`touse2'","`att'","`weight'","`trimflag'")
 			local ci = `level'/100
 			mata:make_tbl("`att'","`cluster' ", "`touse2'", "`b'","`V'","`ciband' ","`ncl'","`wboot' ", `reps', `wbtype', `ci')			
 			matrix colname `b'= ATET:r1vs0.`treatvar'
@@ -1364,13 +1389,14 @@ program define drdid_stdipw, eclass
 			matrix `psV'=e(V)
 			tempname b V ciband ncl
 			tempvar trimflag
-			gen byte `trimflag'=0
-			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse'=`touse'*`trimflag'
+			gen byte `trimflag'=1  // Keep everyone by default
+			replace `trimflag'=0 if `trt'==0 & logistic(`psxb')>`pscoretrim'  // Drop only controls with extreme PS
+			* replace `touse'=`touse'*`trimflag'
+
 
 			*capture drop `stub'att
 			*gen `stub'att=.
-			mata:std_ipw_rc("`y'","`xvar' ","`tmt'","`trt'","`psV'","`psxb'","`weight'","`touse'","`att'")
+			mata:std_ipw_rc("`y'","`xvar' ","`tmt'","`trt'","`psV'","`psxb'","`weight'","`touse'","`att'","`trimflag'")
 			local ci = `level'/100
 			local touse2 `touse'
 			mata:make_tbl("`att'","`cluster' ", "`touse2'", "`b'","`V'","`ciband' ","`ncl'","`wboot' ", `reps', `wbtype', `ci')			
@@ -1498,7 +1524,7 @@ program define drdid_imp, eclass
             wboot 				///
 			level(int 95) 		///
 			reps(int 999) 		///
-			pscoretrim(real 0.995)   ///
+			pscoretrim(real 1)   ///
 			wbtype(int 1) 		///
 			seed(string)			///
 			cluster(str)			///
@@ -1533,9 +1559,11 @@ program define drdid_imp, eclass
 			bysort `touse' `ivar' (`tmt'):gen double `__dy__'=`y'[2]-`y'[1] if `touse'
 
 			tempvar trimflag
-			gen byte `trimflag'=0
-			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
-			replace `touse'=`touse'*`trimflag'
+			gen byte `trimflag'=1  // Keep everyone by default
+			replace `trimflag'=0 if `trt'==0 & logistic(`psxb')>`pscoretrim'  // Drop only controls with extreme PS
+			* replace `touse'=`touse'*`trimflag'
+
+
 			** determine weights
 			gen double `w0' = ((logistic(`psxb')*(1-`trt')))/(1-logistic(`psxb'))*`weight'*`trimflag'  
 			sum `w0' if `touse' , meanonly
@@ -1549,11 +1577,9 @@ program define drdid_imp, eclass
 			tempvar touse2
 			gen byte `touse2'=`touse'*(`tmt'==0)
 			replace `touse'=0 if `__dy__'==.
-			mata:drdid_imp_panel("`__dy__'","`xvar' ","`xb'",	///
-				"`psb'","`psV'","`psxb'","`trt'","`tmt'","`touse2'",	///
-				"`att'","`weight'")	
-********************************************************************************				
-********************************************************************************
+			mata:drdid_imp_panel("`__dy__'","`xvar' ","`xb'","`psb'","`psV'","`psxb'","`trt'","`tmt'","`touse2'","`att'","`weight'","`trimflag'")
+			********************************************************************************				
+			********************************************************************************
 			
 			local ci = `level'/100
 			mata:make_tbl("`att'","`cluster' ", "`touse2'", "`b'","`V'","`ciband' ","`ncl'","`wboot' ", `reps', `wbtype', `ci')
@@ -1604,10 +1630,13 @@ program define drdid_imp, eclass
 			matrix `iptb'=e(b)
 			matrix `iptV'=e(V)
 			predict double `psxb', xb
+
 			** outcomes
 			tempvar trimflag
-			gen byte `trimflag'=0
-			replace  `trimflag'=1 if logistic(`psxb')<`pscoretrim' | `trt'!=0
+			gen byte `trimflag'=1  // Keep everyone by default
+			replace `trimflag'=0 if `trt'==0 & logistic(`psxb')>`pscoretrim'  // Drop only controls with extreme PS
+			* replace `touse'=`touse'*`trimflag'
+
 
 			gen double `w0' = (1-`trt')*logistic(`psxb')/(1-logistic(`psxb'))*`trimflag'
 			`isily' reg `y' `xvar' [w=`w0'] if `trt'==0 & `tmt'==0,
@@ -1628,17 +1657,13 @@ program define drdid_imp, eclass
 			matrix `regV11' =e(V)
 			tempname b V ciband ncl
 			if "`rc1'"=="" {
-				mata:drdid_imp_rc("`y'","`y00' `y01' `y10' `y11'",	///
-					"`xvar' ","`tmt'","`trt'","`iptV'","`psxb'",	///
-					"`weight'","`touse'","`att'")
+				mata:drdid_imp_rc("`y'","`y00' `y01' `y10' `y11'","`xvar' ","`tmt'","`trt'","`iptV'","`psxb'","`weight'","`touse'","`att'","`trimflag'")
 			}
 			else {
-			    mata:drdid_imp_rc1("`y'","`y00' `y01' `y10' `y11'",	///
-					"`xvar' ","`tmt'","`trt'","`iptV'","`psxb'",	///
-					"`weight'","`touse'","`att'")
+				mata:drdid_imp_rc1("`y'","`y00' `y01' `y10' `y11'","`xvar' ","`tmt'","`trt'","`iptV'","`psxb'","`weight'","`touse'","`att'","`trimflag'")
 				local nle "Not Locally efficient"
 			}
-			local ci = `level'/100
+			local ci = `level'/100			
 			local touse2 `touse'
 			mata:make_tbl("`att'","`cluster' ", "`touse2'", "`b'","`V'","`ciband' ","`ncl'","`wboot' ", `reps', `wbtype', `ci')
 			  			
@@ -1707,8 +1732,8 @@ end
 mata 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 // dript
-	void drdid_imp_panel(string scalar dy_, xvar_, xb_ , psb_,psV_,psxb_,trt_,tmt_,touse,rif,ww) {
-	    real matrix dy, xvar, xb, psb, psv, psxb, trt, tmt
+	void drdid_imp_panel(string scalar dy_, xvar_, xb_ , psb_,psV_,psxb_,trt_,tmt_,touse,rif,ww,trimflag_) {
+		real matrix dy, xvar, xb, psb, psv, psxb, trt, tmt, trimflag
 		// This code is based on Asjad Replication
 		// Gather all data
 		real scalar nn
@@ -1720,25 +1745,25 @@ mata
 		real matrix psc
 		psc=logistic(psxb)
 		trt =st_data(.,trt_ ,touse)
+		trimflag = st_data(.,trimflag_,touse)  // Load trimflag
 		real matrix w
 		w=st_data(.,ww,touse)
 		real matrix w_1 , w_0, att, att_inf_func
 		w_1 = w :* trt
-		w_0 = w :* psc :* (1:-trt):/(1:-psc)
+		w_0 = w :* psc :* (1:-trt):/(1:-psc) :* trimflag  // Apply trimflag here
 		w_1 = w_1:/mean(w_1)
 		w_0 = w_0:/mean(w_0)
 		att=(dy:-xb):*(w_1:-w_0)
 		att_inf_func = mean(att) :+ att :- w_1:*mean(att)
 		st_store(.,rif,touse, att_inf_func)	
 		// Variance should be divided by n not n-1
+	}		
 		
-		
-	}
  
 	// standard IPW
-  	void std_ipw_panel(string scalar dy_, xvar_, xb_ , psb_,psV_,psxb_,trt_,tmt_,touse,rif,ww) {
-	    real matrix dy, xvar, xb, psb, psv, psxb, trt, tmt
- 		// Gather all data
+	void std_ipw_panel(string scalar dy_, xvar_, xb_ , psb_,psV_,psxb_,trt_,tmt_,touse,rif,ww,trimflag_) {
+		real matrix dy, xvar, xb, psb, psv, psxb, trt, tmt, trimflag  // Add trimflag here
+		// Gather all data
 		real scalar nn
 		dy  =st_data(.,dy_  ,touse)
 		nn=rows(dy)
@@ -1754,6 +1779,7 @@ mata
 		psc=logistic(psxb)
 		trt =st_data(.,trt_ ,touse)
 		tmt =st_data(.,tmt_ ,touse)
+		trimflag = st_data(.,trimflag_,touse)  // Load trimflag
 		// and matrices
 		//psb =st_matrix(psb_ )
 		psv =st_matrix(psV_ )
@@ -1766,7 +1792,7 @@ mata
 					lin_ps,  att_inf_func
 			
 		w_1= w :* trt
-		w_0= w :* psc :* (1 :- trt):/(1 :- psc)
+		w_0= w :* psc :* (1 :- trt):/(1 :- psc) :* trimflag  // Apply trimflag here!
 		att_treat = w_1:* dy
 		att_cont  = w_0:* dy
 		eta_treat = mean(att_treat)/mean(w_1)
@@ -1780,11 +1806,10 @@ mata
 		inf_cont_2 = lin_ps * mean(w_0 :* (dy :- eta_cont) :* xvar)'
 		inf_control = (inf_cont_1 :+ inf_cont_2)/mean(w_0)
 		att_inf_func = mean(ipw_att):+inf_treat :- inf_control
- 
-		st_store(.,rif,touse, att_inf_func)	
 
+		st_store(.,rif,touse, att_inf_func)	
 	}
-  
+
 	void reg_panel(string scalar dy_, xvar_, xb_ , trt_,tmt_,touse,rif,ww) {
 	    real matrix dy, xvar, xb, trt, tmt
 		// This code is based on Asjad Replication
@@ -1842,149 +1867,147 @@ mata
  
 /////////////////////////////////////////////////////////////////////////////////////////////////	
 // TIPW drdid_tipw
- 	void ipw_abadie_panel(string scalar dy_, xvar_, xb_ , psb_,psV_,psxb_,trt_,tmt_,touse,rif,ww) {
-	    real matrix dy, xvar, xb, psb, psv, psxb, trt, tmt
- 		// Gather all data
-		real scalar nn
-		dy  =st_data(.,dy_  ,touse)
-		nn=rows(dy)
-		// verify xvar
-		if (xvar_==" ") {
-			xvar=J(rows(dy),1,1)	
-		}
-		else xvar=st_data(.,xvar_,touse),J(rows(dy),1,1)	
-		
-		//xb=st_data(.,xb_,touse)
-		psxb=st_data(.,psxb_,touse)
-		real matrix psc
-		psc=logistic(psxb)
-		trt =st_data(.,trt_ ,touse)
-		tmt =st_data(.,tmt_ ,touse)
-		// and matrices
-		psb =st_matrix(psb_ )
-		psv =st_matrix(psV_ )
-		// for now assume weights = 1
-		real matrix w
-		w=st_data(.,ww,touse)
-		real matrix w_1, w_0, att_cont, att_treat,
-					eta_treat, eta_cont, ipw_att,
-					lin_ps, att_lin1, mom_logit, att_lin2, att_inf_func
-					
-		w_1= w :* trt
-		w_0= w :* psc :* (1 :- trt):/(1 :- psc)
-		att_treat = w_1:* dy
-		att_cont  = w_0:* dy
-		eta_treat = mean(att_treat)/mean(w_1)
-		eta_cont  = mean(att_cont)/mean(w_1)
-		ipw_att   = eta_treat - eta_cont
-		lin_ps = (w:* (trt :- psc) :* xvar)*(psv * nn)
-		att_lin1  = att_treat :- att_cont
-		mom_logit = mean(att_cont  :* xvar)
-		att_lin2  = lin_ps * mom_logit'
-		att_inf_func = mean(ipw_att):+(att_lin1 :- att_lin2 :- w_1 :* ipw_att)/mean(w_1)
- 		st_store(.,rif,touse, att_inf_func)	
-		// Variance should be divided by n not n-1
+void ipw_abadie_panel(string scalar dy_, xvar_, xb_ , psb_,psV_,psxb_,trt_,tmt_,touse,rif,ww,trimflag_) {
+    real matrix dy, xvar, xb, psb, psv, psxb, trt, tmt, trimflag  // Add trimflag here!
+    // Gather all data
+    real scalar nn
+    dy  =st_data(.,dy_  ,touse)
+    nn=rows(dy)
+    // verify xvar
+    if (xvar_==" ") {
+        xvar=J(rows(dy),1,1)	
+    }
+    else xvar=st_data(.,xvar_,touse),J(rows(dy),1,1)	
+    
+    //xb=st_data(.,xb_,touse)
+    psxb=st_data(.,psxb_,touse)
+    real matrix psc
+    psc=logistic(psxb)
+    trt =st_data(.,trt_ ,touse)
+    tmt =st_data(.,tmt_ ,touse)
+    trimflag = st_data(.,trimflag_,touse)  // Load trimflag here!
+    // and matrices
+    psb =st_matrix(psb_ )
+    psv =st_matrix(psV_ )
+    // for now assume weights = 1
+    real matrix w
+    w=st_data(.,ww,touse)
+    real matrix w_1, w_0, att_cont, att_treat,
+                eta_treat, eta_cont, ipw_att,
+                lin_ps, att_lin1, mom_logit, att_lin2, att_inf_func
+                
+    w_1= w :* trt
+    w_0= w :* psc :* (1 :- trt):/(1 :- psc) :* trimflag  // Apply trimflag here!
+    att_treat = w_1:* dy
+    att_cont  = w_0:* dy
+    eta_treat = mean(att_treat)/mean(w_1)
+    eta_cont  = mean(att_cont)/mean(w_1)
+    ipw_att   = eta_treat - eta_cont
+    lin_ps = (w:* (trt :- psc) :* xvar)*(psv * nn)
+    att_lin1  = att_treat :- att_cont
+    mom_logit = mean(att_cont  :* xvar)
+    att_lin2  = lin_ps * mom_logit'
+    att_inf_func = mean(ipw_att):+(att_lin1 :- att_lin2 :- w_1 :* ipw_att)/mean(w_1)
+    st_store(.,rif,touse, att_inf_func)	
+    // Variance should be divided by n not n-1
+}
 
-		
-	}
-	
-	
 /// drdid_ipw	
- 	void drdid_panel(string scalar dy_, xvar_, xb_ , psb_,psV_,psxb_,trt_,tmt_,touse,rif,ww) {
-	    real matrix dy, xvar, xb, psb, psv, psxb, trt, tmt
-		// This code is based on Asjad Replication
-		// Gather all data
-		real scalar nn
-		dy  =st_data(.,dy_  ,touse)
-		nn=rows(dy)
-		// verify xvar
-		if (xvar_==" ") {
-			xvar=J(rows(dy),1,1)	
-		}
-		else xvar=st_data(.,xvar_,touse),J(rows(dy),1,1)			
-		//xvar=st_data(.,xvar_,touse),J(rows(dy),1,1)
-		xb=st_data(.,xb_,touse)
-		psxb=st_data(.,psxb_,touse)
-		real matrix psc
-		psc=logistic(psxb)
-		trt =st_data(.,trt_ ,touse)
-		tmt =st_data(.,tmt_ ,touse)
-		// and matrices
-		psb =st_matrix(psb_ )
-		psv =st_matrix(psV_ )
-		// for now assume weights = 1
-		real matrix w
-		w=st_data(.,ww,touse)
-		
-		// TRAD DRDID
-		real matrix w_1, w_0 
-		w_1 = (w:*trt)
-		w_1 = w_1 /mean(w_1)
-		w_0 = (w:*psc:*(-trt:+1):/(-psc:+1))
-		w_0 = w_0 /mean(w_0 ) 
-		// ATT
-		real matrix dy_xb, att, w_ols, wols_eX,
-					XpX_inv, lin_wols, lin_ps, 
-					n1, n0, nest, a, att_inf_func
-					
-		dy_xb=dy:-xb
-		att = mean((w_1:-w_0):*(dy_xb))
-		
-		// influence functions OLS
-		w_ols 	 =    w :* (1 :- trt)
-		wols_eX  = w_ols:* (dy_xb):* xvar
-		XpX_inv  = invsym(quadcross(xvar,w_ols,xvar))*nn 
-		lin_wols =  wols_eX * XpX_inv   
-		// IF for logit
-		lin_ps 	   = (w :* (trt:-psc) :* xvar) * (psv * nn)
-		// Components for RIF
-		n1   = w_1:*((dy_xb):-mean(dy_xb,w_1))
-		n0   = w_0:*((dy_xb):-mean(dy_xb,w_0))
-		
-		a    = ((1:-trt):/(1:-psc):^2)/ mean(psc:*(1:-trt):/(1:-psc))
-		// This only works because w_1 and w_0 are mutually exclusive
-		nest = lin_wols * (mean(xvar,w_1):-mean(xvar,w_0))' :+
-		       lin_ps   * mean( a :* (dy_xb :- mean(dy_xb,w_0)) :* exp(psxb):/(1:+exp(psxb)):^2:*xvar)'			   
-		// RIF att_inf_func = inf_treat' :- inf_control
-		att_inf_func = att:+n1:-n0:-nest
-		st_store(.,rif,touse, att_inf_func)	
-		// Variance should be divided by n not n-1
-	
-	}
-	//// standard IPW
+void drdid_panel(string scalar dy_, xvar_, xb_ , psb_,psV_,psxb_,trt_,tmt_,touse,rif,ww,trimflag_) {
+    real matrix dy, xvar, xb, psb, psv, psxb, trt, tmt, trimflag  // Add trimflag here
+    // This code is based on Asjad Replication
+    // Gather all data
+    real scalar nn
+    dy  =st_data(.,dy_  ,touse)
+    nn=rows(dy)
+    // verify xvar
+    if (xvar_==" ") {
+        xvar=J(rows(dy),1,1)	
+    }
+    else xvar=st_data(.,xvar_,touse),J(rows(dy),1,1)			
+    //xvar=st_data(.,xvar_,touse),J(rows(dy),1,1)
+    xb=st_data(.,xb_,touse)
+    psxb=st_data(.,psxb_,touse)
+    real matrix psc
+    psc=logistic(psxb)
+    trt =st_data(.,trt_ ,touse)
+    tmt =st_data(.,tmt_ ,touse)
+    trimflag = st_data(.,trimflag_,touse)  // Load trimflag data
+    // and matrices
+    psb =st_matrix(psb_ )
+    psv =st_matrix(psV_ )
+    // for now assume weights = 1
+    real matrix w
+    w=st_data(.,ww,touse)
+    
+    // TRAD DRDID
+    real matrix w_1, w_0 
+    w_1 = (w:*trt)
+    w_1 = w_1 /mean(w_1)
+    w_0 = (w:*psc:*(-trt:+1):/(-psc:+1)):*trimflag  // Apply trimflag here!
+    w_0 = w_0 /mean(w_0 ) 
+    // ATT
+    real matrix dy_xb, att, w_ols, wols_eX,
+                XpX_inv, lin_wols, lin_ps, 
+                n1, n0, nest, a, att_inf_func
+                
+    dy_xb=dy:-xb
+    att = mean((w_1:-w_0):*(dy_xb))
+    
+    // influence functions OLS
+	w_ols = w :* (1 :- trt) 
+    wols_eX  = w_ols:* (dy_xb):* xvar
+    XpX_inv  = invsym(quadcross(xvar,w_ols,xvar))*nn 
+    lin_wols =  wols_eX * XpX_inv   
+    // IF for logit
+    lin_ps 	   = (w :* (trt:-psc) :* xvar) * (psv * nn)
+    // Components for RIF
+    n1   = w_1:*((dy_xb):-mean(dy_xb,w_1))
+    n0   = w_0:*((dy_xb):-mean(dy_xb,w_0))
+    
+    a    = ((1:-trt):/(1:-psc):^2)/ mean(psc:*(1:-trt):/(1:-psc)) :* trimflag  // Also apply trimflag to 'a'
+    // This only works because w_1 and w_0 are mutually exclusive
+    nest = lin_wols * (mean(xvar,w_1):-mean(xvar,w_0))' :+
+           lin_ps   * mean( a :* (dy_xb :- mean(dy_xb,w_0)) :* exp(psxb):/(1:+exp(psxb)):^2:*xvar)'			   
+    // RIF att_inf_func = inf_treat' :- inf_control
+    att_inf_func = att:+n1:-n0:-nest
+    st_store(.,rif,touse, att_inf_func)	
+    // Variance should be divided by n not n-1
+}
 
 //# RC
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	 void std_ipw_rc(string scalar y_, xvar_ , tmt_, trt_, psv_, pxb_, wgt_ ,  touse, rif){
+void std_ipw_rc(string scalar y_, xvar_ , tmt_, trt_, psv_, pxb_, wgt_ ,  touse, rif, trimflag_){
     // main Loading variables
-    real matrix y, 	xvar, tmt, trt, psv, psc, wgt
+    real matrix y, xvar, tmt, trt, psv, psc, wgt, trimflag  // Add trimflag here!
 				
-	y    = st_data(.,y_, touse)
-		// verify xvar
-		if (xvar_==" ") {
-			xvar=J(rows(y),1,1)	
-		}
-		else xvar=st_data(.,xvar_,touse),J(rows(y),1,1)		
-	//xvar = st_data(.,xvar_, touse), J(rows(y),1,1)
-	tmt  = st_data(.,tmt_, touse)
-	trt  = st_data(.,trt_, touse)
-	psc  = logistic(st_data(.,pxb_, touse))
-	wgt  = st_data(.,wgt_, touse)
-	psv  = st_matrix(psv_)
-	real scalar nn
- 	nn = rows(y)
-	
-	real matrix w10, w11, w00, w01
-	
+    y    = st_data(.,y_, touse)
+    // verify xvar
+    if (xvar_==" ") {
+        xvar=J(rows(y),1,1)	
+    }
+    else xvar=st_data(.,xvar_,touse),J(rows(y),1,1)		
+    //xvar = st_data(.,xvar_, touse), J(rows(y),1,1)
+    tmt  = st_data(.,tmt_, touse)
+    trt  = st_data(.,trt_, touse)
+    psc  = logistic(st_data(.,pxb_, touse))
+    wgt  = st_data(.,wgt_, touse)
+    trimflag = st_data(.,trimflag_, touse)  // Load trimflag here!
+    psv  = st_matrix(psv_)
+    real scalar nn
+    nn = rows(y)
+    
+    real matrix w10, w11, w00, w01
+    
     w10 = wgt :* trt :* (1 :- tmt)
     w11 = wgt :* trt :* tmt
-    w00 = wgt :* psc :* (1 :- trt) :* (1 :- tmt):/(1 :- psc)
-    w01 = wgt :* psc :* (1 :- trt) :* tmt:/(1 :- psc)
-	
-	w00 = w00:/mean(w00 )
-	w01 = w01:/mean(w01 )
-	w10 = w10:/mean(w10 )
-	w11 = w11:/mean(w11 )
+    w00 = wgt :* psc :* (1 :- trt) :* (1 :- tmt):/(1 :- psc) :* trimflag  // Apply trimflag!
+    w01 = wgt :* psc :* (1 :- trt) :* tmt:/(1 :- psc) :* trimflag  // Apply trimflag!
+    
+    w00 = w00:/mean(w00 )
+    w01 = w01:/mean(w01 )
+    w10 = w10:/mean(w10 )
+    w11 = w11:/mean(w11 )
 	
 	real matrix att_treat_pre, att_treat_post, att_cont_pre, att_cont_post,
 				eta_treat_pre, eta_treat_post, eta_cont_pre, eta_cont_post
@@ -2100,31 +2123,32 @@ mata
 
  /// Abadies IPW
  
-  void ipw_abadie_rc(string scalar y_, xvar_ , tmt_, trt_, psv_, pxb_, wgt_ ,  touse, rif){
+void ipw_abadie_rc(string scalar y_, xvar_ , tmt_, trt_, psv_, pxb_, wgt_ ,  touse, rif, trimflag_){
     // main Loading variables
-    real matrix y, 	xvar, tmt, trt, psv, psc, wgt
+    real matrix y, xvar, tmt, trt, psv, psc, wgt, trimflag  // Add trimflag here!
 				
-		y    = st_data(.,y_, touse)
-		// verify xvar
-		if (xvar_==" ") {
-			xvar=J(rows(y),1,1)	
-		}
-		else xvar=st_data(.,xvar_,touse),J(rows(y),1,1)			
-		//xvar = st_data(.,xvar_, touse), J(rows(y),1,1)
-		tmt  = st_data(.,tmt_, touse)
-		trt  = st_data(.,trt_, touse)
-		psc  = logistic(st_data(.,pxb_, touse))
-		wgt  = st_data(.,wgt_, touse)
-		psv  = st_matrix(psv_)
-		real scalar nn
-		nn = rows(y)
-	
-	real matrix w10, w11, w00, w01
-    w10 				= wgt :* trt :* (1 :- tmt)
-    w11 				= wgt :* trt :* tmt
-    w00 				= wgt :* psc :* (1 :- trt) :* (1 :- tmt):/(1 :- psc)
-    w01 				= wgt :* psc :* (1 :- trt) :* tmt:/(1 :- psc)
-	
+    y    = st_data(.,y_, touse)
+    // verify xvar
+    if (xvar_==" ") {
+        xvar=J(rows(y),1,1)	
+    }
+    else xvar=st_data(.,xvar_,touse),J(rows(y),1,1)			
+    //xvar = st_data(.,xvar_, touse), J(rows(y),1,1)
+    tmt  = st_data(.,tmt_, touse)
+    trt  = st_data(.,trt_, touse)
+    psc  = logistic(st_data(.,pxb_, touse))
+    wgt  = st_data(.,wgt_, touse)
+    trimflag = st_data(.,trimflag_, touse)  // Load trimflag here!
+    psv  = st_matrix(psv_)
+    real scalar nn
+    nn = rows(y)
+
+    real matrix w10, w11, w00, w01
+    w10 = wgt :* trt :* (1 :- tmt)
+    w11 = wgt :* trt :* tmt
+    w00 = wgt :* psc :* (1 :- trt) :* (1 :- tmt):/(1 :- psc) :* trimflag  // Apply trimflag!
+    w01 = wgt :* psc :* (1 :- trt) :* tmt:/(1 :- psc) :* trimflag  // Apply trimflag!
+    
 	real matrix pi_hat, lambda_hat, one_lambda_hat
 	pi_hat       		= mean(wgt :* trt)
     lambda_hat 			= mean(wgt :* tmt)
@@ -2186,50 +2210,51 @@ mata
  }
  
 /// DRDID_RC
- void drdid_rc(string scalar y_, yy_, xvar_ , tmt_, trt_, psv_, pxb_, wgt_ ,  touse, rif){
+void drdid_rc(string scalar y_, yy_, xvar_ , tmt_, trt_, psv_, pxb_, wgt_ ,  touse, rif, trimflag_){
     // main Loading variables
     real matrix y,  y00, y01, y10, y11,
-				xvar, tmt, trt, psv, psc, wgt
-				
-	y    = st_data(.,y_, touse)
-	yy   = st_data(.,yy_, touse)
-	y00  = yy[,1]
-	y01  = yy[,2]
-	y10  = yy[,3]
-	y11  = yy[,4]
-		// verify xvar
-		if (xvar_==" ") {
-			xvar=J(rows(y),1,1)	
-		}
-		else {
-		    xvar=st_data(.,xvar_,touse),J(rows(y),1,1)	
-		}
-		
-	//xvar = st_data(.,xvar_, touse), J(rows(y),1,1)
-	tmt  = st_data(.,tmt_, touse)
-	trt  = st_data(.,trt_, touse)
-	psc  = logistic(st_data(.,pxb_, touse))
-	wgt  = st_data(.,wgt_, touse)
-	psv  = st_matrix(psv_)
-	
-	real matrix y0
-	real scalar nn
-	y0   = y00:*(-tmt:+1) + y01:*tmt
-	nn = rows(y)
-	
-	real matrix w10, w11, w00, w01, w1
+                xvar, tmt, trt, psv, psc, wgt, trimflag  // Add trimflag here!
+                
+    y    = st_data(.,y_, touse)
+    yy   = st_data(.,yy_, touse)
+    y00  = yy[,1]
+    y01  = yy[,2]
+    y10  = yy[,3]
+    y11  = yy[,4]
+    // verify xvar
+    if (xvar_==" ") {
+        xvar=J(rows(y),1,1)	
+    }
+    else {
+        xvar=st_data(.,xvar_,touse),J(rows(y),1,1)	
+    }
+    
+    //xvar = st_data(.,xvar_, touse), J(rows(y),1,1)
+    tmt  = st_data(.,tmt_, touse)
+    trt  = st_data(.,trt_, touse)
+    psc  = logistic(st_data(.,pxb_, touse))
+    wgt  = st_data(.,wgt_, touse)
+    trimflag = st_data(.,trimflag_, touse)  // Load trimflag here!
+    psv  = st_matrix(psv_)
+    
+    real matrix y0
+    real scalar nn
+    y0   = y00:*(-tmt:+1) + y01:*tmt
+    nn = rows(y)
+    
+    real matrix w10, w11, w00, w01, w1
     w10 = wgt :* trt :* (1 :- tmt)
     w11 = wgt :* trt :* tmt
-    w00 = wgt :* psc :* (1 :- trt) :* (1 :- tmt):/(1 :- psc)
-    w01 = wgt :* psc :* (1 :- trt) :* tmt:/(1 :- psc)
-	w1  = wgt :* trt
-	
-	w00 = w00:/mean(w00 )
-	w01 = w01:/mean(w01 )
-	w10 = w10:/mean(w10 )
-	w11 = w11:/mean(w11 )
-	w1 = w1:/mean(w1 )
-	
+    w00 = wgt :* psc :* (1 :- trt) :* (1 :- tmt):/(1 :- psc) :* trimflag  // Apply trimflag!
+    w01 = wgt :* psc :* (1 :- trt) :* tmt:/(1 :- psc) :* trimflag  // Apply trimflag!
+    w1  = wgt :* trt
+    
+    w00 = w00:/mean(w00 )
+    w01 = w01:/mean(w01 )
+    w10 = w10:/mean(w10 )
+    w11 = w11:/mean(w11 )
+    w1 = w1:/mean(w1 )
+    	
 	real matrix att_treat_pre, att_treat_post,  att_cont_pre, att_cont_post,
 				att_trt_post, att_trtt1_post, att_trt_pre, att_trtt0_pre,
 				eta_treat_pre, eta_treat_post,  eta_cont_pre, eta_cont_post,
@@ -2347,46 +2372,47 @@ mata
  }
 
 /// DRDID_RC1
-void drdid_rc1(string scalar y_, yy_, xvar_ , tmt_, trt_, psv_, pxb_, wgt_ ,  touse, rif){
+void drdid_rc1(string scalar y_, yy_, xvar_ , tmt_, trt_, psv_, pxb_, wgt_ ,  touse, rif, trimflag_){
     // main Loading variables
     real matrix y,  y00, y01, y10, y11,
-				xvar, tmt, trt, psv, psc, wgt
-				
-	y    = st_data(.,y_, touse)
-	yy   = st_data(.,yy_, touse)
-	y00  = yy[,1]
-	y01  = yy[,2]
-	y10  = yy[,3]
-	y11  = yy[,4]
-		// verify xvar
-		if (xvar_==" ") {
-			xvar=J(rows(y),1,1)	
-		}
-		else xvar=st_data(.,xvar_,touse),J(rows(y),1,1)		
-	//xvar = st_data(.,xvar_, touse), J(rows(y),1,1)
-	
-	tmt  = st_data(.,tmt_, touse)
-	trt  = st_data(.,trt_, touse)
-	psc  = logistic(st_data(.,pxb_, touse))
-	wgt  = st_data(.,wgt_, touse)
-	psv  = st_matrix(psv_)
-	
-	real matrix y0
-	real scalar nn
-	y0   = y00:*(-tmt:+1) + y01:*tmt
-	nn = rows(y)
+                xvar, tmt, trt, psv, psc, wgt, trimflag  // Add trimflag here!
+                
+    y    = st_data(.,y_, touse)
+    yy   = st_data(.,yy_, touse)
+    y00  = yy[,1]
+    y01  = yy[,2]
+    y10  = yy[,3]
+    y11  = yy[,4]
+    // verify xvar
+    if (xvar_==" ") {
+        xvar=J(rows(y),1,1)	
+    }
+    else xvar=st_data(.,xvar_,touse),J(rows(y),1,1)		
+    //xvar = st_data(.,xvar_, touse), J(rows(y),1,1)
     
-	real matrix w10, w11, w00, w01
-    w10 		= wgt :* trt :* (1 :- tmt)
-    w11 		= wgt :* trt :* tmt
-    w00 		= wgt :* psc :* (1 :- trt) :* (1 :- tmt):/(1 :- psc)
-    w01 		= wgt :* psc :* (1 :- trt) :* tmt:/(1 :- psc)
-	
-	w00 = w00:/mean(w00 )
-	w01 = w01:/mean(w01 )
-	w10 = w10:/mean(w10 )
-	w11 = w11:/mean(w11 )
-	
+    tmt  = st_data(.,tmt_, touse)
+    trt  = st_data(.,trt_, touse)
+    psc  = logistic(st_data(.,pxb_, touse))
+    wgt  = st_data(.,wgt_, touse)
+    trimflag = st_data(.,trimflag_, touse)  // Load trimflag here!
+    psv  = st_matrix(psv_)
+    
+    real matrix y0
+    real scalar nn
+    y0   = y00:*(-tmt:+1) + y01:*tmt
+    nn = rows(y)
+    
+    real matrix w10, w11, w00, w01
+    w10 = wgt :* trt :* (1 :- tmt)
+    w11 = wgt :* trt :* tmt
+    w00 = wgt :* psc :* (1 :- trt) :* (1 :- tmt):/(1 :- psc) :* trimflag  // Apply trimflag!
+    w01 = wgt :* psc :* (1 :- trt) :* tmt:/(1 :- psc) :* trimflag  // Apply trimflag!
+    
+    w00 = w00:/mean(w00 )
+    w01 = w01:/mean(w01 )
+    w10 = w10:/mean(w10 )
+    w11 = w11:/mean(w11 )
+    		
 	real matrix eta_trt_pre, eta_trt_post, eta_cont_pre, eta_cont_post,
 				att_trt_pre, att_trt_post, att_cont_pre, att_cont_post
 				
@@ -2448,47 +2474,48 @@ void drdid_rc1(string scalar y_, yy_, xvar_ , tmt_, trt_, psv_, pxb_, wgt_ ,  to
 }
  
 /// drdid_imp_rc
-void drdid_imp_rc(string scalar y_, yy_, xvar_ , tmt_, trt_, psv_, pxb_, wgt_ ,  touse, rif){
+void drdid_imp_rc(string scalar y_, yy_, xvar_ , tmt_, trt_, psv_, pxb_, wgt_ ,  touse, rif, trimflag_){
     // main Loading variables
     real matrix y,  y00, y01, y10, y11,
-				xvar, tmt, trt, psv, psc, wgt
-				
-	y    = st_data(.,y_, touse)
-	yy   = st_data(.,yy_, touse)
-	y00  = yy[,1]
-	y01  = yy[,2]
-	y10  = yy[,3]
-	y11  = yy[,4]
-		// verify xvar
-		if (xvar_==" ") {
-			xvar=J(rows(y),1,1)	
-		}
-		else xvar=st_data(.,xvar_,touse),J(rows(y),1,1)		
-//	xvar = st_data(.,xvar_, touse), J(rows(y),1,1)
-	tmt  = st_data(.,tmt_, touse)
-	trt  = st_data(.,trt_, touse)
-	psc  = logistic(st_data(.,pxb_, touse))
-	wgt  = st_data(.,wgt_, touse)
-	psv  = st_matrix(psv_)
-	
-	real matrix y0
-	real scalar nn
-	y0   = y00:*(-tmt:+1) + y01:*tmt
-	nn = rows(y)
+                xvar, tmt, trt, psv, psc, wgt, trimflag  // Add trimflag here!
+                
+    y    = st_data(.,y_, touse)
+    yy   = st_data(.,yy_, touse)
+    y00  = yy[,1]
+    y01  = yy[,2]
+    y10  = yy[,3]
+    y11  = yy[,4]
+    // verify xvar
+    if (xvar_==" ") {
+        xvar=J(rows(y),1,1)	
+    }
+    else xvar=st_data(.,xvar_,touse),J(rows(y),1,1)		
+//  xvar = st_data(.,xvar_, touse), J(rows(y),1,1)
+    tmt  = st_data(.,tmt_, touse)
+    trt  = st_data(.,trt_, touse)
+    psc  = logistic(st_data(.,pxb_, touse))
+    wgt  = st_data(.,wgt_, touse)
+    trimflag = st_data(.,trimflag_, touse)  // Load trimflag here!
+    psv  = st_matrix(psv_)
+    
+    real matrix y0
+    real scalar nn
+    y0   = y00:*(-tmt:+1) + y01:*tmt
+    nn = rows(y)
 
-	real matrix w10, w11, w00, w01, w1
+    real matrix w10, w11, w00, w01, w1
     w10 = wgt :* trt :* (1 :- tmt)
     w11 = wgt :* trt :* tmt
-    w00 = wgt :* psc :* (1 :- trt) :* (1 :- tmt):/(1 :-  psc)
-    w01 = wgt :* psc :* (1 :- trt) :* tmt:/(1 :- psc)
+    w00 = wgt :* psc :* (1 :- trt) :* (1 :- tmt):/(1 :-  psc) :* trimflag  // Apply trimflag!
+    w01 = wgt :* psc :* (1 :- trt) :* tmt:/(1 :- psc) :* trimflag  // Apply trimflag!
     w1  = wgt :* trt
 
-	w00 = w00:/mean(w00 )
-	w01 = w01:/mean(w01 )
-	w10 = w10:/mean(w10 )
-	w11 = w11:/mean(w11 )
-	w1 = w1:/mean(w1 )
-	
+    w00 = w00:/mean(w00 )
+    w01 = w01:/mean(w01 )
+    w10 = w10:/mean(w10 )
+    w11 = w11:/mean(w11 )
+    w1 = w1:/mean(w1 )
+    	
 	real matrix att_treat_pre, att_treat_post, att_cont_pre, att_cont_post, att_trt_post, att_trtt1_post,
 				att_trt_pre, att_trtt0_pre
 	
@@ -2538,42 +2565,43 @@ void drdid_imp_rc(string scalar y_, yy_, xvar_ , tmt_, trt_, psv_, pxb_, wgt_ , 
 }
 
 /// drdid_imp_rc1
-void drdid_imp_rc1(string scalar y_, yy_, xvar_ , tmt_, trt_, psv_, pxb_, wgt_ ,  touse, rif){
+void drdid_imp_rc1(string scalar y_, yy_, xvar_ , tmt_, trt_, psv_, pxb_, wgt_ ,  touse, rif, trimflag_){
     // main Loading variables
     real matrix y,  y00, y01, y10, y11,
-				xvar, tmt, trt, psv, psc, wgt
-	y    = st_data(.,y_, touse)
-	yy   = st_data(.,yy_, touse)
-	y00  = yy[,1]
-	y01  = yy[,2]
-	y10  = yy[,3]
-	y11  = yy[,4]
-		// verify xvar
-		if (xvar_==" ") {
-			xvar=J(rows(y),1,1)	
-		}
-		else xvar=st_data(.,xvar_,touse),J(rows(y),1,1)		
-	//xvar = st_data(.,xvar_, touse), J(rows(y),1,1)
-	tmt  = st_data(.,tmt_, touse)
-	trt  = st_data(.,trt_, touse)
-	psc  = logistic(st_data(.,pxb_, touse))
-	wgt  = st_data(.,wgt_, touse)
-	psv  = st_matrix(psv_)
-	
-	real matrix y0
-	real scalar nn
-	y0   = y00:*(-tmt:+1) + y01:*tmt
-	nn = rows(y)
-	
-	real matrix w10, w11, w00, w01, 
-				eta_treat_pre, eta_treat_post, eta_cont_pre, eta_cont_post,
-				att_treat_pre, att_treat_post, att_cont_pre, att_cont_post
-				
-    w10 			= wgt :* trt :* (1 :- tmt)
-    w11 			= wgt :* trt :* tmt
-    w00 			= wgt :* psc:* (1 :- trt) :* (1 :- tmt):/(1 :-  psc)
-	w01 			= wgt :* psc:* (1 :- trt) :* tmt:/(1 :- psc)
+                xvar, tmt, trt, psv, psc, wgt, trimflag  // Add trimflag here!
+    y    = st_data(.,y_, touse)
+    yy   = st_data(.,yy_, touse)
+    y00  = yy[,1]
+    y01  = yy[,2]
+    y10  = yy[,3]
+    y11  = yy[,4]
+    // verify xvar
+    if (xvar_==" ") {
+        xvar=J(rows(y),1,1)	
+    }
+    else xvar=st_data(.,xvar_,touse),J(rows(y),1,1)		
+    //xvar = st_data(.,xvar_, touse), J(rows(y),1,1)
+    tmt  = st_data(.,tmt_, touse)
+    trt  = st_data(.,trt_, touse)
+    psc  = logistic(st_data(.,pxb_, touse))
+    wgt  = st_data(.,wgt_, touse)
+    trimflag = st_data(.,trimflag_, touse)  // Load trimflag here!
+    psv  = st_matrix(psv_)
     
+    real matrix y0
+    real scalar nn
+    y0   = y00:*(-tmt:+1) + y01:*tmt
+    nn = rows(y)
+    
+    real matrix w10, w11, w00, w01, 
+                eta_treat_pre, eta_treat_post, eta_cont_pre, eta_cont_post,
+                att_treat_pre, att_treat_post, att_cont_pre, att_cont_post
+                
+    w10 = wgt :* trt :* (1 :- tmt)
+    w11 = wgt :* trt :* tmt
+    w00 = wgt :* psc:* (1 :- trt) :* (1 :- tmt):/(1 :-  psc) :* trimflag  // Apply trimflag!
+    w01 = wgt :* psc:* (1 :- trt) :* tmt:/(1 :- psc) :* trimflag  // Apply trimflag!
+        
 	eta_treat_pre 	= w10 :* (y :- y0):/mean(w10)
     eta_treat_post 	= w11 :* (y :- y0):/mean(w11)
     eta_cont_pre 	= w00 :* (y :- y0):/mean(w00)

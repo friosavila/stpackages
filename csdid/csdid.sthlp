@@ -64,6 +64,9 @@ than short-gaps. This is similar to base universal. (inverse sign from long){p_e
 {synopt:{opt asinr}}In R's version (DID), pre-treatment ATTGT's using not-yet-treated groups are estimated using all cohorts not-yet treated. 
 In Stata, the default is to use all cohorts that were not treated at time G. Both options are valid, but if one wants to replicate R results, -asinr- should be used.{p_end}
 
+{synopt:{opt pscoretrim(#)}}This option is used to trim control observations with extream propensity score values. Default is 1. Note: R default is 0.995{p_end}
+
+
 {synoptline}
 {syntab:{bf: Estimation Method} }
 
