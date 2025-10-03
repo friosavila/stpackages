@@ -70,7 +70,7 @@ inverse probability weighting and ordinary least squares{p_end}
 but not locally efficient repeated crossection estimtors. Not available when using panel data. 
 
 {synopt:{bf:all}}Request the computation of all Estimators available for the data structure.{p_end}
-{synopt:}This option is only for robusness purposes. One cannot use them to make test across estimations{p_end}
+{synopt:}This option is only for robustness purposes. One cannot use them to make test across estimations{p_end}
 {synoptline}
 
 {syntab:{bf: Standard Error Options}}
@@ -82,11 +82,11 @@ but not locally efficient repeated crossection estimtors. Not available when usi
 {synoptline}
 
 {synopt:wboot}Request estimation of Standard errors using a multiplicative WildBootstrap procedure.
-The default uses 999 repetitions using mammen approach{p_end}
+The default uses 999 repetitions using Mammen approach{p_end}
 
 {synopt:wboot(options)}Request estimation of Standard errors using a multiplicative WildBootstrap procedure.
 allowing to change default options. {p_end}
-{synopt:  reps(#)}Specifies the number of repetitions to be used for the Estimaton of the WBoot SE. Default is 999 {p_end}
+{synopt:  reps(#)}Specifies the number of repetitions to be used for the estimation of the WBoot SE. Default is 999 {p_end}
 {synopt:  wtype(type)}Specifies the type of Wildbootstrap procedure. The default is "mammen", but "rademacher" is also 
 avilable.{p_end}
 
@@ -110,12 +110,12 @@ When using cluster, one is effectively requesting a two-way cluster estimation.{
 {synopthdr}
 {synoptline}
 
-{synopt:{opt pscoretrim(#)}}This option is used to trim control observations with extream propensity score values. Default is 1. Note: R default is 0.995{p_end}
+{synopt:{opt pscoretrim(#)}}This option is used to trim control observations with extreme propensity score values. Default is 0.995, like in R. This is a new option, so please be aware of legacy issues.{p_end}
 
-{synopt:stub(str)}Request the command to save a variable in the dataset under the neame {it:stub}att. This 
+{synopt:stub(str)}Request the command to save a variable in the dataset under the name {it:stub}att. This 
 variable contains the Recentered Influence function associated with the DID ATT. {p_end}
 
-{synopt:}This option is not available when estination methods {it:ipwra} or {it:all} are requested. {p_end}
+{synopt:}This option is not available when estimation methods {it:ipwra} or {it:all} are requested. {p_end}
 
 {synopt:replace}If the variable {it:stub}att already exists. This option requests replacing it.{p_end}
 
@@ -130,7 +130,7 @@ variable contains the Recentered Influence function associated with the DID ATT.
  for the average treatment effect proposed by Sant'Anna and Zhao (2020). It also implements the IPW and Outcome
  regression estimators for the DiD ATT.{p_end}
  
-{pstd}{cmd:drdid} Doubly robust estimators combines inverse probability weighting and 
+{pstd}{cmd:drdid} Doubly robust estimators combine inverse probability weighting and 
  outcome regression estimators to form estimators with more attractive statistical properties.
  Namely, it the estimator is appropriate if either the propensity of treatment, or the outcome regression
  is correctly specified.  {p_end}
@@ -150,7 +150,7 @@ as stationarity assumption.
 {pstd}
 It is possible to add time varying covariates with panel data estimators, adding covariate changes as controls, in addition to the 
 pretreatment covariates. However, unless the controls are strictly exogenous (strong assumption), this may produce 
-inconsistent results, because the changes that would otherwise be capture in the ATT would be absorbed by the varying covariates. 
+inconsistent results, because the changes that would otherwise be captured in the ATT would be absorbed by the varying covariates. 
 
 {marker Postestimation}{...}
 {title:Postestimation}
@@ -159,7 +159,7 @@ inconsistent results, because the changes that would otherwise be capture in the
 
 {phang2}{cmd: drdid_display}, bmatrix(name) vmatrix(name) {p_end}
 
-{pstd}For all estimation metods except -ipwra-, it is also possible request the generation
+{pstd}For all estimation methods except -ipwra-, it is also possible request the generation
 of the IPW weights, or the propensity score using the following command:{p_end}
 
 {phang2}{cmd: drdid_predict} {it:newvarname}, [weight pscore] {p_end}
@@ -216,7 +216,7 @@ Annandale-on-Hudson, NY{break}
 friosavi@levy.org
 
 {pstd}Pedro H. C. Sant'Anna {break}
-Vanderbilt University{p_end}
+Emory University{p_end}
 
 {pstd}Asjad Naqvi {break}
 International Institute for Applied Systems Analysis
@@ -241,16 +241,13 @@ Pedro H. C. Sant'Anna, and Asjad Naqvi 2021.
 {marker aknowledgement}{...}
 {title:Aknowledgement}
 
-{pstd}This command was built using the DRDID command from R as benchmark, originally written by Pedro Sant'Anna. 
-Many thanks to Pedro for helping understanding the inner workings on the estimator.{p_end}
+{pstd}This command was built using the DRDID command from R as a benchmark, originally written by Pedro Sant'Anna. {p_end}
 
 {pstd}Thanks to Asjad for starting this small project challenge.{p_end}
 
 {pstd}Further thanks to Enrique, who helped with the gmm estimator and displaying set up{p_end}
 
-{pstd}Also thank you to Miklos Koren, for helping setting up the original helpfile and github repository {p_end}
-
-{pstd}Finally, or gain, Thanks to Scott. Who manage to get a hold of DRDID now that my time has been extreamly tight{p_end}
+{pstd}Also thank you to Miklos Koren, for helping set up the original helpfile and GitHub repository {p_end}
 
 {pstd}If you use this package, please cite:{p_end}
 

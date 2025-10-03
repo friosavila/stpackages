@@ -1,5 +1,6 @@
  
 * Next step Integrate all into csdid.mata <- so Do not need to play with many files
+*! v1.81  by pedro Sant'Anna. Compatibility checks
 *! v1.8  by FRA. Trim
 * v1.72  by FRA. Drops always treated
 * v1.71  by FRA. adds weights back
@@ -144,8 +145,8 @@ program csdid, sortpreserve eclass
 		syntax [anything(everything)] [iw aw pw], [* version]
 
 		if  "`version'"!="" {
-			display "version: 1.8"
-			addr scalar version = 1.8
+			display "version: 1.81"
+			addr scalar version = 1.81
 			exit
 		}
 		
@@ -155,11 +156,12 @@ program csdid, sortpreserve eclass
 			display in red "Please install ssc install drdid"
 			*exit 101
 		}
-		if _rc==0 {
-			if r(version)<1.8 			display in red "Program DRDID is outdated. Please update" as text
-			*exit 101
+		else {
+		if r(version)<1.91 {
+			display in red "Program DRDID is outdated. Please update" as text
+			exit 101
+			}
 		}
-
 
 		////
 		
@@ -943,18 +945,18 @@ program csdid_r, sortpreserve eclass
 end 
 
 /// This can be used for aggregation. Creates the matrixes we need.
-
-
-program define easter_egg
-                display "{p}This is just for fun. Its my attempt to an Easter Egg within my program. {p_end}" _n /// 
-                "{p} Also, if you are reading this, it means you are lucky," ///
-                "only 0.1% of people using this program will see this message. {p_end}" _n ///
-                "{p} This program was inspired by challenge post by Scott Cunningham. " ///
-                "It is the second part of Pedro, Brantly and Juns's contribution to the DID world{p_end} " _n  ///
-                "{p} Remember One Difference is good, and 2x2 DiD is twice as good!. " ///
-				" Just dont confuse it with DnD (Dungeons and Dragons){p_end} "
-end
-
+//
+//
+// program define easter_egg
+//                 display "{p}This is just for fun. Its my attempt to an Easter Egg within my program. {p_end}" _n /// 
+//                 "{p} Also, if you are reading this, it means you are lucky," ///
+//                 "only 0.1% of people using this program will see this message. {p_end}" _n ///
+//                 "{p} This program was inspired by challenge post by Scott Cunningham. " ///
+//                 "It is the second part of Pedro, Brantly and Juns's contribution to the DID world{p_end} " _n  ///
+//                 "{p} Remember One Difference is good, and 2x2 DiD is twice as good!. " ///
+// 				" Just dont confuse it with DnD (Dungeons and Dragons){p_end} "
+// end
+//
 
 mata:
  vector event_list(real matrix glvl, tlvl,window){

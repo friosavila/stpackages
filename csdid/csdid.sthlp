@@ -64,7 +64,7 @@ than short-gaps. This is similar to base universal. (inverse sign from long){p_e
 {synopt:{opt asinr}}In R's version (DID), pre-treatment ATTGT's using not-yet-treated groups are estimated using all cohorts not-yet treated. 
 In Stata, the default is to use all cohorts that were not treated at time G. Both options are valid, but if one wants to replicate R results, -asinr- should be used.{p_end}
 
-{synopt:{opt pscoretrim(#)}}This option is used to trim control observations with extream propensity score values. Default is 1. Note: R default is 0.995{p_end}
+{synopt:{opt pscoretrim(#)}}This option is used to trim control observations with extreme propensity score values. Default is 0.995, as in R. This is a new option so be aware.{p_end}
 
 
 {synoptline}
@@ -80,7 +80,7 @@ In all cases, the earliest-period covariates are used for the estimation of the 
 {p_end}
 
 {phang}
-To specify a particular syntax, one should use the option {cmd: method({it:method})} using one of the following key words:
+To specify a particular syntax, one should use the option {cmd: method({it:method})} using one of the following keywords:
 {p_end}
 
 
@@ -99,7 +99,7 @@ method is used as default, because it provides the same point estimates and stan
 
 {synopt:ipw}Abadie (2005) inverse probability weighting DiD estimator. May not perform well with unbalanced panel data{p_end}
 
-{synopt:rc1}In combination with the methods {cmd drimp} and {cmd dripw}, this option request the doubly robust
+{synopt:rc1}In combination with the methods {cmd drimp} and {cmd dripw}, this option requests the doubly robust
 but not locally efficient repeated crossection estimators. Not available when using panel data. 
 
 
@@ -320,7 +320,7 @@ Annandale-on-Hudson, NY{break}
 friosavi@levy.org
 
 {pstd}Pedro H. C. Sant'Anna {break}
-Vanderbilt University{p_end}
+Emory University{p_end}
 
 {pstd}Brantly Callaway {break}
 University of Georgia{p_end}
@@ -350,10 +350,10 @@ and Brantly Callaway, 2021.
 {marker aknowledgement}{...}
 {title:Aknowledgement}
 
-{pstd}This command was built using the DID command from R as benchmark, originally written by Pedro Sant'Anna and Brantly Callaway. 
-Many thanks to Pedro and Brantly Callaway for helping to understand the inner workings of the estimator, .{p_end}
+{pstd}This command was built using the DID command from R as a benchmark, originally written by Pedro Sant'Anna and Brantly Callaway. 
+{p_end}
 
-{pstd}Thanks to Enrique, who helped with the display set up{p_end}
+{pstd}Thanks to Enrique, who helped with the display setup {p_end}
 
 {pstd}If you use this package, please cite:{p_end}
 
