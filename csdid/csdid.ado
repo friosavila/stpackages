@@ -1,5 +1,6 @@
  
 * Next step Integrate all into csdid.mata <- so Do not need to play with many files
+*! v1.82  by FRA. Weights Change.
 *! v1.81  by pedro Sant'Anna. Compatibility checks
 *! v1.8  by FRA. Trim
 * v1.72  by FRA. Drops always treated
@@ -174,7 +175,7 @@ program csdid, sortpreserve eclass
                 }
                 exit
         }
-		if runiform()<.001 {
+		if runiform()<.00001 {
 				easter_egg
 		}
 		
@@ -759,6 +760,7 @@ program csdid_r, sortpreserve eclass
 			   	qui:gen double ivar=_n
 				label var ivar "indicator"
 				local ivar ivar
+				local rcs = "rcs"
 			}
 			
 			local svlist `time'  `gvar' `vlabrif' `wgtt' `cluster'
@@ -773,10 +775,14 @@ program csdid_r, sortpreserve eclass
 					local kc=`kc'+1
 					local rvl:word `kc' of `vlabrif'
 					
-					if "`rvl'"!="_blank_" {
-											
+					if "`rvl'"!="_blank_" {						
 						qui:gen double w`i'_`j'=0
-						qui:replace w`i'_`j'=1 if (`rvl'!=.) & (`gvar'==`i') 
+						if "`rcs'"=="" {							
+							qui:replace w`i'_`j'=1 if (`rvl'!=.) & (`gvar'==`i') 
+						}
+						else {
+							qui:replace w`i'_`j'=1 if (`rvl'!=.) & (`gvar'==`i') & (`time'==`j')
+						}
 						local lvl_gvar `lvl_gvar' w`i'_`j'
 					
 					}
@@ -947,16 +953,16 @@ end
 /// This can be used for aggregation. Creates the matrixes we need.
 //
 //
-// program define easter_egg
-//                 display "{p}This is just for fun. Its my attempt to an Easter Egg within my program. {p_end}" _n /// 
-//                 "{p} Also, if you are reading this, it means you are lucky," ///
-//                 "only 0.1% of people using this program will see this message. {p_end}" _n ///
-//                 "{p} This program was inspired by challenge post by Scott Cunningham. " ///
-//                 "It is the second part of Pedro, Brantly and Juns's contribution to the DID world{p_end} " _n  ///
-//                 "{p} Remember One Difference is good, and 2x2 DiD is twice as good!. " ///
-// 				" Just dont confuse it with DnD (Dungeons and Dragons){p_end} "
-// end
-//
+program define easter_egg
+                 display "{p}This is just for fun. Its my attempt to an Easter Egg within my program. {p_end}" _n /// 
+                 "{p} Also, if you are reading this, it means you are lucky," ///
+                 "only 0.1% of people using this program will see this message. {p_end}" _n ///
+                 "{p} This program was inspired by challenge post by Scott Cunningham. " ///
+                 "It is the second part of Pedro, Brantly and Juns's contribution to the DID world{p_end} " _n  ///
+                 "{p} Remember One Difference is good, and 2x2 DiD is twice as good!. " ///
+ 				" Just dont confuse it with DnD (Dungeons and Dragons){p_end} "
+ end
+
 
 mata:
  vector event_list(real matrix glvl, tlvl,window){
